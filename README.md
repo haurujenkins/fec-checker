@@ -31,6 +31,8 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 `tests/fixtures/editeurs/` : un même exercice fictif exporté selon les variantes de format courantes des logiciels comptables (Sage 100, EBP, Pennylane, Cegid Quadra, Sage Génération Expert / Coala, fichier repassé par Excel, UTF-8 avec BOM sans ValidDate). Ce ne sont pas de vrais exports d'éditeurs : aucun n'en publie. Ils reproduisent les choix de format typiques (séparateur, encodage, comptes à 8 caractères, tiers dans CompteNum, numérotation par journal, à-nouveaux datés au jour de saisie). Régénérer avec `python3 tests/gen_editeurs.py`.
 
+`tests/fixtures/variantes/` : un FEC minimal par anomalie (lettrage, 3 décimales, codes courts, tiers dans CompteNum, date inexistante, type des journaux…), chacun importé sur Odoo 20 ; résultat en commentaire dans `tests/gen_variantes.py`.
+
 ```bash
 npm i xlsx@0.18.5
 node tests/run.js tests/fixtures/dc.txt

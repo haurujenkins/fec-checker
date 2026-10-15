@@ -1,0 +1,4 @@
+JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
+OD	Journal OD	1	20250105	606400	F			P	20250105	x	10,004	0,00			20250131		
+OD	Journal OD	1	20250105	606400	F			P	20250105	x	10,004	0,00			20250131		
+OD	Journal OD	1	20250105	512000	B			P	20250105	x	0,00	20,008			20250131		

@@ -182,3 +182,22 @@ Base nettoyée (677 comptes, 28 inactifs, 8 journaux). 8 000 lignes environ, 202
 - Cause : sans EcritureNum, Odoo regroupe par journal + PieceRef ; simulation : 2 500 pièces dont 1 000 environ déséquilibrées ; la pièce citée par Odoo (banque +X / autre journal −X) est retrouvée exactement.
 - Règle ajoutée (v10) : simulation du regroupement par PieceRef quand EcritureNum est vide → « Pièces déséquilibrées une fois regroupées par PieceRef » (Bloquant Odoo).
 - Remède : seul un FEC avec EcritureNum renseigné est importable ; retirer les guillemets ne suffit pas.
+
+## FEC par profil de logiciel et variantes (base de test vidée, 15/10 16:00)
+Fichiers synthétiques uniquement (`tests/fixtures/editeurs`, `tests/fixtures/variantes`). Import par l'assistant (profils) ou par `process_chunk` + `import_summary_action` (variantes), puis comptabilisation et balance par compte.
+- Sage 100 (`|`, comptes 8 car.), EBP, Pennylane, UTF-8 BOM sans ValidDate : 133 écritures, balance identique au fichier sur les 16 comptes, aucune erreur. ValidDate vide et PieceDate vide acceptées par Odoo.
+- Fichier repassé par Excel : erreur serveur `time data '01/01/2025' does not match format '%Y%m%d'`, rien d'importé.
+- Cegid Quadra (tiers en 0XXX / 9XXX dans CompteNum) : comptes créés en « Actif circulant », non lettrables, aucun partenaire ; journaux VT / AC créés en Divers.
+- Sage Génération Expert / Coala : AN importés au 14/02 ; au 31/01, banque à 896,30 au lieu de 15 146,70 et capital absent.
+- Type des journaux créés : déduit du contenu, pas du code ni du libellé. ≥ 3 écritures et environ 2/3 sur 41x → Ventes, 40x → Achats, 512/53 → Banque ; 2 écritures → Divers ; 70 % → Ventes ; 60 % → Divers.
+- Un compte 512 créé ouvre BNK2 en plus du journal de banque du FEC : deux journaux bancaires sur le même compte.
+- Lettrage : `matching_number` repris ; à la comptabilisation Odoo relettre : lettre soldée → lettrage complet ; non soldée → lettrage partiel (reste dû) ; lettre sur une seule ligne → rien.
+- Montants à 3 décimales : arrondis au centime (10,005 → 10,01) ; écriture déséquilibrée après arrondi → « The entry is not balanced ».
+- Codes courts : 6064 rattaché à 606400 existant ; 5120 créé tel quel (pas de 512000).
+- 401DUPONT : compte Fournisseurs lettrable créé, sans partenaire.
+- Même CompAuxNum, libellés différents : premier libellé gardé. CompAuxLib vide : partenaire nommé avec le code. Même JournalCode, libellés différents : dernier libellé gardé.
+- Date 20250230 : erreur serveur « day 30 must be in range 1..28 for month 2 ».
+- Compte à créer sans CompteLib : « Champ requis manquant 'Nom du compte' ».
+- Débit / crédit vides : lus comme 0 ; espaces autour des montants : retirés.
+- Règles ajoutées à la page : type prévu des journaux créés et alerte si différent du libellé ; tiers dans CompteNum (0/9 et 401XXX/411XXX) ; codes courts créés tels quels ; compte à créer sans libellé ; montants à plus de 2 décimales (arrondi exact au demi-centime supérieur) ; date inexistante ; lettre isolée et lettrage non soldé ; descriptions « vérifié » pour ValidDate / PieceDate vides, libellés variables.
+- Base remise à l'état d'origine : 0 écriture, 677 comptes dont 28 archivés, 8 journaux, 12 partenaires, module désinstallé.

@@ -1,0 +1,3 @@
+JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
+BQ	Journal BQ	1	20250120	512000	Banque			F1	20250120	Regl	100,00	0,00			20250131		
+BQ	Journal BQ	1	20250120	411000	Clients	C1	Client Un	F1	20250120	Regl	0,00	100,00	AC	20250120	20250131		

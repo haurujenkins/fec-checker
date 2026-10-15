@@ -1,109 +1,109 @@
 JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
 AC	Achats	1	01/01/2025	606400	Fournitures administratives			BUR01833	01/01/2025	Facture Bureau Vallée	1199.25	0.00			20250131		
 AC	Achats	1	01/01/2025	445660	TVA déductible sur ABS			BUR01833	01/01/2025	Facture Bureau Vallée	239.85	0.00			20250131		
-AC	Achats	1	01/01/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR01833	01/01/2025	Facture Bureau Vallée	0.00	1439.10			20250131		
+AC	Achats	1	01/01/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR01833	01/01/2025	Facture Bureau Vallée	0.00	1439.10	A	20251231	20250131		
 AN	A nouveaux	2	01/01/2025	101000	Capital			AN2025	01/01/2025	Report à nouveau	0.00	10000.00			20250131		
 AN	A nouveaux	2	01/01/2025	512000	Banque			AN2025	01/01/2025	Report à nouveau	14250.40	0.00			20250131		
 AN	A nouveaux	2	01/01/2025	411000	Clients	C001	Boulangerie Dupont	AN2025	01/01/2025	Report à nouveau	1800.00	0.00			20250131		
 AN	A nouveaux	2	01/01/2025	401000	Fournisseurs	F003	Metro Cash	AN2025	01/01/2025	Report à nouveau	0.00	2350.40			20250131		
 AN	A nouveaux	2	01/01/2025	120000	Résultat de l'exercice (bénéfice)			AN2025	01/01/2025	Report à nouveau	0.00	3700.00			20250131		
-VT	Ventes	3	01/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0001	01/01/2025	Facture Boulangerie Dupont	1591.57	0.00			20250131		
+VT	Ventes	3	01/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0001	01/01/2025	Facture Boulangerie Dupont	1591.57	0.00	B	20251231	20250131		
 VT	Ventes	3	01/01/2025	706000	Prestations de services			FA2025-0001	01/01/2025	Facture Boulangerie Dupont	0.00	1326.31			20250131		
 VT	Ventes	3	01/01/2025	445710	TVA collectée			FA2025-0001	01/01/2025	Facture Boulangerie Dupont	0.00	265.26			20250131		
-VT	Ventes	4	05/01/2025	411000	Clients	C002	Martin & Fils	FA2025-0002	05/01/2025	Facture Martin & Fils	743.83	0.00			20250131		
+VT	Ventes	4	05/01/2025	411000	Clients	C002	Martin & Fils	FA2025-0002	05/01/2025	Facture Martin & Fils	743.83	0.00	C	20251231	20250131		
 VT	Ventes	4	05/01/2025	706000	Prestations de services			FA2025-0002	05/01/2025	Facture Martin & Fils	0.00	619.86			20250131		
 VT	Ventes	4	05/01/2025	445710	TVA collectée			FA2025-0002	05/01/2025	Facture Martin & Fils	0.00	123.97			20250131		
 AC	Achats	5	07/01/2025	626000	Frais postaux et télécom			ORA01716	07/01/2025	Facture Orange	526.64	0.00			20250131		
 AC	Achats	5	07/01/2025	445660	TVA déductible sur ABS			ORA01716	07/01/2025	Facture Orange	105.33	0.00			20250131		
-AC	Achats	5	07/01/2025	401000	Fournisseurs	F001	Orange	ORA01716	07/01/2025	Facture Orange	0.00	631.97			20250131		
-VT	Ventes	6	19/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0003	19/01/2025	Facture Boulangerie Dupont	2313.65	0.00			20250131		
+AC	Achats	5	07/01/2025	401000	Fournisseurs	F001	Orange	ORA01716	07/01/2025	Facture Orange	0.00	631.97	D	20251231	20250131		
+VT	Ventes	6	19/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0003	19/01/2025	Facture Boulangerie Dupont	2313.65	0.00	E	20251231	20250131		
 VT	Ventes	6	19/01/2025	706000	Prestations de services			FA2025-0003	19/01/2025	Facture Boulangerie Dupont	0.00	1928.04			20250131		
 VT	Ventes	6	19/01/2025	445710	TVA collectée			FA2025-0003	19/01/2025	Facture Boulangerie Dupont	0.00	385.61			20250131		
 BQ	Banque	7	21/01/2025	512000	Banque			FA2025-0001	21/01/2025	Règlement Boulangerie Dupont	1591.57	0.00			20250131		
-BQ	Banque	7	21/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0001	21/01/2025	Règlement Boulangerie Dupont	0.00	1591.57	A	20251231	20250131		
+BQ	Banque	7	21/01/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0001	21/01/2025	Règlement Boulangerie Dupont	0.00	1591.57	B	20251231	20250131		
 BQ	Banque	8	25/01/2025	512000	Banque			FA2025-0002	25/01/2025	Règlement Martin & Fils	743.83	0.00			20250131		
-BQ	Banque	8	25/01/2025	411000	Clients	C002	Martin & Fils	FA2025-0002	25/01/2025	Règlement Martin & Fils	0.00	743.83	B	20251231	20250131		
+BQ	Banque	8	25/01/2025	411000	Clients	C002	Martin & Fils	FA2025-0002	25/01/2025	Règlement Martin & Fils	0.00	743.83	C	20251231	20250131		
 OD	Opérations diverses	9	28/01/2025	641000	Rémunérations du personnel			SAL01	28/01/2025	Salaires 01/2025	2800.00	0.00			20250131		
 OD	Opérations diverses	9	28/01/2025	645100	Cotisations URSSAF			SAL01	28/01/2025	Salaires 01/2025	1150.00	0.00			20250131		
 OD	Opérations diverses	9	28/01/2025	421000	Personnel - Rémunérations dues			SAL01	28/01/2025	Salaires 01/2025	0.00	2180.00			20250131		
 OD	Opérations diverses	9	28/01/2025	431000	Sécurité sociale			SAL01	28/01/2025	Salaires 01/2025	0.00	1770.00			20250131		
-BQ	Banque	10	31/01/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR01833	31/01/2025	Paiement Bureau Vallée	1439.10	0.00	C	20251231	20250131		
+BQ	Banque	10	31/01/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR01833	31/01/2025	Paiement Bureau Vallée	1439.10	0.00	A	20251231	20250131		
 BQ	Banque	10	31/01/2025	512000	Banque			BUR01833	31/01/2025	Paiement Bureau Vallée	0.00	1439.10			20250131		
-VT	Ventes	11	01/02/2025	411000	Clients	C003	Leroy Distribution	FA2025-0005	01/02/2025	Facture Leroy Distribution	1024.67	0.00			20250228		
+VT	Ventes	11	01/02/2025	411000	Clients	C003	Leroy Distribution	FA2025-0005	01/02/2025	Facture Leroy Distribution	1024.67	0.00	F	20251231	20250228		
 VT	Ventes	11	01/02/2025	706000	Prestations de services			FA2025-0005	01/02/2025	Facture Leroy Distribution	0.00	853.89			20250228		
 VT	Ventes	11	01/02/2025	445710	TVA collectée			FA2025-0005	01/02/2025	Facture Leroy Distribution	0.00	170.78			20250228		
 AC	Achats	12	04/02/2025	606100	Fournitures non stockables			EDF02199	04/02/2025	Facture EDF	239.48	0.00			20250228		
 AC	Achats	12	04/02/2025	445660	TVA déductible sur ABS			EDF02199	04/02/2025	Facture EDF	47.90	0.00			20250228		
-AC	Achats	12	04/02/2025	401000	Fournisseurs	F002	EDF	EDF02199	04/02/2025	Facture EDF	0.00	287.38			20250228		
+AC	Achats	12	04/02/2025	401000	Fournisseurs	F002	EDF	EDF02199	04/02/2025	Facture EDF	0.00	287.38	G	20251231	20250228		
 BQ	Banque	13	06/02/2025	401000	Fournisseurs	F001	Orange	ORA01716	06/02/2025	Paiement Orange	631.97	0.00	D	20251231	20250228		
 BQ	Banque	13	06/02/2025	512000	Banque			ORA01716	06/02/2025	Paiement Orange	0.00	631.97			20250228		
 BQ	Banque	14	08/02/2025	512000	Banque			FA2025-0003	08/02/2025	Règlement Boulangerie Dupont	2313.65	0.00			20250228		
 BQ	Banque	14	08/02/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0003	08/02/2025	Règlement Boulangerie Dupont	0.00	2313.65	E	20251231	20250228		
-VT	Ventes	15	08/02/2025	411000	Clients	C004	Petit Événements	FA2025-0004	08/02/2025	Facture Petit Événements	2447.70	0.00			20250228		
+VT	Ventes	15	08/02/2025	411000	Clients	C004	Petit Événements	FA2025-0004	08/02/2025	Facture Petit Événements	2447.70	0.00	H	20251231	20250228		
 VT	Ventes	15	08/02/2025	706000	Prestations de services			FA2025-0004	08/02/2025	Facture Petit Événements	0.00	2039.75			20250228		
 VT	Ventes	15	08/02/2025	445710	TVA collectée			FA2025-0004	08/02/2025	Facture Petit Événements	0.00	407.95			20250228		
-VT	Ventes	16	11/02/2025	411000	Clients	C004	Petit Événements	FA2025-0006	11/02/2025	Facture Petit Événements	1605.83	0.00			20250228		
+VT	Ventes	16	11/02/2025	411000	Clients	C004	Petit Événements	FA2025-0006	11/02/2025	Facture Petit Événements	1605.83	0.00	I	20251231	20250228		
 VT	Ventes	16	11/02/2025	706000	Prestations de services			FA2025-0006	11/02/2025	Facture Petit Événements	0.00	1338.19			20250228		
 VT	Ventes	16	11/02/2025	445710	TVA collectée			FA2025-0006	11/02/2025	Facture Petit Événements	0.00	267.64			20250228		
 AC	Achats	17	12/02/2025	606400	Fournitures administratives			BUR02370	12/02/2025	Facture Bureau Vallée	754.77	0.00			20250228		
 AC	Achats	17	12/02/2025	445660	TVA déductible sur ABS			BUR02370	12/02/2025	Facture Bureau Vallée	150.95	0.00			20250228		
-AC	Achats	17	12/02/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR02370	12/02/2025	Facture Bureau Vallée	0.00	905.72			20250228		
+AC	Achats	17	12/02/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR02370	12/02/2025	Facture Bureau Vallée	0.00	905.72	J	20251231	20250228		
 BQ	Banque	18	21/02/2025	512000	Banque			FA2025-0005	21/02/2025	Règlement Leroy Distribution	1024.67	0.00			20250228		
 BQ	Banque	18	21/02/2025	411000	Clients	C003	Leroy Distribution	FA2025-0005	21/02/2025	Règlement Leroy Distribution	0.00	1024.67	F	20251231	20250228		
 BQ	Banque	19	28/02/2025	512000	Banque			FA2025-0004	28/02/2025	Règlement Petit Événements	2447.70	0.00			20250228		
-BQ	Banque	19	28/02/2025	411000	Clients	C004	Petit Événements	FA2025-0004	28/02/2025	Règlement Petit Événements	0.00	2447.70	G	20251231	20250228		
+BQ	Banque	19	28/02/2025	411000	Clients	C004	Petit Événements	FA2025-0004	28/02/2025	Règlement Petit Événements	0.00	2447.70	H	20251231	20250228		
 OD	Opérations diverses	20	28/02/2025	641000	Rémunérations du personnel			SAL02	28/02/2025	Salaires 02/2025	2800.00	0.00			20250228		
 OD	Opérations diverses	20	28/02/2025	645100	Cotisations URSSAF			SAL02	28/02/2025	Salaires 02/2025	1150.00	0.00			20250228		
 OD	Opérations diverses	20	28/02/2025	421000	Personnel - Rémunérations dues			SAL02	28/02/2025	Salaires 02/2025	0.00	2180.00			20250228		
 OD	Opérations diverses	20	28/02/2025	431000	Sécurité sociale			SAL02	28/02/2025	Salaires 02/2025	0.00	1770.00			20250228		
 AC	Achats	21	03/03/2025	606100	Fournitures non stockables			EDF03333	03/03/2025	Facture EDF	143.84	0.00			20250331		
 AC	Achats	21	03/03/2025	445660	TVA déductible sur ABS			EDF03333	03/03/2025	Facture EDF	28.77	0.00			20250331		
-AC	Achats	21	03/03/2025	401000	Fournisseurs	F002	EDF	EDF03333	03/03/2025	Facture EDF	0.00	172.61			20250331		
+AC	Achats	21	03/03/2025	401000	Fournisseurs	F002	EDF	EDF03333	03/03/2025	Facture EDF	0.00	172.61	K	20251231	20250331		
 BQ	Banque	22	03/03/2025	512000	Banque			FA2025-0006	03/03/2025	Règlement Petit Événements	1605.83	0.00			20250331		
-BQ	Banque	22	03/03/2025	411000	Clients	C004	Petit Événements	FA2025-0006	03/03/2025	Règlement Petit Événements	0.00	1605.83	H	20251231	20250331		
-BQ	Banque	23	06/03/2025	401000	Fournisseurs	F002	EDF	EDF02199	06/03/2025	Paiement EDF	287.38	0.00	I	20251231	20250331		
+BQ	Banque	22	03/03/2025	411000	Clients	C004	Petit Événements	FA2025-0006	03/03/2025	Règlement Petit Événements	0.00	1605.83	I	20251231	20250331		
+BQ	Banque	23	06/03/2025	401000	Fournisseurs	F002	EDF	EDF02199	06/03/2025	Paiement EDF	287.38	0.00	G	20251231	20250331		
 BQ	Banque	23	06/03/2025	512000	Banque			EDF02199	06/03/2025	Paiement EDF	0.00	287.38			20250331		
-VT	Ventes	24	13/03/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0008	13/03/2025	Facture Boulangerie Dupont	627.24	0.00			20250331		
+VT	Ventes	24	13/03/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0008	13/03/2025	Facture Boulangerie Dupont	627.24	0.00	L	20251231	20250331		
 VT	Ventes	24	13/03/2025	706000	Prestations de services			FA2025-0008	13/03/2025	Facture Boulangerie Dupont	0.00	522.70			20250331		
 VT	Ventes	24	13/03/2025	445710	TVA collectée			FA2025-0008	13/03/2025	Facture Boulangerie Dupont	0.00	104.54			20250331		
 BQ	Banque	25	14/03/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR02370	14/03/2025	Paiement Bureau Vallée	905.72	0.00	J	20251231	20250331		
 BQ	Banque	25	14/03/2025	512000	Banque			BUR02370	14/03/2025	Paiement Bureau Vallée	0.00	905.72			20250331		
-VT	Ventes	26	21/03/2025	411000	Clients	C003	Leroy Distribution	FA2025-0009	21/03/2025	Facture Leroy Distribution	3280.15	0.00			20250331		
+VT	Ventes	26	21/03/2025	411000	Clients	C003	Leroy Distribution	FA2025-0009	21/03/2025	Facture Leroy Distribution	3280.15	0.00	M	20251231	20250331		
 VT	Ventes	26	21/03/2025	706000	Prestations de services			FA2025-0009	21/03/2025	Facture Leroy Distribution	0.00	2733.46			20250331		
 VT	Ventes	26	21/03/2025	445710	TVA collectée			FA2025-0009	21/03/2025	Facture Leroy Distribution	0.00	546.69			20250331		
-VT	Ventes	27	24/03/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0007	24/03/2025	Facture Boulangerie Dupont	2498.02	0.00			20250331		
+VT	Ventes	27	24/03/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0007	24/03/2025	Facture Boulangerie Dupont	2498.02	0.00	N	20251231	20250331		
 VT	Ventes	27	24/03/2025	706000	Prestations de services			FA2025-0007	24/03/2025	Facture Boulangerie Dupont	0.00	2081.68			20250331		
 VT	Ventes	27	24/03/2025	445710	TVA collectée			FA2025-0007	24/03/2025	Facture Boulangerie Dupont	0.00	416.34			20250331		
 AC	Achats	28	25/03/2025	607000	Achats de marchandises			MET03975	25/03/2025	Facture Metro Cash	642.10	0.00			20250331		
 AC	Achats	28	25/03/2025	445660	TVA déductible sur ABS			MET03975	25/03/2025	Facture Metro Cash	128.42	0.00			20250331		
-AC	Achats	28	25/03/2025	401000	Fournisseurs	F003	Metro Cash	MET03975	25/03/2025	Facture Metro Cash	0.00	770.52			20250331		
+AC	Achats	28	25/03/2025	401000	Fournisseurs	F003	Metro Cash	MET03975	25/03/2025	Facture Metro Cash	0.00	770.52	O	20251231	20250331		
 OD	Opérations diverses	29	28/03/2025	641000	Rémunérations du personnel			SAL03	28/03/2025	Salaires 03/2025	2800.00	0.00			20250331		
 OD	Opérations diverses	29	28/03/2025	645100	Cotisations URSSAF			SAL03	28/03/2025	Salaires 03/2025	1150.00	0.00			20250331		
 OD	Opérations diverses	29	28/03/2025	421000	Personnel - Rémunérations dues			SAL03	28/03/2025	Salaires 03/2025	0.00	2180.00			20250331		
 OD	Opérations diverses	29	28/03/2025	431000	Sécurité sociale			SAL03	28/03/2025	Salaires 03/2025	0.00	1770.00			20250331		
 BQ	Banque	30	02/04/2025	512000	Banque			FA2025-0008	02/04/2025	Règlement Boulangerie Dupont	627.24	0.00			20250430		
-BQ	Banque	30	02/04/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0008	02/04/2025	Règlement Boulangerie Dupont	0.00	627.24	K	20251231	20250430		
-BQ	Banque	31	02/04/2025	401000	Fournisseurs	F002	EDF	EDF03333	02/04/2025	Paiement EDF	172.61	0.00	L	20251231	20250430		
+BQ	Banque	30	02/04/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0008	02/04/2025	Règlement Boulangerie Dupont	0.00	627.24	L	20251231	20250430		
+BQ	Banque	31	02/04/2025	401000	Fournisseurs	F002	EDF	EDF03333	02/04/2025	Paiement EDF	172.61	0.00	K	20251231	20250430		
 BQ	Banque	31	02/04/2025	512000	Banque			EDF03333	02/04/2025	Paiement EDF	0.00	172.61			20250430		
-VT	Ventes	32	04/04/2025	411000	Clients	C002	Martin & Fils	FA2025-0010	04/04/2025	Facture Martin & Fils	2107.62	0.00			20250430		
+VT	Ventes	32	04/04/2025	411000	Clients	C002	Martin & Fils	FA2025-0010	04/04/2025	Facture Martin & Fils	2107.62	0.00	P	20251231	20250430		
 VT	Ventes	32	04/04/2025	706000	Prestations de services			FA2025-0010	04/04/2025	Facture Martin & Fils	0.00	1756.35			20250430		
 VT	Ventes	32	04/04/2025	445710	TVA collectée			FA2025-0010	04/04/2025	Facture Martin & Fils	0.00	351.27			20250430		
 BQ	Banque	33	10/04/2025	512000	Banque			FA2025-0009	10/04/2025	Règlement Leroy Distribution	3280.15	0.00			20250430		
 BQ	Banque	33	10/04/2025	411000	Clients	C003	Leroy Distribution	FA2025-0009	10/04/2025	Règlement Leroy Distribution	0.00	3280.15	M	20251231	20250430		
-VT	Ventes	34	12/04/2025	411000	Clients	C003	Leroy Distribution	FA2025-0012	12/04/2025	Facture Leroy Distribution	1270.62	0.00			20250430		
+VT	Ventes	34	12/04/2025	411000	Clients	C003	Leroy Distribution	FA2025-0012	12/04/2025	Facture Leroy Distribution	1270.62	0.00	Q	20251231	20250430		
 VT	Ventes	34	12/04/2025	706000	Prestations de services			FA2025-0012	12/04/2025	Facture Leroy Distribution	0.00	1058.85			20250430		
 VT	Ventes	34	12/04/2025	445710	TVA collectée			FA2025-0012	12/04/2025	Facture Leroy Distribution	0.00	211.77			20250430		
 BQ	Banque	35	13/04/2025	512000	Banque			FA2025-0007	13/04/2025	Règlement Boulangerie Dupont	2498.02	0.00			20250430		
 BQ	Banque	35	13/04/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0007	13/04/2025	Règlement Boulangerie Dupont	0.00	2498.02	N	20251231	20250430		
 AC	Achats	36	21/04/2025	606400	Fournitures administratives			BUR04846	21/04/2025	Facture Bureau Vallée	400.68	0.00			20250430		
 AC	Achats	36	21/04/2025	445660	TVA déductible sur ABS			BUR04846	21/04/2025	Facture Bureau Vallée	80.14	0.00			20250430		
-AC	Achats	36	21/04/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR04846	21/04/2025	Facture Bureau Vallée	0.00	480.82			20250430		
-VT	Ventes	37	21/04/2025	411000	Clients	C004	Petit Événements	FA2025-0011	21/04/2025	Facture Petit Événements	2033.04	0.00			20250430		
+AC	Achats	36	21/04/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR04846	21/04/2025	Facture Bureau Vallée	0.00	480.82	R	20251231	20250430		
+VT	Ventes	37	21/04/2025	411000	Clients	C004	Petit Événements	FA2025-0011	21/04/2025	Facture Petit Événements	2033.04	0.00	S	20251231	20250430		
 VT	Ventes	37	21/04/2025	706000	Prestations de services			FA2025-0011	21/04/2025	Facture Petit Événements	0.00	1694.20			20250430		
 VT	Ventes	37	21/04/2025	445710	TVA collectée			FA2025-0011	21/04/2025	Facture Petit Événements	0.00	338.84			20250430		
 AC	Achats	38	22/04/2025	607000	Achats de marchandises			MET04723	22/04/2025	Facture Metro Cash	1377.09	0.00			20250430		
 AC	Achats	38	22/04/2025	445660	TVA déductible sur ABS			MET04723	22/04/2025	Facture Metro Cash	275.42	0.00			20250430		
-AC	Achats	38	22/04/2025	401000	Fournisseurs	F003	Metro Cash	MET04723	22/04/2025	Facture Metro Cash	0.00	1652.51			20250430		
+AC	Achats	38	22/04/2025	401000	Fournisseurs	F003	Metro Cash	MET04723	22/04/2025	Facture Metro Cash	0.00	1652.51	T	20251231	20250430		
 BQ	Banque	39	24/04/2025	401000	Fournisseurs	F003	Metro Cash	MET03975	24/04/2025	Paiement Metro Cash	770.52	0.00	O	20251231	20250430		
 BQ	Banque	39	24/04/2025	512000	Banque			MET03975	24/04/2025	Paiement Metro Cash	0.00	770.52			20250430		
 BQ	Banque	40	24/04/2025	512000	Banque			FA2025-0010	24/04/2025	Règlement Martin & Fils	2107.62	0.00			20250430		
@@ -114,25 +114,25 @@ OD	Opérations diverses	41	28/04/2025	421000	Personnel - Rémunérations dues			SAL
 OD	Opérations diverses	41	28/04/2025	431000	Sécurité sociale			SAL04	28/04/2025	Salaires 04/2025	0.00	1770.00			20250430		
 BQ	Banque	42	02/05/2025	512000	Banque			FA2025-0012	02/05/2025	Règlement Leroy Distribution	1270.62	0.00			20250531		
 BQ	Banque	42	02/05/2025	411000	Clients	C003	Leroy Distribution	FA2025-0012	02/05/2025	Règlement Leroy Distribution	0.00	1270.62	Q	20251231	20250531		
-VT	Ventes	43	06/05/2025	411000	Clients	C002	Martin & Fils	FA2025-0013	06/05/2025	Facture Martin & Fils	2512.18	0.00			20250531		
+VT	Ventes	43	06/05/2025	411000	Clients	C002	Martin & Fils	FA2025-0013	06/05/2025	Facture Martin & Fils	2512.18	0.00	U	20251231	20250531		
 VT	Ventes	43	06/05/2025	706000	Prestations de services			FA2025-0013	06/05/2025	Facture Martin & Fils	0.00	2093.48			20250531		
 VT	Ventes	43	06/05/2025	445710	TVA collectée			FA2025-0013	06/05/2025	Facture Martin & Fils	0.00	418.70			20250531		
 BQ	Banque	44	11/05/2025	512000	Banque			FA2025-0011	11/05/2025	Règlement Petit Événements	2033.04	0.00			20250531		
-BQ	Banque	44	11/05/2025	411000	Clients	C004	Petit Événements	FA2025-0011	11/05/2025	Règlement Petit Événements	0.00	2033.04	R	20251231	20250531		
+BQ	Banque	44	11/05/2025	411000	Clients	C004	Petit Événements	FA2025-0011	11/05/2025	Règlement Petit Événements	0.00	2033.04	S	20251231	20250531		
 AC	Achats	45	13/05/2025	626000	Frais postaux et télécom			ORA05316	13/05/2025	Facture Orange	598.08	0.00			20250531		
 AC	Achats	45	13/05/2025	445660	TVA déductible sur ABS			ORA05316	13/05/2025	Facture Orange	119.62	0.00			20250531		
-AC	Achats	45	13/05/2025	401000	Fournisseurs	F001	Orange	ORA05316	13/05/2025	Facture Orange	0.00	717.70			20250531		
+AC	Achats	45	13/05/2025	401000	Fournisseurs	F001	Orange	ORA05316	13/05/2025	Facture Orange	0.00	717.70	V	20251231	20250531		
 AC	Achats	46	19/05/2025	606100	Fournitures non stockables			EDF05771	19/05/2025	Facture EDF	694.27	0.00			20250531		
 AC	Achats	46	19/05/2025	445660	TVA déductible sur ABS			EDF05771	19/05/2025	Facture EDF	138.85	0.00			20250531		
-AC	Achats	46	19/05/2025	401000	Fournisseurs	F002	EDF	EDF05771	19/05/2025	Facture EDF	0.00	833.12			20250531		
-BQ	Banque	47	21/05/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR04846	21/05/2025	Paiement Bureau Vallée	480.82	0.00	S	20251231	20250531		
+AC	Achats	46	19/05/2025	401000	Fournisseurs	F002	EDF	EDF05771	19/05/2025	Facture EDF	0.00	833.12	W	20251231	20250531		
+BQ	Banque	47	21/05/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR04846	21/05/2025	Paiement Bureau Vallée	480.82	0.00	R	20251231	20250531		
 BQ	Banque	47	21/05/2025	512000	Banque			BUR04846	21/05/2025	Paiement Bureau Vallée	0.00	480.82			20250531		
-VT	Ventes	48	21/05/2025	411000	Clients	C003	Leroy Distribution	FA2025-0014	21/05/2025	Facture Leroy Distribution	2977.54	0.00			20250531		
+VT	Ventes	48	21/05/2025	411000	Clients	C003	Leroy Distribution	FA2025-0014	21/05/2025	Facture Leroy Distribution	2977.54	0.00	X	20251231	20250531		
 VT	Ventes	48	21/05/2025	706000	Prestations de services			FA2025-0014	21/05/2025	Facture Leroy Distribution	0.00	2481.28			20250531		
 VT	Ventes	48	21/05/2025	445710	TVA collectée			FA2025-0014	21/05/2025	Facture Leroy Distribution	0.00	496.26			20250531		
 BQ	Banque	49	22/05/2025	401000	Fournisseurs	F003	Metro Cash	MET04723	22/05/2025	Paiement Metro Cash	1652.51	0.00	T	20251231	20250531		
 BQ	Banque	49	22/05/2025	512000	Banque			MET04723	22/05/2025	Paiement Metro Cash	0.00	1652.51			20250531		
-VT	Ventes	50	25/05/2025	411000	Clients	C003	Leroy Distribution	FA2025-0015	25/05/2025	Facture Leroy Distribution	515.15	0.00			20250531		
+VT	Ventes	50	25/05/2025	411000	Clients	C003	Leroy Distribution	FA2025-0015	25/05/2025	Facture Leroy Distribution	515.15	0.00	Y	20251231	20250531		
 VT	Ventes	50	25/05/2025	706000	Prestations de services			FA2025-0015	25/05/2025	Facture Leroy Distribution	0.00	429.29			20250531		
 VT	Ventes	50	25/05/2025	445710	TVA collectée			FA2025-0015	25/05/2025	Facture Leroy Distribution	0.00	85.86			20250531		
 BQ	Banque	51	26/05/2025	512000	Banque			FA2025-0013	26/05/2025	Règlement Martin & Fils	2512.18	0.00			20250531		
@@ -143,25 +143,25 @@ OD	Opérations diverses	52	28/05/2025	421000	Personnel - Rémunérations dues			SAL
 OD	Opérations diverses	52	28/05/2025	431000	Sécurité sociale			SAL05	28/05/2025	Salaires 05/2025	0.00	1770.00			20250531		
 AC	Achats	53	03/06/2025	606100	Fournitures non stockables			EDF06256	03/06/2025	Facture EDF	146.14	0.00			20250630		
 AC	Achats	53	03/06/2025	445660	TVA déductible sur ABS			EDF06256	03/06/2025	Facture EDF	29.23	0.00			20250630		
-AC	Achats	53	03/06/2025	401000	Fournisseurs	F002	EDF	EDF06256	03/06/2025	Facture EDF	0.00	175.37			20250630		
+AC	Achats	53	03/06/2025	401000	Fournisseurs	F002	EDF	EDF06256	03/06/2025	Facture EDF	0.00	175.37	Z	20251231	20250630		
 AC	Achats	54	08/06/2025	606400	Fournitures administratives			BUR06605	08/06/2025	Facture Bureau Vallée	333.65	0.00			20250630		
 AC	Achats	54	08/06/2025	445660	TVA déductible sur ABS			BUR06605	08/06/2025	Facture Bureau Vallée	66.73	0.00			20250630		
-AC	Achats	54	08/06/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR06605	08/06/2025	Facture Bureau Vallée	0.00	400.38			20250630		
-VT	Ventes	55	09/06/2025	411000	Clients	C002	Martin & Fils	FA2025-0017	09/06/2025	Facture Martin & Fils	925.57	0.00			20250630		
+AC	Achats	54	08/06/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR06605	08/06/2025	Facture Bureau Vallée	0.00	400.38	BA	20251231	20250630		
+VT	Ventes	55	09/06/2025	411000	Clients	C002	Martin & Fils	FA2025-0017	09/06/2025	Facture Martin & Fils	925.57	0.00	BB	20251231	20250630		
 VT	Ventes	55	09/06/2025	706000	Prestations de services			FA2025-0017	09/06/2025	Facture Martin & Fils	0.00	771.31			20250630		
 VT	Ventes	55	09/06/2025	445710	TVA collectée			FA2025-0017	09/06/2025	Facture Martin & Fils	0.00	154.26			20250630		
 BQ	Banque	56	10/06/2025	512000	Banque			FA2025-0014	10/06/2025	Règlement Leroy Distribution	2977.54	0.00			20250630		
-BQ	Banque	56	10/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0014	10/06/2025	Règlement Leroy Distribution	0.00	2977.54	V	20251231	20250630		
-BQ	Banque	57	12/06/2025	401000	Fournisseurs	F001	Orange	ORA05316	12/06/2025	Paiement Orange	717.70	0.00	W	20251231	20250630		
+BQ	Banque	56	10/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0014	10/06/2025	Règlement Leroy Distribution	0.00	2977.54	X	20251231	20250630		
+BQ	Banque	57	12/06/2025	401000	Fournisseurs	F001	Orange	ORA05316	12/06/2025	Paiement Orange	717.70	0.00	V	20251231	20250630		
 BQ	Banque	57	12/06/2025	512000	Banque			ORA05316	12/06/2025	Paiement Orange	0.00	717.70			20250630		
-VT	Ventes	58	13/06/2025	411000	Clients	C004	Petit Événements	FA2025-0016	13/06/2025	Facture Petit Événements	3400.30	0.00			20250630		
+VT	Ventes	58	13/06/2025	411000	Clients	C004	Petit Événements	FA2025-0016	13/06/2025	Facture Petit Événements	3400.30	0.00	BC	20251231	20250630		
 VT	Ventes	58	13/06/2025	706000	Prestations de services			FA2025-0016	13/06/2025	Facture Petit Événements	0.00	2833.58			20250630		
 VT	Ventes	58	13/06/2025	445710	TVA collectée			FA2025-0016	13/06/2025	Facture Petit Événements	0.00	566.72			20250630		
 BQ	Banque	59	14/06/2025	512000	Banque			FA2025-0015	14/06/2025	Règlement Leroy Distribution	515.15	0.00			20250630		
-BQ	Banque	59	14/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0015	14/06/2025	Règlement Leroy Distribution	0.00	515.15	X	20251231	20250630		
-BQ	Banque	60	18/06/2025	401000	Fournisseurs	F002	EDF	EDF05771	18/06/2025	Paiement EDF	833.12	0.00	Y	20251231	20250630		
+BQ	Banque	59	14/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0015	14/06/2025	Règlement Leroy Distribution	0.00	515.15	Y	20251231	20250630		
+BQ	Banque	60	18/06/2025	401000	Fournisseurs	F002	EDF	EDF05771	18/06/2025	Paiement EDF	833.12	0.00	W	20251231	20250630		
 BQ	Banque	60	18/06/2025	512000	Banque			EDF05771	18/06/2025	Paiement EDF	0.00	833.12			20250630		
-VT	Ventes	61	24/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0018	24/06/2025	Facture Leroy Distribution	3113.45	0.00			20250630		
+VT	Ventes	61	24/06/2025	411000	Clients	C003	Leroy Distribution	FA2025-0018	24/06/2025	Facture Leroy Distribution	3113.45	0.00	BD	20251231	20250630		
 VT	Ventes	61	24/06/2025	706000	Prestations de services			FA2025-0018	24/06/2025	Facture Leroy Distribution	0.00	2594.54			20250630		
 VT	Ventes	61	24/06/2025	445710	TVA collectée			FA2025-0018	24/06/2025	Facture Leroy Distribution	0.00	518.91			20250630		
 OD	Opérations diverses	62	28/06/2025	641000	Rémunérations du personnel			SAL06	28/06/2025	Salaires 06/2025	2800.00	0.00			20250630		
@@ -169,53 +169,53 @@ OD	Opérations diverses	62	28/06/2025	645100	Cotisations URSSAF			SAL06	28/06/202
 OD	Opérations diverses	62	28/06/2025	421000	Personnel - Rémunérations dues			SAL06	28/06/2025	Salaires 06/2025	0.00	2180.00			20250630		
 OD	Opérations diverses	62	28/06/2025	431000	Sécurité sociale			SAL06	28/06/2025	Salaires 06/2025	0.00	1770.00			20250630		
 BQ	Banque	63	29/06/2025	512000	Banque			FA2025-0017	29/06/2025	Règlement Martin & Fils	925.57	0.00			20250630		
-BQ	Banque	63	29/06/2025	411000	Clients	C002	Martin & Fils	FA2025-0017	29/06/2025	Règlement Martin & Fils	0.00	925.57	Z	20251231	20250630		
+BQ	Banque	63	29/06/2025	411000	Clients	C002	Martin & Fils	FA2025-0017	29/06/2025	Règlement Martin & Fils	0.00	925.57	BB	20251231	20250630		
 BQ	Banque	64	03/07/2025	512000	Banque			FA2025-0016	03/07/2025	Règlement Petit Événements	3400.30	0.00			20250731		
-BQ	Banque	64	03/07/2025	411000	Clients	C004	Petit Événements	FA2025-0016	03/07/2025	Règlement Petit Événements	0.00	3400.30	BA	20251231	20250731		
-BQ	Banque	65	03/07/2025	401000	Fournisseurs	F002	EDF	EDF06256	03/07/2025	Paiement EDF	175.37	0.00	BB	20251231	20250731		
+BQ	Banque	64	03/07/2025	411000	Clients	C004	Petit Événements	FA2025-0016	03/07/2025	Règlement Petit Événements	0.00	3400.30	BC	20251231	20250731		
+BQ	Banque	65	03/07/2025	401000	Fournisseurs	F002	EDF	EDF06256	03/07/2025	Paiement EDF	175.37	0.00	Z	20251231	20250731		
 BQ	Banque	65	03/07/2025	512000	Banque			EDF06256	03/07/2025	Paiement EDF	0.00	175.37			20250731		
-BQ	Banque	66	08/07/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR06605	08/07/2025	Paiement Bureau Vallée	400.38	0.00	BC	20251231	20250731		
+BQ	Banque	66	08/07/2025	401000	Fournisseurs	F004	Bureau Vallée	BUR06605	08/07/2025	Paiement Bureau Vallée	400.38	0.00	BA	20251231	20250731		
 BQ	Banque	66	08/07/2025	512000	Banque			BUR06605	08/07/2025	Paiement Bureau Vallée	0.00	400.38			20250731		
-VT	Ventes	67	13/07/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0020	13/07/2025	Facture Boulangerie Dupont	2116.51	0.00			20250731		
+VT	Ventes	67	13/07/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0020	13/07/2025	Facture Boulangerie Dupont	2116.51	0.00	BE	20251231	20250731		
 VT	Ventes	67	13/07/2025	706000	Prestations de services			FA2025-0020	13/07/2025	Facture Boulangerie Dupont	0.00	1763.76			20250731		
 VT	Ventes	67	13/07/2025	445710	TVA collectée			FA2025-0020	13/07/2025	Facture Boulangerie Dupont	0.00	352.75			20250731		
 BQ	Banque	68	14/07/2025	512000	Banque			FA2025-0018	14/07/2025	Règlement Leroy Distribution	3113.45	0.00			20250731		
 BQ	Banque	68	14/07/2025	411000	Clients	C003	Leroy Distribution	FA2025-0018	14/07/2025	Règlement Leroy Distribution	0.00	3113.45	BD	20251231	20250731		
-VT	Ventes	69	17/07/2025	411000	Clients	C004	Petit Événements	FA2025-0021	17/07/2025	Facture Petit Événements	1475.64	0.00			20250731		
+VT	Ventes	69	17/07/2025	411000	Clients	C004	Petit Événements	FA2025-0021	17/07/2025	Facture Petit Événements	1475.64	0.00	BF	20251231	20250731		
 VT	Ventes	69	17/07/2025	706000	Prestations de services			FA2025-0021	17/07/2025	Facture Petit Événements	0.00	1229.70			20250731		
 VT	Ventes	69	17/07/2025	445710	TVA collectée			FA2025-0021	17/07/2025	Facture Petit Événements	0.00	245.94			20250731		
-VT	Ventes	70	22/07/2025	411000	Clients	C002	Martin & Fils	FA2025-0019	22/07/2025	Facture Martin & Fils	2315.71	0.00			20250731		
+VT	Ventes	70	22/07/2025	411000	Clients	C002	Martin & Fils	FA2025-0019	22/07/2025	Facture Martin & Fils	2315.71	0.00	BG	20251231	20250731		
 VT	Ventes	70	22/07/2025	706000	Prestations de services			FA2025-0019	22/07/2025	Facture Martin & Fils	0.00	1929.76			20250731		
 VT	Ventes	70	22/07/2025	445710	TVA collectée			FA2025-0019	22/07/2025	Facture Martin & Fils	0.00	385.95			20250731		
 AC	Achats	71	24/07/2025	626000	Frais postaux et télécom			ORA07649	24/07/2025	Facture Orange	284.87	0.00			20250731		
 AC	Achats	71	24/07/2025	445660	TVA déductible sur ABS			ORA07649	24/07/2025	Facture Orange	56.97	0.00			20250731		
-AC	Achats	71	24/07/2025	401000	Fournisseurs	F001	Orange	ORA07649	24/07/2025	Facture Orange	0.00	341.84			20250731		
+AC	Achats	71	24/07/2025	401000	Fournisseurs	F001	Orange	ORA07649	24/07/2025	Facture Orange	0.00	341.84	BH	20251231	20250731		
 AC	Achats	72	25/07/2025	607000	Achats de marchandises			MET07756	25/07/2025	Facture Metro Cash	596.98	0.00			20250731		
 AC	Achats	72	25/07/2025	445660	TVA déductible sur ABS			MET07756	25/07/2025	Facture Metro Cash	119.40	0.00			20250731		
-AC	Achats	72	25/07/2025	401000	Fournisseurs	F003	Metro Cash	MET07756	25/07/2025	Facture Metro Cash	0.00	716.38			20250731		
+AC	Achats	72	25/07/2025	401000	Fournisseurs	F003	Metro Cash	MET07756	25/07/2025	Facture Metro Cash	0.00	716.38	BI	20251231	20250731		
 OD	Opérations diverses	73	28/07/2025	641000	Rémunérations du personnel			SAL07	28/07/2025	Salaires 07/2025	2800.00	0.00			20250731		
 OD	Opérations diverses	73	28/07/2025	645100	Cotisations URSSAF			SAL07	28/07/2025	Salaires 07/2025	1150.00	0.00			20250731		
 OD	Opérations diverses	73	28/07/2025	421000	Personnel - Rémunérations dues			SAL07	28/07/2025	Salaires 07/2025	0.00	2180.00			20250731		
 OD	Opérations diverses	73	28/07/2025	431000	Sécurité sociale			SAL07	28/07/2025	Salaires 07/2025	0.00	1770.00			20250731		
 BQ	Banque	74	02/08/2025	512000	Banque			FA2025-0020	02/08/2025	Règlement Boulangerie Dupont	2116.51	0.00			20250831		
 BQ	Banque	74	02/08/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0020	02/08/2025	Règlement Boulangerie Dupont	0.00	2116.51	BE	20251231	20250831		
-VT	Ventes	75	04/08/2025	411000	Clients	C003	Leroy Distribution	FA2025-0022	04/08/2025	Facture Leroy Distribution	1683.06	0.00			20250831		
+VT	Ventes	75	04/08/2025	411000	Clients	C003	Leroy Distribution	FA2025-0022	04/08/2025	Facture Leroy Distribution	1683.06	0.00	BJ	20251231	20250831		
 VT	Ventes	75	04/08/2025	706000	Prestations de services			FA2025-0022	04/08/2025	Facture Leroy Distribution	0.00	1402.55			20250831		
 VT	Ventes	75	04/08/2025	445710	TVA collectée			FA2025-0022	04/08/2025	Facture Leroy Distribution	0.00	280.51			20250831		
 BQ	Banque	76	06/08/2025	512000	Banque			FA2025-0021	06/08/2025	Règlement Petit Événements	1475.64	0.00			20250831		
 BQ	Banque	76	06/08/2025	411000	Clients	C004	Petit Événements	FA2025-0021	06/08/2025	Règlement Petit Événements	0.00	1475.64	BF	20251231	20250831		
 AC	Achats	77	07/08/2025	607000	Achats de marchandises			MET08880	07/08/2025	Facture Metro Cash	363.47	0.00			20250831		
 AC	Achats	77	07/08/2025	445660	TVA déductible sur ABS			MET08880	07/08/2025	Facture Metro Cash	72.69	0.00			20250831		
-AC	Achats	77	07/08/2025	401000	Fournisseurs	F003	Metro Cash	MET08880	07/08/2025	Facture Metro Cash	0.00	436.16			20250831		
+AC	Achats	77	07/08/2025	401000	Fournisseurs	F003	Metro Cash	MET08880	07/08/2025	Facture Metro Cash	0.00	436.16	BK	20251231	20250831		
 AC	Achats	78	10/08/2025	626000	Frais postaux et télécom			ORA08723	10/08/2025	Facture Orange	1358.64	0.00			20250831		
 AC	Achats	78	10/08/2025	445660	TVA déductible sur ABS			ORA08723	10/08/2025	Facture Orange	271.73	0.00			20250831		
-AC	Achats	78	10/08/2025	401000	Fournisseurs	F001	Orange	ORA08723	10/08/2025	Facture Orange	0.00	1630.37			20250831		
+AC	Achats	78	10/08/2025	401000	Fournisseurs	F001	Orange	ORA08723	10/08/2025	Facture Orange	0.00	1630.37	BL	20251231	20250831		
 BQ	Banque	79	11/08/2025	512000	Banque			FA2025-0019	11/08/2025	Règlement Martin & Fils	2315.71	0.00			20250831		
 BQ	Banque	79	11/08/2025	411000	Clients	C002	Martin & Fils	FA2025-0019	11/08/2025	Règlement Martin & Fils	0.00	2315.71	BG	20251231	20250831		
-VT	Ventes	80	15/08/2025	411000	Clients	C002	Martin & Fils	FA2025-0023	15/08/2025	Facture Martin & Fils	256.70	0.00			20250831		
+VT	Ventes	80	15/08/2025	411000	Clients	C002	Martin & Fils	FA2025-0023	15/08/2025	Facture Martin & Fils	256.70	0.00	BM	20251231	20250831		
 VT	Ventes	80	15/08/2025	706000	Prestations de services			FA2025-0023	15/08/2025	Facture Martin & Fils	0.00	213.92			20250831		
 VT	Ventes	80	15/08/2025	445710	TVA collectée			FA2025-0023	15/08/2025	Facture Martin & Fils	0.00	42.78			20250831		
-VT	Ventes	81	17/08/2025	411000	Clients	C003	Leroy Distribution	FA2025-0024	17/08/2025	Facture Leroy Distribution	1117.97	0.00			20250831		
+VT	Ventes	81	17/08/2025	411000	Clients	C003	Leroy Distribution	FA2025-0024	17/08/2025	Facture Leroy Distribution	1117.97	0.00	BN	20251231	20250831		
 VT	Ventes	81	17/08/2025	706000	Prestations de services			FA2025-0024	17/08/2025	Facture Leroy Distribution	0.00	931.64			20250831		
 VT	Ventes	81	17/08/2025	445710	TVA collectée			FA2025-0024	17/08/2025	Facture Leroy Distribution	0.00	186.33			20250831		
 BQ	Banque	82	23/08/2025	401000	Fournisseurs	F001	Orange	ORA07649	23/08/2025	Paiement Orange	341.84	0.00	BH	20251231	20250831		
@@ -230,25 +230,25 @@ OD	Opérations diverses	85	28/08/2025	421000	Personnel - Rémunérations dues			SAL
 OD	Opérations diverses	85	28/08/2025	431000	Sécurité sociale			SAL08	28/08/2025	Salaires 08/2025	0.00	1770.00			20250831		
 AC	Achats	86	03/09/2025	606100	Fournitures non stockables			EDF09597	03/09/2025	Facture EDF	225.93	0.00			20250930		
 AC	Achats	86	03/09/2025	445660	TVA déductible sur ABS			EDF09597	03/09/2025	Facture EDF	45.19	0.00			20250930		
-AC	Achats	86	03/09/2025	401000	Fournisseurs	F002	EDF	EDF09597	03/09/2025	Facture EDF	0.00	271.12			20250930		
+AC	Achats	86	03/09/2025	401000	Fournisseurs	F002	EDF	EDF09597	03/09/2025	Facture EDF	0.00	271.12	BO	20251231	20250930		
 AC	Achats	87	03/09/2025	607000	Achats de marchandises			MET09228	03/09/2025	Facture Metro Cash	1140.98	0.00			20250930		
 AC	Achats	87	03/09/2025	445660	TVA déductible sur ABS			MET09228	03/09/2025	Facture Metro Cash	228.20	0.00			20250930		
-AC	Achats	87	03/09/2025	401000	Fournisseurs	F003	Metro Cash	MET09228	03/09/2025	Facture Metro Cash	0.00	1369.18			20250930		
+AC	Achats	87	03/09/2025	401000	Fournisseurs	F003	Metro Cash	MET09228	03/09/2025	Facture Metro Cash	0.00	1369.18	BP	20251231	20250930		
 BQ	Banque	88	04/09/2025	512000	Banque			FA2025-0023	04/09/2025	Règlement Martin & Fils	256.70	0.00			20250930		
-BQ	Banque	88	04/09/2025	411000	Clients	C002	Martin & Fils	FA2025-0023	04/09/2025	Règlement Martin & Fils	0.00	256.70	BK	20251231	20250930		
+BQ	Banque	88	04/09/2025	411000	Clients	C002	Martin & Fils	FA2025-0023	04/09/2025	Règlement Martin & Fils	0.00	256.70	BM	20251231	20250930		
 BQ	Banque	89	06/09/2025	512000	Banque			FA2025-0024	06/09/2025	Règlement Leroy Distribution	1117.97	0.00			20250930		
-BQ	Banque	89	06/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0024	06/09/2025	Règlement Leroy Distribution	0.00	1117.97	BL	20251231	20250930		
-BQ	Banque	90	06/09/2025	401000	Fournisseurs	F003	Metro Cash	MET08880	06/09/2025	Paiement Metro Cash	436.16	0.00	BM	20251231	20250930		
+BQ	Banque	89	06/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0024	06/09/2025	Règlement Leroy Distribution	0.00	1117.97	BN	20251231	20250930		
+BQ	Banque	90	06/09/2025	401000	Fournisseurs	F003	Metro Cash	MET08880	06/09/2025	Paiement Metro Cash	436.16	0.00	BK	20251231	20250930		
 BQ	Banque	90	06/09/2025	512000	Banque			MET08880	06/09/2025	Paiement Metro Cash	0.00	436.16			20250930		
-BQ	Banque	91	09/09/2025	401000	Fournisseurs	F001	Orange	ORA08723	09/09/2025	Paiement Orange	1630.37	0.00	BN	20251231	20250930		
+BQ	Banque	91	09/09/2025	401000	Fournisseurs	F001	Orange	ORA08723	09/09/2025	Paiement Orange	1630.37	0.00	BL	20251231	20250930		
 BQ	Banque	91	09/09/2025	512000	Banque			ORA08723	09/09/2025	Paiement Orange	0.00	1630.37			20250930		
-VT	Ventes	92	10/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0027	10/09/2025	Facture Leroy Distribution	1416.08	0.00			20250930		
+VT	Ventes	92	10/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0027	10/09/2025	Facture Leroy Distribution	1416.08	0.00	BQ	20251231	20250930		
 VT	Ventes	92	10/09/2025	706000	Prestations de services			FA2025-0027	10/09/2025	Facture Leroy Distribution	0.00	1180.07			20250930		
 VT	Ventes	92	10/09/2025	445710	TVA collectée			FA2025-0027	10/09/2025	Facture Leroy Distribution	0.00	236.01			20250930		
-VT	Ventes	93	16/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0026	16/09/2025	Facture Leroy Distribution	334.97	0.00			20250930		
+VT	Ventes	93	16/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0026	16/09/2025	Facture Leroy Distribution	334.97	0.00	BR	20251231	20250930		
 VT	Ventes	93	16/09/2025	706000	Prestations de services			FA2025-0026	16/09/2025	Facture Leroy Distribution	0.00	279.14			20250930		
 VT	Ventes	93	16/09/2025	445710	TVA collectée			FA2025-0026	16/09/2025	Facture Leroy Distribution	0.00	55.83			20250930		
-VT	Ventes	94	18/09/2025	411000	Clients	C002	Martin & Fils	FA2025-0025	18/09/2025	Facture Martin & Fils	2846.40	0.00			20250930		
+VT	Ventes	94	18/09/2025	411000	Clients	C002	Martin & Fils	FA2025-0025	18/09/2025	Facture Martin & Fils	2846.40	0.00	BS	20251231	20250930		
 VT	Ventes	94	18/09/2025	706000	Prestations de services			FA2025-0025	18/09/2025	Facture Martin & Fils	0.00	2372.00			20250930		
 VT	Ventes	94	18/09/2025	445710	TVA collectée			FA2025-0025	18/09/2025	Facture Martin & Fils	0.00	474.40			20250930		
 OD	Opérations diverses	95	28/09/2025	641000	Rémunérations du personnel			SAL09	28/09/2025	Salaires 09/2025	2800.00	0.00			20250930		
@@ -256,28 +256,28 @@ OD	Opérations diverses	95	28/09/2025	645100	Cotisations URSSAF			SAL09	28/09/202
 OD	Opérations diverses	95	28/09/2025	421000	Personnel - Rémunérations dues			SAL09	28/09/2025	Salaires 09/2025	0.00	2180.00			20250930		
 OD	Opérations diverses	95	28/09/2025	431000	Sécurité sociale			SAL09	28/09/2025	Salaires 09/2025	0.00	1770.00			20250930		
 BQ	Banque	96	30/09/2025	512000	Banque			FA2025-0027	30/09/2025	Règlement Leroy Distribution	1416.08	0.00			20250930		
-BQ	Banque	96	30/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0027	30/09/2025	Règlement Leroy Distribution	0.00	1416.08	BO	20251231	20250930		
-BQ	Banque	97	03/10/2025	401000	Fournisseurs	F002	EDF	EDF09597	03/10/2025	Paiement EDF	271.12	0.00	BP	20251231	20251031		
+BQ	Banque	96	30/09/2025	411000	Clients	C003	Leroy Distribution	FA2025-0027	30/09/2025	Règlement Leroy Distribution	0.00	1416.08	BQ	20251231	20250930		
+BQ	Banque	97	03/10/2025	401000	Fournisseurs	F002	EDF	EDF09597	03/10/2025	Paiement EDF	271.12	0.00	BO	20251231	20251031		
 BQ	Banque	97	03/10/2025	512000	Banque			EDF09597	03/10/2025	Paiement EDF	0.00	271.12			20251031		
-BQ	Banque	98	03/10/2025	401000	Fournisseurs	F003	Metro Cash	MET09228	03/10/2025	Paiement Metro Cash	1369.18	0.00	BQ	20251231	20251031		
+BQ	Banque	98	03/10/2025	401000	Fournisseurs	F003	Metro Cash	MET09228	03/10/2025	Paiement Metro Cash	1369.18	0.00	BP	20251231	20251031		
 BQ	Banque	98	03/10/2025	512000	Banque			MET09228	03/10/2025	Paiement Metro Cash	0.00	1369.18			20251031		
 BQ	Banque	99	06/10/2025	512000	Banque			FA2025-0026	06/10/2025	Règlement Leroy Distribution	334.97	0.00			20251031		
 BQ	Banque	99	06/10/2025	411000	Clients	C003	Leroy Distribution	FA2025-0026	06/10/2025	Règlement Leroy Distribution	0.00	334.97	BR	20251231	20251031		
-VT	Ventes	100	07/10/2025	411000	Clients	C004	Petit Événements	FA2025-0030	07/10/2025	Facture Petit Événements	2890.75	0.00			20251031		
+VT	Ventes	100	07/10/2025	411000	Clients	C004	Petit Événements	FA2025-0030	07/10/2025	Facture Petit Événements	2890.75	0.00	BT	20251231	20251031		
 VT	Ventes	100	07/10/2025	706000	Prestations de services			FA2025-0030	07/10/2025	Facture Petit Événements	0.00	2408.96			20251031		
 VT	Ventes	100	07/10/2025	445710	TVA collectée			FA2025-0030	07/10/2025	Facture Petit Événements	0.00	481.79			20251031		
 BQ	Banque	101	08/10/2025	512000	Banque			FA2025-0025	08/10/2025	Règlement Martin & Fils	2846.40	0.00			20251031		
 BQ	Banque	101	08/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0025	08/10/2025	Règlement Martin & Fils	0.00	2846.40	BS	20251231	20251031		
-VT	Ventes	102	09/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0029	09/10/2025	Facture Martin & Fils	2834.12	0.00			20251031		
+VT	Ventes	102	09/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0029	09/10/2025	Facture Martin & Fils	2834.12	0.00	BU	20251231	20251031		
 VT	Ventes	102	09/10/2025	706000	Prestations de services			FA2025-0029	09/10/2025	Facture Martin & Fils	0.00	2361.77			20251031		
 VT	Ventes	102	09/10/2025	445710	TVA collectée			FA2025-0029	09/10/2025	Facture Martin & Fils	0.00	472.35			20251031		
 AC	Achats	103	10/10/2025	606100	Fournitures non stockables			EDF10765	10/10/2025	Facture EDF	867.85	0.00			20251031		
 AC	Achats	103	10/10/2025	445660	TVA déductible sur ABS			EDF10765	10/10/2025	Facture EDF	173.57	0.00			20251031		
-AC	Achats	103	10/10/2025	401000	Fournisseurs	F002	EDF	EDF10765	10/10/2025	Facture EDF	0.00	1041.42			20251031		
+AC	Achats	103	10/10/2025	401000	Fournisseurs	F002	EDF	EDF10765	10/10/2025	Facture EDF	0.00	1041.42	BV	20251231	20251031		
 AC	Achats	104	12/10/2025	607000	Achats de marchandises			MET10562	12/10/2025	Facture Metro Cash	947.66	0.00			20251031		
 AC	Achats	104	12/10/2025	445660	TVA déductible sur ABS			MET10562	12/10/2025	Facture Metro Cash	189.53	0.00			20251031		
-AC	Achats	104	12/10/2025	401000	Fournisseurs	F003	Metro Cash	MET10562	12/10/2025	Facture Metro Cash	0.00	1137.19			20251031		
-VT	Ventes	105	22/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0028	22/10/2025	Facture Martin & Fils	2576.04	0.00			20251031		
+AC	Achats	104	12/10/2025	401000	Fournisseurs	F003	Metro Cash	MET10562	12/10/2025	Facture Metro Cash	0.00	1137.19	BW	20251231	20251031		
+VT	Ventes	105	22/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0028	22/10/2025	Facture Martin & Fils	2576.04	0.00	BX	20251231	20251031		
 VT	Ventes	105	22/10/2025	706000	Prestations de services			FA2025-0028	22/10/2025	Facture Martin & Fils	0.00	2146.70			20251031		
 VT	Ventes	105	22/10/2025	445710	TVA collectée			FA2025-0028	22/10/2025	Facture Martin & Fils	0.00	429.34			20251031		
 BQ	Banque	106	27/10/2025	512000	Banque			FA2025-0030	27/10/2025	Règlement Petit Événements	2890.75	0.00			20251031		
@@ -288,67 +288,67 @@ OD	Opérations diverses	107	28/10/2025	421000	Personnel - Rémunérations dues			SA
 OD	Opérations diverses	107	28/10/2025	431000	Sécurité sociale			SAL10	28/10/2025	Salaires 10/2025	0.00	1770.00			20251031		
 BQ	Banque	108	29/10/2025	512000	Banque			FA2025-0029	29/10/2025	Règlement Martin & Fils	2834.12	0.00			20251031		
 BQ	Banque	108	29/10/2025	411000	Clients	C002	Martin & Fils	FA2025-0029	29/10/2025	Règlement Martin & Fils	0.00	2834.12	BU	20251231	20251031		
-VT	Ventes	109	01/11/2025	411000	Clients	C003	Leroy Distribution	FA2025-0032	01/11/2025	Facture Leroy Distribution	3131.64	0.00			20251130		
+VT	Ventes	109	01/11/2025	411000	Clients	C003	Leroy Distribution	FA2025-0032	01/11/2025	Facture Leroy Distribution	3131.64	0.00	BY	20251231	20251130		
 VT	Ventes	109	01/11/2025	706000	Prestations de services			FA2025-0032	01/11/2025	Facture Leroy Distribution	0.00	2609.70			20251130		
 VT	Ventes	109	01/11/2025	445710	TVA collectée			FA2025-0032	01/11/2025	Facture Leroy Distribution	0.00	521.94			20251130		
 AC	Achats	110	02/11/2025	607000	Achats de marchandises			MET11626	02/11/2025	Facture Metro Cash	726.09	0.00			20251130		
 AC	Achats	110	02/11/2025	445660	TVA déductible sur ABS			MET11626	02/11/2025	Facture Metro Cash	145.22	0.00			20251130		
-AC	Achats	110	02/11/2025	401000	Fournisseurs	F003	Metro Cash	MET11626	02/11/2025	Facture Metro Cash	0.00	871.31			20251130		
-VT	Ventes	111	08/11/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0031	08/11/2025	Facture Boulangerie Dupont	1344.10	0.00			20251130		
+AC	Achats	110	02/11/2025	401000	Fournisseurs	F003	Metro Cash	MET11626	02/11/2025	Facture Metro Cash	0.00	871.31	BZ	20251231	20251130		
+VT	Ventes	111	08/11/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0031	08/11/2025	Facture Boulangerie Dupont	1344.10	0.00	CA	20251231	20251130		
 VT	Ventes	111	08/11/2025	706000	Prestations de services			FA2025-0031	08/11/2025	Facture Boulangerie Dupont	0.00	1120.08			20251130		
 VT	Ventes	111	08/11/2025	445710	TVA collectée			FA2025-0031	08/11/2025	Facture Boulangerie Dupont	0.00	224.02			20251130		
 BQ	Banque	112	09/11/2025	401000	Fournisseurs	F002	EDF	EDF10765	09/11/2025	Paiement EDF	1041.42	0.00	BV	20251231	20251130		
 BQ	Banque	112	09/11/2025	512000	Banque			EDF10765	09/11/2025	Paiement EDF	0.00	1041.42			20251130		
 BQ	Banque	113	11/11/2025	512000	Banque			FA2025-0028	11/11/2025	Règlement Martin & Fils	2576.04	0.00			20251130		
-BQ	Banque	113	11/11/2025	411000	Clients	C002	Martin & Fils	FA2025-0028	11/11/2025	Règlement Martin & Fils	0.00	2576.04	BW	20251231	20251130		
-BQ	Banque	114	11/11/2025	401000	Fournisseurs	F003	Metro Cash	MET10562	11/11/2025	Paiement Metro Cash	1137.19	0.00	BX	20251231	20251130		
+BQ	Banque	113	11/11/2025	411000	Clients	C002	Martin & Fils	FA2025-0028	11/11/2025	Règlement Martin & Fils	0.00	2576.04	BX	20251231	20251130		
+BQ	Banque	114	11/11/2025	401000	Fournisseurs	F003	Metro Cash	MET10562	11/11/2025	Paiement Metro Cash	1137.19	0.00	BW	20251231	20251130		
 BQ	Banque	114	11/11/2025	512000	Banque			MET10562	11/11/2025	Paiement Metro Cash	0.00	1137.19			20251130		
-VT	Ventes	115	19/11/2025	411000	Clients	C002	Martin & Fils	FA2025-0033	19/11/2025	Facture Martin & Fils	1322.40	0.00			20251130		
+VT	Ventes	115	19/11/2025	411000	Clients	C002	Martin & Fils	FA2025-0033	19/11/2025	Facture Martin & Fils	1322.40	0.00	CB	20251231	20251130		
 VT	Ventes	115	19/11/2025	706000	Prestations de services			FA2025-0033	19/11/2025	Facture Martin & Fils	0.00	1102.00			20251130		
 VT	Ventes	115	19/11/2025	445710	TVA collectée			FA2025-0033	19/11/2025	Facture Martin & Fils	0.00	220.40			20251130		
 AC	Achats	116	21/11/2025	626000	Frais postaux et télécom			ORA11169	21/11/2025	Facture Orange	170.29	0.00			20251130		
 AC	Achats	116	21/11/2025	445660	TVA déductible sur ABS			ORA11169	21/11/2025	Facture Orange	34.06	0.00			20251130		
-AC	Achats	116	21/11/2025	401000	Fournisseurs	F001	Orange	ORA11169	21/11/2025	Facture Orange	0.00	204.35			20251130		
+AC	Achats	116	21/11/2025	401000	Fournisseurs	F001	Orange	ORA11169	21/11/2025	Facture Orange	0.00	204.35	CC	20251231	20251130		
 BQ	Banque	117	21/11/2025	512000	Banque			FA2025-0032	21/11/2025	Règlement Leroy Distribution	3131.64	0.00			20251130		
 BQ	Banque	117	21/11/2025	411000	Clients	C003	Leroy Distribution	FA2025-0032	21/11/2025	Règlement Leroy Distribution	0.00	3131.64	BY	20251231	20251130		
 BQ	Banque	118	28/11/2025	512000	Banque			FA2025-0031	28/11/2025	Règlement Boulangerie Dupont	1344.10	0.00			20251130		
-BQ	Banque	118	28/11/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0031	28/11/2025	Règlement Boulangerie Dupont	0.00	1344.10	BZ	20251231	20251130		
+BQ	Banque	118	28/11/2025	411000	Clients	C001	Boulangerie Dupont	FA2025-0031	28/11/2025	Règlement Boulangerie Dupont	0.00	1344.10	CA	20251231	20251130		
 OD	Opérations diverses	119	28/11/2025	641000	Rémunérations du personnel			SAL11	28/11/2025	Salaires 11/2025	2800.00	0.00			20251130		
 OD	Opérations diverses	119	28/11/2025	645100	Cotisations URSSAF			SAL11	28/11/2025	Salaires 11/2025	1150.00	0.00			20251130		
 OD	Opérations diverses	119	28/11/2025	421000	Personnel - Rémunérations dues			SAL11	28/11/2025	Salaires 11/2025	0.00	2180.00			20251130		
 OD	Opérations diverses	119	28/11/2025	431000	Sécurité sociale			SAL11	28/11/2025	Salaires 11/2025	0.00	1770.00			20251130		
-BQ	Banque	120	02/12/2025	401000	Fournisseurs	F003	Metro Cash	MET11626	02/12/2025	Paiement Metro Cash	871.31	0.00	CA	20251231	20251231		
+BQ	Banque	120	02/12/2025	401000	Fournisseurs	F003	Metro Cash	MET11626	02/12/2025	Paiement Metro Cash	871.31	0.00	BZ	20251231	20251231		
 BQ	Banque	120	02/12/2025	512000	Banque			MET11626	02/12/2025	Paiement Metro Cash	0.00	871.31			20251231		
 AC	Achats	121	04/12/2025	606100	Fournitures non stockables			EDF12462	04/12/2025	Facture EDF	1399.55	0.00			20251231		
 AC	Achats	121	04/12/2025	445660	TVA déductible sur ABS			EDF12462	04/12/2025	Facture EDF	279.91	0.00			20251231		
-AC	Achats	121	04/12/2025	401000	Fournisseurs	F002	EDF	EDF12462	04/12/2025	Facture EDF	0.00	1679.46			20251231		
-VT	Ventes	122	08/12/2025	411000	Clients	C004	Petit Événements	FA2025-0036	08/12/2025	Facture Petit Événements	2565.02	0.00			20251231		
+AC	Achats	121	04/12/2025	401000	Fournisseurs	F002	EDF	EDF12462	04/12/2025	Facture EDF	0.00	1679.46	CD	20251231	20251231		
+VT	Ventes	122	08/12/2025	411000	Clients	C004	Petit Événements	FA2025-0036	08/12/2025	Facture Petit Événements	2565.02	0.00	CE	20251231	20251231		
 VT	Ventes	122	08/12/2025	706000	Prestations de services			FA2025-0036	08/12/2025	Facture Petit Événements	0.00	2137.52			20251231		
 VT	Ventes	122	08/12/2025	445710	TVA collectée			FA2025-0036	08/12/2025	Facture Petit Événements	0.00	427.50			20251231		
 BQ	Banque	123	09/12/2025	512000	Banque			FA2025-0033	09/12/2025	Règlement Martin & Fils	1322.40	0.00			20251231		
 BQ	Banque	123	09/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0033	09/12/2025	Règlement Martin & Fils	0.00	1322.40	CB	20251231	20251231		
-VT	Ventes	124	09/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0034	09/12/2025	Facture Martin & Fils	3528.74	0.00			20251231		
+VT	Ventes	124	09/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0034	09/12/2025	Facture Martin & Fils	3528.74	0.00	CF	20251231	20251231		
 VT	Ventes	124	09/12/2025	706000	Prestations de services			FA2025-0034	09/12/2025	Facture Martin & Fils	0.00	2940.62			20251231		
 VT	Ventes	124	09/12/2025	445710	TVA collectée			FA2025-0034	09/12/2025	Facture Martin & Fils	0.00	588.12			20251231		
 AC	Achats	125	14/12/2025	626000	Frais postaux et télécom			ORA12984	14/12/2025	Facture Orange	891.59	0.00			20251231		
 AC	Achats	125	14/12/2025	445660	TVA déductible sur ABS			ORA12984	14/12/2025	Facture Orange	178.32	0.00			20251231		
-AC	Achats	125	14/12/2025	401000	Fournisseurs	F001	Orange	ORA12984	14/12/2025	Facture Orange	0.00	1069.91			20251231		
-VT	Ventes	126	18/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0035	18/12/2025	Facture Martin & Fils	890.30	0.00			20251231		
+AC	Achats	125	14/12/2025	401000	Fournisseurs	F001	Orange	ORA12984	14/12/2025	Facture Orange	0.00	1069.91	CG	20251231	20251231		
+VT	Ventes	126	18/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0035	18/12/2025	Facture Martin & Fils	890.30	0.00	CH	20251231	20251231		
 VT	Ventes	126	18/12/2025	706000	Prestations de services			FA2025-0035	18/12/2025	Facture Martin & Fils	0.00	741.92			20251231		
 VT	Ventes	126	18/12/2025	445710	TVA collectée			FA2025-0035	18/12/2025	Facture Martin & Fils	0.00	148.38			20251231		
 BQ	Banque	127	21/12/2025	401000	Fournisseurs	F001	Orange	ORA11169	21/12/2025	Paiement Orange	204.35	0.00	CC	20251231	20251231		
 BQ	Banque	127	21/12/2025	512000	Banque			ORA11169	21/12/2025	Paiement Orange	0.00	204.35			20251231		
 BQ	Banque	128	28/12/2025	512000	Banque			FA2025-0036	28/12/2025	Règlement Petit Événements	2565.02	0.00			20251231		
-BQ	Banque	128	28/12/2025	411000	Clients	C004	Petit Événements	FA2025-0036	28/12/2025	Règlement Petit Événements	0.00	2565.02	CD	20251231	20251231		
+BQ	Banque	128	28/12/2025	411000	Clients	C004	Petit Événements	FA2025-0036	28/12/2025	Règlement Petit Événements	0.00	2565.02	CE	20251231	20251231		
 OD	Opérations diverses	129	28/12/2025	641000	Rémunérations du personnel			SAL12	28/12/2025	Salaires 12/2025	2800.00	0.00			20251231		
 OD	Opérations diverses	129	28/12/2025	645100	Cotisations URSSAF			SAL12	28/12/2025	Salaires 12/2025	1150.00	0.00			20251231		
 OD	Opérations diverses	129	28/12/2025	421000	Personnel - Rémunérations dues			SAL12	28/12/2025	Salaires 12/2025	0.00	2180.00			20251231		
 OD	Opérations diverses	129	28/12/2025	431000	Sécurité sociale			SAL12	28/12/2025	Salaires 12/2025	0.00	1770.00			20251231		
 BQ	Banque	130	29/12/2025	512000	Banque			FA2025-0034	29/12/2025	Règlement Martin & Fils	3528.74	0.00			20251231		
-BQ	Banque	130	29/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0034	29/12/2025	Règlement Martin & Fils	0.00	3528.74	CE	20251231	20251231		
+BQ	Banque	130	29/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0034	29/12/2025	Règlement Martin & Fils	0.00	3528.74	CF	20251231	20251231		
 BQ	Banque	131	31/12/2025	512000	Banque			FA2025-0035	31/12/2025	Règlement Martin & Fils	890.30	0.00			20251231		
-BQ	Banque	131	31/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0035	31/12/2025	Règlement Martin & Fils	0.00	890.30	CF	20251231	20251231		
-BQ	Banque	132	31/12/2025	401000	Fournisseurs	F002	EDF	EDF12462	31/12/2025	Paiement EDF	1679.46	0.00	CG	20251231	20251231		
+BQ	Banque	131	31/12/2025	411000	Clients	C002	Martin & Fils	FA2025-0035	31/12/2025	Règlement Martin & Fils	0.00	890.30	CH	20251231	20251231		
+BQ	Banque	132	31/12/2025	401000	Fournisseurs	F002	EDF	EDF12462	31/12/2025	Paiement EDF	1679.46	0.00	CD	20251231	20251231		
 BQ	Banque	132	31/12/2025	512000	Banque			EDF12462	31/12/2025	Paiement EDF	0.00	1679.46			20251231		
-BQ	Banque	133	31/12/2025	401000	Fournisseurs	F001	Orange	ORA12984	31/12/2025	Paiement Orange	1069.91	0.00	CH	20251231	20251231		
+BQ	Banque	133	31/12/2025	401000	Fournisseurs	F001	Orange	ORA12984	31/12/2025	Paiement Orange	1069.91	0.00	CG	20251231	20251231		
 BQ	Banque	133	31/12/2025	512000	Banque			ORA12984	31/12/2025	Paiement Orange	0.00	1069.91			20251231		
