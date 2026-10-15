@@ -91,6 +91,21 @@ code{font-family:var(--mono);font-size:.88em}
 .btns{display:flex;flex-wrap:wrap;gap:10px}
 .warnline{margin:0;padding:8px 12px;border-radius:8px;background:var(--warn-bg);color:var(--fg);font-size:.92rem}
 /* Groupes et points */
+.todo,.files{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;display:grid;gap:8px}
+.todo h3,.files h3{margin:0;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.todo ul,.files ul{list-style:none;margin:0;padding:0;display:grid}
+.todo li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+.todo li:first-child,.files li:first-child{border-top:0}
+.todo em{font-style:normal;font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
+.wtag{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.wtag.source{background:var(--err-bg);color:var(--err)}.wtag.odoo{background:var(--info-bg);color:var(--info)}.wtag.after{background:var(--warn-bg);color:var(--warn)}
+.files li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.files li>div{display:grid;gap:2px;min-width:0}
+.files li span{color:var(--muted);font-size:.9rem}
+.files li .tag{display:inline-block;font-size:.72rem;font-weight:600;background:var(--ok-bg);color:var(--ok);padding:1px 8px;border-radius:999px;margin-left:6px}
+.detail>summary{font-size:.95rem}
+.detailin{display:grid;gap:18px;margin-top:6px}
+.detail .fixbtns,.detail .btns,.detail .confirm{display:none}
 .group{display:grid;gap:10px}
 .group header h3{margin:0;font-size:1.05rem;font-weight:600}
 .group header p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
@@ -132,7 +147,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 .guide{display:grid;gap:8px}
 .guide h3{margin:0;font-size:1.05rem;font-weight:600}
 .steps{margin:0;padding-left:22px;font-size:.93rem;display:grid;gap:6px;max-width:75ch}
-@media (max-width:600px){.verdict,.fixbox{grid-template-columns:1fr}.vtime{text-align:left;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.route li{grid-template-columns:2rem 1fr}.route em{grid-column:2}.passed{columns:1}}
+@media (max-width:600px){.todo li{grid-template-columns:1fr auto}.todo li .wtag{grid-column:1/-1;justify-self:start}.verdict,.fixbox{grid-template-columns:1fr}.vtime{text-align:left;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.route li{grid-template-columns:2rem 1fr}.route em{grid-column:2}.passed{columns:1}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -143,12 +158,12 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <main>
 <header>
   <h1>Contrôle FEC</h1>
-  <p>Avant d’importer le FEC d’un client dans Odoo, déposez-le ici. La page dit s’il passera, ce qu’il faut corriger, où et en combien de temps. Elle prépare un fichier de reprise pour Odoo sans toucher aux montants, et une balance d’ouverture quand le FEC ne vaut pas la peine. Chaque règle a été vérifiée par un import réel dans Odoo 20. Le fichier reste sur votre poste.</p>
+  <p>Déposez le FEC du client : la page dit s’il passera dans Odoo, ce qu’il faut régler et en combien de temps. Le fichier reste sur votre poste.</p>
 </header>
 
 <label class="drop" id="drop" tabindex="0">
   <strong>Glissez le FEC ici, ou cliquez pour le choisir</strong>
-  <span>Fichier .txt exporté par le logiciel du client (ou l’Excel dans lequel il a été collé). Pour un résultat exact, ajoutez les exports du plan comptable et des journaux de la base Odoo cible. Plusieurs exercices : déposez-les ensemble.</span>
+  <span>Ajoutez les exports du plan comptable et des journaux de la base Odoo cible pour un résultat exact (voir le mode d’emploi).</span>
   <input type="file" id="file" accept=".txt,.csv,.tsv,.xlsx,.xls" multiple>
 </label>
 
@@ -777,6 +792,18 @@ function planOf(R){
   else{level='err';title='FEC déconseillé en l’état';sub=delay?'Il faut un nouvel export ou des corrections dans le logiciel d’origine : cela dépend du client et prend souvent plusieurs jours.':'Les corrections à la main seraient longues et risquées.';}
   return {g,m,total,autoMin,level,title,sub,delay,blockSrc};
 }
+function summaryHTML(R,P,useAlt){
+  const W={source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'};
+  const key=['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)).map(i=>[w,i]));
+  const shown=key.slice(0,6);
+  const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map');
+  const files=[];
+  if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo</b><span>${I.ok?'Même contenu, au format attendu par Odoo. Montants contrôlés au centime.':'Bloqué : le contrôle d’intégrité a échoué.'}</span>${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de compte validées avec le client</label>`:''}</div><button class="btn${useAlt?'':' primary'}" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
+  if(F&&F.corr.length)files.push(`<li><div><b>Table de correspondance</b><span>Chaque changement de code, ligne par ligne, pour l’expert-comptable.</span></div><button class="btn" type="button" data-dl="corr" data-r="${R._id}">Télécharger</button></li>`);
+  if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
+  return `${key.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}</section>`:''}
+${files.length?`<section class="files"><h3>Fichiers à télécharger</h3><ul>${files.join('')}</ul><p class="note">Le FEC d’origine reste la seule pièce légale : le conserver tel quel, et ne jamais remettre ces fichiers à l’administration.</p></section>`:''}`;
+}
 function altHTML(R,P){
   const o=R._open;if(!o)return '';
   const ok=o.tot===0;
@@ -838,6 +865,8 @@ function render(reports){
     html+=`<div class="report">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(S.periode)}</small></h2>`:''}
 <section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${esc(P.sub)}</p></div>
 <div class="vtime"><span>${useAlt?'Avec la balance d’ouverture':'Temps estimé'}</span><b>≈ ${fmtMin(vTime)}</b>${useAlt?`<small>Corriger le FEC : ≈ ${fmtMin(total)}${P.delay?' + délai du client':''}</small>`:P.delay?'<small>+ délai du client</small>':''}</div></section>
+${summaryHTML(R,P,useAlt)}
+<details class="block detail"><summary>Voir le détail : plan d’action, explication de chaque point, contrôles</summary><div class="detailin">
 ${useAlt?altHTML(R,P):''}
 ${useAlt?'<p class="eyebrow">Si l’historique complet est indispensable dans Odoo</p>':''}
 <ol class="route">${(useAlt?steps:shownSteps).map(([w,t,m])=>`<li class="${w}"><span>${esc(t)}</span><em>${m?'≈ '+fmtMin(m):''}</em></li>`).join('')}</ol>
@@ -857,12 +886,12 @@ ${!R.issues.length?'<p class="note">Aucune anomalie détectée.</p>':''}
 <dl class="stats">${[['Lignes',S.lignes.toLocaleString('fr-FR')],['Écritures',S.ecritures.toLocaleString('fr-FR')],['Journaux',S.journaux],['Comptes',S.comptes],['Tiers',S.tiers],['Période',S.periode],['Total débit',S.total]].map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(String(v))}</dd></div>`).join('')}</dl>
 ${P.level==='ok'?altHTML(R,P).replace('<section class="alt"','<details class="block"><summary>Autre méthode : balance d’ouverture</summary><section class="alt"').replace(/<\/section>$/,'</section></details>'):''}
 ${R.jt&&R.jt.length?ctrlTable(R):''}
-<details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div>`;
+<details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div></details></div>`;
     txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
   $('reports').innerHTML=html;lastReport=txt.trim();
 }
-document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const b=document.querySelector(`[data-dl="fix"][data-r="${c.dataset.confirm}"]`);if(b&&REPORTS[+c.dataset.confirm]?._fix.integrity.ok)b.disabled=!c.checked;});
+document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const r=c.dataset.confirm;if(!REPORTS[+r]?._fix.integrity.ok)return;document.querySelectorAll(`[data-confirm="${r}"]`).forEach(x=>x.checked=c.checked);document.querySelectorAll(`[data-dl="fix"][data-r="${r}"]`).forEach(b=>b.disabled=!c.checked);});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;const R=REPORTS[+b.dataset.r];if(!R)return;
   const base=R.name.replace(/\.(xlsx?|csv|txt)$/i,'');const kind=b.dataset.dl;const old=b.textContent;b.disabled=true;
   try{let st;if(kind==='fix')st=await saveFile(base+'_reprise_odoo.txt',R._fix.text);
