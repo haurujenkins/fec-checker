@@ -1,0 +1,7 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+AN|A-nouveaux|1|20250101|101300|Capital|||-|20250101|Capital|0,00|10000,00|||20250101||
+AN|A-nouveaux|1|20250101|512100|Banque|||-|20250101|Banque|11200,00|0,00|||20250101||
+AN|A-nouveaux|1|20250101|445710|TVA collectee|||-|20250101|TVA collectee|0,00|200,00|||20250101||
+AN|A-nouveaux|1|20250101|120000|Resultat de l exercice|||-|20250101|Resultat de l exercice|0,00|1000,00|||20250101||
+HA|Achats|2|20250210|601000|Achats|||AC1|20250210|Achats|500,00|0,00|||20250210||
+HA|Achats|2|20250210|401000|Fournisseurs|F1|FOURNISSEUR UN|AC1|20250210|Fournisseurs|0,00|500,00|||20250210||

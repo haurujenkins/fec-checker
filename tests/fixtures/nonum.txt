@@ -1,0 +1,3 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+ACH|Achats|1|20250107|601A00|Achats mat|||P1|20250107|Lib|35,46|0,00|||20250107||
+ACH|Achats|1|20250107|401000|Fournisseurs|F1|FOURNISSEUR UN|P1|20250107|Lib|0,00|35,46|||20250107||

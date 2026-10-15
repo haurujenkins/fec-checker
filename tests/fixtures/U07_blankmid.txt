@@ -1,0 +1,4 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+ACH|Achats|U07|20250107|601200|Achat matériel été|||PU07|20250107|Libellé|35,46|0,00|||20250107||
+
+ACH|Achats|U07|20250107|401000|Fournisseurs|F1|FOURNISSEUR UN|PU07|20250107|Libellé|0,00|35,46|||20250107||

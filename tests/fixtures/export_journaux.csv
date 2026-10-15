@@ -1,0 +1,6 @@
+Préfixe de la Séquence,Nom du journal,Type
+INV,Factures clients,Ventes
+BILL,Factures fournisseurs,Achats
+MISC,Opérations diverses,Divers
+ACH,Achats marchandises,Achats
+BQ1,LCL,Banque
