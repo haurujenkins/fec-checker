@@ -43,7 +43,7 @@ def build():
             E.append(dict(j='VT', date=d, piece=ref, lib=f'Facture {cl[2]}', lignes=[
                 ('411000', 'Clients', cl, ttc, D(0)),
                 ('706000', 'Prestations de services', None, D(0), ht),
-                ('445710', 'TVA collectée', None, D(0), tva)]))
+                ('445710', 'TVA collectée', None, D(0), tva)], let=ref))
             E.append(dict(j='BQ', date=min(d + dt.timedelta(days=20), dt.date(2025, 12, 31)), piece=ref,
                           lib=f'Règlement {cl[2]}', lignes=[
                 ('512000', 'Banque', None, ttc, D(0)), ('411000', 'Clients', cl, D(0), ttc)], let=ref))
@@ -55,7 +55,7 @@ def build():
             ch = CHARGES[fo[1]]
             E.append(dict(j='AC', date=d, piece=ref, lib=f'Facture {fo[2]}', lignes=[
                 (ch[0], ch[1], None, ht, D(0)), ('445660', 'TVA déductible sur ABS', None, tva, D(0)),
-                ('401000', 'Fournisseurs', fo, D(0), ttc)]))
+                ('401000', 'Fournisseurs', fo, D(0), ttc)], let=ref))
             E.append(dict(j='BQ', date=min(d + dt.timedelta(days=30), dt.date(2025, 12, 31)), piece=ref,
                           lib=f'Paiement {fo[2]}', lignes=[
                 ('401000', 'Fournisseurs', fo, ttc, D(0)), ('512000', 'Banque', None, D(0), ttc)], let=ref))

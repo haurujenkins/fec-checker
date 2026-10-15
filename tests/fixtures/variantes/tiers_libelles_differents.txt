@@ -1,0 +1,5 @@
+JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
+VT	Journal VT	1	20250105	411000	C	C1	Nom A	F1	20250105	x	10,00	0,00			20250131		
+VT	Journal VT	1	20250105	706000	P			F1	20250105	x	0,00	10,00			20250131		
+VT	Journal VT	2	20250106	411000	C	C1	Nom B	F2	20250106	x	10,00	0,00			20250131		
+VT	Journal VT	2	20250106	706000	P			F2	20250106	x	0,00	10,00			20250131		

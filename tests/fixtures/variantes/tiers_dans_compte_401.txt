@@ -1,0 +1,3 @@
+JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
+AC	Journal AC	1	20250105	606400	F			P	20250105	x	10,00	0,00			20250131		
+AC	Journal AC	1	20250105	401DUPONT	Dupont			P	20250105	x	0,00	10,00			20250131		

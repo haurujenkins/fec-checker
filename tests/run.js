@@ -10,4 +10,4 @@ let last;eval(s+';global.handleFiles=handleFiles;');render=r=>{last=r;};
 const mk=p=>{const b=fs.readFileSync(p);return {name:path.basename(p),_buf:b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)};};
 (async()=>{await handleFiles(process.argv.slice(2).map(mk));await new Promise(r=>setTimeout(r,100));
  if(!last){console.log(els.fname.textContent);return;}
- for(const R of last){console.log(`== ${R.name}`);for(const i of R.issues)console.log(`[${i.sev}] ${i.title}${i.lines.length?' ('+i.lines.length+') : '+i.lines.slice(0,5).join(' ; '):''}`);}})();
+ for(const R of last){console.log(`== ${R.name}`);for(const i of R.issues)console.log(`[${i.sev}] ${i.title}${process.env.DESC&&!i.lines.length?" — "+i.desc:""}${i.lines.length?' ('+i.lines.length+') : '+i.lines.slice(0,5).join(' ; '):''}`);}})();
