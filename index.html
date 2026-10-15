@@ -7,7 +7,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout : une colonne de travail. Dépôt → verdict et temps → parcours en étapes → FEC corrigé → points groupés par endroit où agir. */
+/* Layout : une colonne de travail. Dépôt → verdict et temps → parcours en étapes → fichier de reprise → points groupés par endroit où agir. */
 :root{
   --bg:#f5f6f3; --surface:#ffffff; --sunk:#eef0ec; --fg:#18212c; --muted:#59636f; --line:#d8dcd4;
   --accent:#1f4e79; --accent-fg:#ffffff;
@@ -66,7 +66,7 @@ code{font-family:var(--mono);font-size:.88em}
 .route li::before{content:counter(st);width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;font-size:.85rem;font-weight:600;background:var(--sunk);color:var(--muted)}
 .route li.auto::before{background:var(--ok-bg);color:var(--ok)}.route li.source::before{background:var(--err-bg);color:var(--err)}.route li.odoo::before,.route li.import::before{background:var(--info-bg);color:var(--info)}.route li.after::before{background:var(--warn-bg);color:var(--warn)}
 .route em{font-style:normal;font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
-/* FEC corrigé */
+/* Fichier de reprise */
 .fixbox{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;padding:18px 20px;border-radius:12px;background:var(--ok-bg);border:1px solid var(--line)}
 .fixbox h3,.alt h3{margin:0 0 4px;font-size:1.1rem;font-weight:600}
 .fixbox p{margin:0 0 6px}
@@ -74,6 +74,12 @@ code{font-family:var(--mono);font-size:.88em}
 .fixbox .after{font-size:.95rem}
 .count{display:inline-block;font-family:var(--mono);font-size:.78rem;font-weight:500;background:var(--sunk);color:var(--muted);border-radius:999px;padding:0 7px;margin-left:4px;vertical-align:1px}
 .fixbox .count{background:var(--surface)}
+.fixmain{display:grid;gap:6px;min-width:0}
+.fixbtns{display:grid;gap:8px;justify-items:stretch}
+.legal{margin:0;padding:8px 12px;border-radius:8px;background:var(--surface);font-size:.88rem;border:1px solid var(--line)}
+.integ{margin:0;font-size:.92rem}.integ.ok{color:var(--ok)}.integ.bad{color:var(--err);font-weight:600}
+.confirm{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.confirm input{margin-top:4px;accent-color:var(--accent)}
 /* Alternative */
 .alt{padding:18px 20px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);display:grid;gap:10px}
 .alt p{margin:0;max-width:68ch}
@@ -137,7 +143,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <main>
 <header>
   <h1>Contrôle FEC</h1>
-  <p>Avant d’importer le FEC d’un client dans Odoo, déposez-le ici. La page dit s’il passera, ce qu’il faut corriger, où et en combien de temps. Elle prépare un FEC corrigé, et une balance d’ouverture quand le FEC ne vaut pas la peine. Chaque règle a été vérifiée par un import réel dans Odoo 20. Le fichier reste sur votre poste.</p>
+  <p>Avant d’importer le FEC d’un client dans Odoo, déposez-le ici. La page dit s’il passera, ce qu’il faut corriger, où et en combien de temps. Elle prépare un fichier de reprise pour Odoo sans toucher aux montants, et une balance d’ouverture quand le FEC ne vaut pas la peine. Chaque règle a été vérifiée par un import réel dans Odoo 20. Le fichier reste sur votre poste.</p>
 </header>
 
 <label class="drop" id="drop" tabindex="0">
@@ -161,11 +167,13 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <li><strong>Travailler sur une copie de test</strong> (staging) ou après une sauvegarde : un import raté laisse des écritures à moitié importées.</li>
 <li><strong>Installer le module</strong> « France - FEC Import » (<code>l10n_fr_fec_import</code>). Il n’a pas de menu : chercher « Import FEC » dans la barre de recherche d’Odoo.</li>
 <li><strong>Préparer la base</strong> avec les points « À faire dans Odoo, avant l’import » (comptes existants à désarchiver, devises à activer).</li>
-<li><strong>Importer</strong> le FEC corrigé : saisir un préfixe de document (ex. « 2025 ») et laisser « Ignorer » pour les doublons. Plusieurs exercices : du plus ancien au plus récent, un préfixe par exercice, à-nouveaux seulement dans le premier.</li>
+<li><strong>Importer</strong> le fichier de reprise : saisir un préfixe de document (ex. « 2025 ») et laisser « Ignorer » pour les doublons. Plusieurs exercices : du plus ancien au plus récent, un préfixe par exercice, à-nouveaux seulement dans le premier.</li>
 <li><strong>Désarchiver les comptes créés archivés</strong> s’il y en a, puis <strong>comptabiliser</strong> les pièces (elles arrivent en brouillon) : le lettrage est alors reconstitué.</li>
 <li><strong>Contrôler</strong> : totaux par journal (tableau de la page), puis balance Odoo contre balance du logiciel d’origine. Reprendre les points « après l’import ».</li>
+<li><strong>Verrouiller</strong> les périodes reprises (Comptabilité → Configuration → Paramètres → dates de verrouillage) : les écritures validées ne doivent plus être modifiées, seulement contre-passées.</li>
+<li><strong>Conserver le FEC d’origine</strong> et les états du logiciel d’origine : pour les exercices tenus dans l’ancien logiciel, c’est ce FEC qui fait foi en cas de contrôle, pas un FEC réexporté depuis Odoo.</li>
 </ol>
-<p class="note">Pour remettre un FEC à l’administration, l’outil Test Compta Démat de la DGFiP reste la référence.</p>
+<p class="note">Cadre légal : le FEC est la copie des écritures produite par le logiciel de l’entreprise (art. L47 A du LPF) ; les écritures validées sont intangibles et ne se corrigent que par contre-passation (<a href="https://bofip.impots.gouv.fr/export/pdf/5001" target="_blank" rel="noopener">BOFiP BOI-BIC-DECLA-30-10-20-40</a>). La page ne modifie donc jamais un montant, un sens, une date d’écriture ni une devise. Pour remettre un FEC à l’administration, l’outil Test Compta Démat de la DGFiP reste la référence.</p>
 </details>
 </main>
 
@@ -476,14 +484,14 @@ function analyse({name,rows,meta,isSample}){
   if(jColl.length)add('odoo','Code journal déjà utilisé dans '+(BASE_SRC?'la base cible':'Odoo par défaut')+' par un journal d’un autre type','Vérifié : Odoo rattache les écritures au journal existant portant ce code, quel que soit son type (ex. écritures d’inventaire « INV » versées dans le journal Factures clients « INV »). Renommer le code dans le FEC ou le journal Odoo avant l’import.',jColl,'Journal');
   if(jNew.length&&BASE_HAS_J)add('info','Journaux absents de la base cible (seront créés)','Odoo crée ces journaux avec un type deviné : le vérifier après import (un journal d’achats créé en « Divers » empêche la saisie de factures).',jNew,'Journal');
   if(jSame.length)add('info','Codes journaux repris des journaux par défaut d’Odoo','Même code et même nature que le journal Odoo existant (typique d’un FEC exporté depuis Odoo) : les écritures y seront versées.',jSame,'Journal');
-  // Type des journaux créés — vérifié : ≥ 3 écritures et au moins ~2/3 d’entre elles sur un compte client (41x) → Ventes, fournisseur (40x) → Achats, banque/caisse (512-519, 53) → Banque ; sinon Divers (70 % → Ventes, 60 % → Divers ; 2 écritures → Divers)
+  // Type des journaux créés — vérifié : ≥ 3 écritures et au moins 70 % d’entre elles sur un compte client (41x) → Ventes, fournisseur (40x) → Achats, banque/caisse (512-519, 53) → Banque ; sinon Divers (70 % → Ventes, 60 % → Divers ; 2 écritures → Divers)
   const JL={sale:'Ventes',purchase:'Achats',bank:'Banque',general:'Divers'};const jPred=[],jMis=[];
   for(const [j,m] of jent){const J=j.trim().toUpperCase();if(Object.keys(BASE_JOURNALS).some(k=>k.trim().toUpperCase()===J))continue;
     const n=m.size;let best='general',bs=0;for(const [t,f] of [['sale','r'],['purchase','p'],['bank','b']]){const sh=[...m.values()].filter(o=>o[f]).length/n;if(sh>bs){bs=sh;best=t;}}
-    const pred=n>=3&&bs>=2/3?best:'general';const lib=norm([...(journals.get(j)||[])][0]||'');
+    const pred=n>=3&&bs>=0.7?best:'general';const lib=norm([...(journals.get(j)||[])][0]||'');
     const want=/vente/.test(lib)?'sale':/achat/.test(lib)?'purchase':/banque|caisse/.test(lib)?'bank':null;
     jPred.push(`${j} → ${JL[pred]}`);if(want&&want!==pred)jMis.push(`${j} « ${[...(journals.get(j)||[])][0]} » sera créé en ${JL[pred]} (${n} écriture${n>1?'s':''}, ${Math.round(bs*100)} % sur un compte ${want==='sale'?'client':want==='purchase'?'fournisseur':'de banque'})`);}
-  if(jMis.length)add('warn','Journaux qui seront créés avec un type différent de leur libellé','Vérifié : Odoo devine le type d’un journal créé d’après son contenu, pas son code ni son libellé. Il faut au moins 3 écritures, et environ deux tiers d’entre elles doivent toucher un compte client (41x) pour Ventes, fournisseur (40x) pour Achats, banque (512, 53) pour Banque. Sinon : Divers. Corriger le type après import (Comptabilité → Configuration → Journaux) ; un journal d’achats en Divers ne permet pas de saisir de factures.',jMis,'Journal');
+  if(jMis.length)add('warn','Journaux qui seront créés avec un type différent de leur libellé','Vérifié : Odoo devine le type d’un journal créé d’après son contenu, pas son code ni son libellé. Il faut au moins 3 écritures, et au moins 70 % d’entre elles doivent toucher un compte client (41x) pour Ventes, fournisseur (40x) pour Achats, banque (512, 53) pour Banque. Sinon : Divers. Corriger le type après import (Comptabilité → Configuration → Journaux) ; un journal d’achats en Divers ne permet pas de saisir de factures.',jMis,'Journal');
   if(jPred.length)add('info','Type prévu des journaux créés',`D’après la règle vérifiée sur Odoo 20 (contenu des écritures) : ${jPred.join(' ; ')}.`);
   // Lettrage
   const lt=[...letters.values()];const ltSingle=lt.filter(o=>o.n===1).map(o=>`${o.cn} lettre ${o.let} (ligne ${o.first})`);const ltPart=lt.filter(o=>o.n>1&&o.s!==0).map(o=>`${o.cn} lettre ${o.let} (écart ${fmtE(o.s)}, ligne ${o.first})`);
@@ -560,89 +568,85 @@ function normDate(s){s=String(s??'').trim();if(s===''||/^\d{8}$/.test(s))return 
   m=s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);if(m)return m[1]+m[2].padStart(2,'0')+m[3].padStart(2,'0');
   return s;}
 function fixFEC(rows,hints){
-  const ch={},c=(k,n=1)=>{ch[k]=(ch[k]||0)+n;};const left=[];
+  // Deux natures de modifications, jamais d'autre :
+  //  fmt : écriture technique d'une même valeur (encodage, séparateur, en-tête, guillemets, espaces, virgule décimale, date AAAAMMJJ, Montant/Sens → Débit/Crédit) ;
+  //  map : correspondance de reprise (codes de compte, tiers, code journal, numéro d'écriture, libellé vide) — listée ligne à ligne, à valider.
+  // Interdit : changer un montant, un sens, une date d'écriture, une devise ; ajouter ou retirer une ligne de données.
+  const ch={},c=(k,kind,n=1)=>{ch[k]=ch[k]||{n:0,kind};ch[k].n+=n;};const left=[],corr=[];
   const hdr=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim());
   const idx={};EXPECTED.forEach(e=>idx[e]=hdr.findIndex(h=>h.toLowerCase()===e.toLowerCase()));
   const iM=hdr.findIndex(h=>/^montant$/i.test(h)),iS=hdr.findIndex(h=>/^sens$/i.test(h));const bnc=idx.Debit<0&&idx.Credit<0&&iM>=0&&iS>=0;
   const missing=EXPECTED.filter(e=>idx[e]<0&&!(bnc&&(e==='Debit'||e==='Credit'))&&!['Montantdevise','Idevise','EcritureLet','DateLet','ValidDate'].includes(e));
-  if(missing.length)return {error:'Colonnes introuvables : '+missing.join(', ')+'. Le fichier ne peut pas être corrigé automatiquement.'};
-  if(hdr.slice(0,18).join('|')!==EXPECTED.join('|'))c('En-tête remis au format réglementaire (18 colonnes, ordre et casse)');
-  const out=[];const AN=new Set(hints.anJournals||[]);
-  for(const r of rows.slice(1)){
-    if(!r.some(x=>String(x).trim()!=='')){c('Lignes vides supprimées');continue;}
-    const o={};let q=false,sp=false,sepIn=false;
+  if(missing.length)return {error:'Colonnes introuvables : '+missing.join(', ')+'. Pas de fichier de reprise possible.'};
+  if(hdr.slice(0,18).join('|')!==EXPECTED.join('|'))c('En-tête remis au format réglementaire (18 colonnes, ordre et casse)','fmt');
+  const out=[];let srcD=0,srcC=0,srcN=0;
+  rows.slice(1).forEach((r,ri)=>{
+    const ln=ri+2;
+    if(!r.some(x=>String(x).trim()!=='')){c('Lignes vides supprimées (aucune donnée)','fmt');return;}
+    srcN++;const o={};let q=false,sp=false,sepIn=false;
     for(const e of EXPECTED){let v=idx[e]>=0?String(r[idx[e]]??''):'';
       if(v.includes('"')){v=v.replace(/"/g,'');q=true;}
       if(/[\t|]/.test(v)){v=v.replace(/[\t|]/g,' ');sepIn=true;}
       if(v!==v.trim()){v=v.trim();sp=true;}
       o[e]=v;}
-    if(q)c('Guillemets retirés des libellés');if(sepIn)c('Tabulations et | retirés de l’intérieur des champs');if(sp)c('Espaces en début ou fin de champ retirés');
-    if(hints.dropAN&&AN.has(o.JournalCode)){c('Lignes d’à-nouveaux retirées (un exercice antérieur est importé)');continue;}
-    // Montants
-    let rd,rc;
-    if(bnc){const v=parseAmt(r[iM]),s=String(r[iS]??'').trim().toUpperCase();rd=s==='D'?v:0;rc=s==='C'?v:0;if(s!=='D'&&s!=='C')rd=NaN;c('Variante Montant / Sens convertie en Débit / Crédit');}
-    else{rd=parseAmt(o.Debit);rc=parseAmt(o.Credit);}
-    if(isNaN(rd)||isNaN(rc)){left.push('Montant illisible ligne '+(out.length+2));rd=isNaN(rd)?0:rd;rc=isNaN(rc)?0:rc;}
-    else if(!bnc){const raw=o.Debit+o.Credit;
-      if(/\./.test(raw)||/\d\s\d/.test(raw)||/€/.test(raw))c('Montants remis à la virgule décimale, sans séparateur de milliers');
-      if(/,\d{3,}/.test(o.Debit)||/,\d{3,}/.test(o.Credit))c('Montants à plus de 2 décimales arrondis au centime');
-      if(o.Debit===''||o.Credit==='')c('Montants vides remplacés par 0,00');}
-    if(rd<0){rc+=-rd;rd=0;c('Montants négatifs passés de l’autre côté');}
-    if(rc<0){rd+=-rc;rc=0;c('Montants négatifs passés de l’autre côté');}
-    if(rd&&rc){const n=rd-rc;rd=n>0?n:0;rc=n<0?-n:0;c('Débit et crédit d’une même ligne compensés');}
-    o.Debit=fmtA(rd);o.Credit=fmtA(rc);
-    // Dates
-    for(const k of ['EcritureDate','PieceDate','DateLet','ValidDate']){const v=normDate(o[k]);if(v!==o[k]){o[k]=v;c('Dates converties au format AAAAMMJJ');}}
-    if(!o.PieceDate&&o.EcritureDate){o.PieceDate=o.EcritureDate;c('PieceDate vide remplacée par EcritureDate');}
-    if(AN.has(o.JournalCode)&&hints.fyStart&&o.EcritureDate>hints.fyStart){o.EcritureDate=hints.fyStart;c('À-nouveaux datés au premier jour de l’exercice ('+hints.fyStart+')');}
-    // Comptes et tiers
-    let cn=o.CompteNum;
-    if(/^[09][A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[0]==='0';o.CompAuxNum=cn.slice(1);o.CompAuxLib=o.CompteLib||cn.slice(1);o.CompteNum=f?'401000':'411000';o.CompteLib=f?'Fournisseurs':'Clients';c('Tiers sortis de CompteNum : 0… → 401000, 9… → 411000, code du tiers en CompAuxNum');}
-    else if(/^4[01]\d*[A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[1]==='0';o.CompAuxNum=cn;o.CompAuxLib=o.CompteLib||cn;o.CompteNum=f?'401000':'411000';o.CompteLib=f?'Fournisseurs':'Clients';c('Comptes de tiers individuels regroupés sur 401000 / 411000, tiers en CompAuxNum');}
-    else if(/^\d{1,5}$/.test(cn)){o.CompteNum=cn.padEnd(6,'0');c('Codes de compte courts complétés à 6 chiffres');}
-    else if(/^\d{7,}$/.test(cn)&&/0$/.test(cn)){let k=cn;while(k.length>6&&k.endsWith('0'))k=k.slice(0,-1);if(k!==cn){o.CompteNum=k;c('Codes de compte longs ramenés à 6 chiffres (zéros finaux retirés, comme le fait Odoo)');}}
-    if(o.CompAuxNum&&!o.CompAuxLib){o.CompAuxLib=o.CompAuxNum;c('Libellé de tiers vide remplacé par son code');}
-    if(!o.JournalLib&&o.JournalCode){o.JournalLib=o.JournalCode;c('Libellé de journal vide remplacé par son code');}
-    if(o.DateLet&&!o.EcritureLet){o.DateLet='';c('DateLet sans lettre de lettrage vidée');}
-    // Devise
-    const md=o.Montantdevise,idv=o.Idevise.toUpperCase();
-    if(md&&!idv){o.Montantdevise='';c('Montant en devise sans code devise vidé');}
-    else if(idv&&!md){o.Idevise='';c('Code devise sans montant vidé');}
-    else if(md&&idv){const mv=parseAmt(md);if(idv==='EUR'&&mv!==rd-rc){o.Montantdevise='';o.Idevise='';c('Montant en devise vidé sur les lignes en euros (Odoo l’aurait pris pour le montant)');}else if(!isNaN(mv))o.Montantdevise=fmtA(mv);}
-    if(hints.renameJ&&hints.renameJ[o.JournalCode]){c(`Journal ${o.JournalCode} renommé ${hints.renameJ[o.JournalCode]} (code déjà pris dans Odoo par un journal d’un autre type)`);o.JournalCode=hints.renameJ[o.JournalCode];}
+    if(q)c('Guillemets retirés des libellés','fmt');if(sepIn)c('Tabulations et | retirés de l’intérieur des libellés','fmt');if(sp)c('Espaces en début ou fin de champ retirés','fmt');
+    o._ln=ln;
+    // Montants : réécriture du même nombre, sinon on laisse tel quel
+    const keep=k=>{const raw=o[k];if(raw==='')return 0;const v=parseAmt(raw);if(isNaN(v)||v<0||/,\d{3,}|\.\d{3,}$/.test(raw.replace(/\s/g,''))){left.push(`${k} ligne ${ln} (« ${raw} ») laissé tel quel`);return null;}const f=fmtA(v);if(f!==raw){o[k]=f;c('Montants réécrits à la virgule décimale, sans séparateur de milliers (même valeur)','fmt');}return v;};
+    let d,cr;
+    if(bnc){const v=parseAmt(r[iM]),s=String(r[iS]??'').trim().toUpperCase();if(!isNaN(v)&&v>=0&&(s==='D'||s==='C')){d=s==='D'?v:0;cr=s==='C'?v:0;o.Debit=fmtA(d);o.Credit=fmtA(cr);c('Variante Montant / Sens écrite en Débit / Crédit (même valeur)','fmt');}else{left.push('Montant / Sens illisible ligne '+ln);d=0;cr=0;}}
+    else{d=keep('Debit');cr=keep('Credit');}
+    {const rd=bnc?(String(r[iS]??'').trim().toUpperCase()==='D'?parseAmt(r[iM]):0):cents(idx.Debit>=0?r[idx.Debit]:'')[0],rc=bnc?(String(r[iS]??'').trim().toUpperCase()==='C'?parseAmt(r[iM]):0):cents(idx.Credit>=0?r[idx.Credit]:'')[0];srcD+=isNaN(rd)?0:rd;srcC+=isNaN(rc)?0:rc;}
+    // Dates : seulement le format, jamais la date
+    for(const k of ['EcritureDate','PieceDate','DateLet','ValidDate']){const v=normDate(o[k]);if(v!==o[k]){if(isDate(v)){o[k]=v;c('Dates écrites au format AAAAMMJJ (même date)','fmt');}}}
+    // Correspondances de reprise
+    const cn=o.CompteNum;const M=(field,old,nw,label)=>{corr.push([ln,field,old,nw]);c(label,'map');};
+    if(/^[09][A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[0]==='0';const nw=f?'401000':'411000';M('CompteNum',cn,nw+' + CompAuxNum '+cn.slice(1),'Tiers sortis de CompteNum : 0… → 401000, 9… → 411000, code du tiers en compte auxiliaire');o.CompAuxNum=cn.slice(1);o.CompAuxLib=o.CompteLib||cn.slice(1);o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
+    else if(/^4[01]\d*[A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[1]==='0';const nw=f?'401000':'411000';M('CompteNum',cn,nw+' + CompAuxNum '+cn,'Comptes de tiers individuels regroupés sur 401000 / 411000, tiers en compte auxiliaire');o.CompAuxNum=cn;o.CompAuxLib=o.CompteLib||cn;o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
+    else if(/^\d{1,5}$/.test(cn)){const nw=cn.padEnd(6,'0');M('CompteNum',cn,nw,'Codes de compte courts complétés à 6 chiffres');o.CompteNum=nw;}
+    else if(/^\d{7,}$/.test(cn)&&/0$/.test(cn)){let k=cn;while(k.length>6&&k.endsWith('0'))k=k.slice(0,-1);if(k!==cn){M('CompteNum',cn,k,'Codes de compte longs ramenés à 6 chiffres (zéros finaux, comme le fait Odoo)');o.CompteNum=k;}}
+    if(o.CompAuxNum&&!o.CompAuxLib){M('CompAuxLib','',o.CompAuxNum,'Nom de tiers vide remplacé par son code (ce que ferait Odoo)');o.CompAuxLib=o.CompAuxNum;}
+    if(hints.renameJ&&hints.renameJ[o.JournalCode]){const nw=hints.renameJ[o.JournalCode];M('JournalCode',o.JournalCode,nw,`Journal ${o.JournalCode} renommé ${nw} (code déjà pris dans Odoo par un journal d’un autre type)`);o.JournalCode=nw;}
     out.push(o);
-  }
-  // Libellés de compte vides : repris d’une autre ligne du même compte, sinon « Compte xxxxxx »
+  });
   const lib=new Map();for(const o of out)if(o.CompteLib&&!lib.has(o.CompteNum))lib.set(o.CompteNum,o.CompteLib);
-  for(const o of out)if(!o.CompteLib){o.CompteLib=lib.get(o.CompteNum)||('Compte '+o.CompteNum);c('Libellés de compte vides complétés');}
-  // EcritureNum vides : numérotés si chaque regroupement journal + pièce + date est équilibré
+  for(const o of out)if(!o.CompteLib){const nw=lib.get(o.CompteNum)||('Compte '+o.CompteNum);corr.push([o._ln,'CompteLib','',nw]);c('Libellés de compte vides complétés (repris d’une autre ligne du compte)','map');o.CompteLib=nw;}
   const empty=out.filter(o=>!o.EcritureNum);
-  if(empty.length){const g=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;g.set(k,(g.get(k)||0)+parseAmt(o.Debit)-parseAmt(o.Credit));}
+  if(empty.length){const g=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;g.set(k,(g.get(k)||0)+(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0));}
     const bad=[...g.values()].filter(v=>v!==0).length;
-    if(!bad){const num=new Map(),seq=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;if(!num.has(k)){const n=(seq.get(o.JournalCode)||0)+1;seq.set(o.JournalCode,n);num.set(k,'R'+n);}o.EcritureNum=num.get(k);}c(`EcritureNum attribués à ${empty.length} lignes (une pièce par journal + PieceRef + date, toutes équilibrées)`);}
-    else left.push(`EcritureNum vide : ${bad} regroupement${bad>1?'s':''} journal + pièce + date non équilibré${bad>1?'s':''}, impossible de reconstituer les écritures`);}
+    if(!bad){const num=new Map(),seq=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;if(!num.has(k)){const n=(seq.get(o.JournalCode)||0)+1;seq.set(o.JournalCode,n);num.set(k,'R'+n);}o.EcritureNum=num.get(k);corr.push([o._ln,'EcritureNum','',o.EcritureNum]);}c('Numéros d’écriture attribués (une pièce par journal + référence + date, toutes équilibrées)','map',empty.length);}
+    else left.push(`Numéro d’écriture vide : ${bad} regroupement${bad>1?'s':''} non équilibré${bad>1?'s':''}, impossible de reconstituer les écritures`);}
+  // Contrôle d'intégrité : mêmes lignes, mêmes montants, mêmes dates, dans le même ordre
+  let okN=out.length===srcN,dD=0,dC=0;for(const o of out){dD+=parseAmt(o.Debit)||0;dC+=parseAmt(o.Credit)||0;}
+  const integrity={lines:out.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,ok:okN&&dD===srcD&&dC===srcC};
   const text=[EXPECTED.join('\t'),...out.map(o=>EXPECTED.map(e=>o[e]).join('\t'))].join('\r\n')+'\r\n';
-  return {text,out,changes:ch,left};
+  const corrCsv=['ligne;champ;valeur d’origine;valeur dans le fichier de reprise',...corr.map(r=>r.map(x=>String(x).replace(/;/g,',')).join(';'))].join('\r\n')+'\r\n';
+  return {text,out,changes:ch,left,corr,corrCsv,integrity};
 }
 
 /* ---------- Alternative : balance d'ouverture ---------- */
 function buildOpening(out,hints){
   const end=out.reduce((m,o)=>o.EcritureDate>m?o.EcritureDate:m,'');if(!end)return null;
   const d=new Date(Date.UTC(+end.slice(0,4),+end.slice(4,6)-1,+end.slice(6,8)+1));const date=d.toISOString().slice(0,10);
-  const bal=new Map();let res=0;const libs=new Map(),partners=new Map();
+  const bal=new Map();let res=0;const libs=new Map(),partners=new Map();const items=[];
+  const letUsed=new Set(out.filter(o=>/^4[01]/.test(o.CompteNum)&&o.EcritureLet).map(o=>o.CompteNum));
   for(const o of out){const v=parseAmt(o.Debit)-parseAmt(o.Credit);const a=o.CompteNum;
     if(/^[67]/.test(a)){res+=v;continue;}if(/^[89]/.test(a))continue;
-    const tiers=/^4[01]/.test(a)&&o.CompAuxNum;const k=a+'\u0001'+(tiers?o.CompAuxNum:'');
+    const tiers=/^4[01]/.test(a)&&o.CompAuxNum;if(tiers&&letUsed.has(a)){items.push({o,v});partners.set(o.CompAuxNum,o.CompAuxLib||o.CompAuxNum);if(!libs.has(a))libs.set(a,o.CompteLib);continue;}const k=a+'\u0001'+(tiers?o.CompAuxNum:'');
     if(!bal.has(k))bal.set(k,{a,p:tiers?o.CompAuxLib||o.CompAuxNum:'',ref:tiers?o.CompAuxNum:'',s:0});bal.get(k).s+=v;
     if(!libs.has(a))libs.set(a,o.CompteLib);if(tiers)partners.set(o.CompAuxNum,o.CompAuxLib||o.CompAuxNum);}
   if(res){const ra=res>0?'129000':'120000';const k=ra+'\u0001';if(!bal.has(k))bal.set(k,{a:ra,p:'',ref:'',s:0});bal.get(k).s+=res;libs.set(ra,libs.get(ra)||(res>0?'Résultat de l’exercice (perte)':'Résultat de l’exercice (bénéfice)'));}
-  const lines=[...bal.values()].filter(b=>b.s!==0).sort((x,y)=>x.a.localeCompare(y.a)||x.p.localeCompare(y.p));
+  // Clients / fournisseurs repris pièce par pièce : lignes non lettrées, et reste des lettres non soldées
+  const grp=new Map();for(const {o,v} of items){const k=o.CompteNum+'\u0001'+o.CompAuxNum+'\u0001'+(o.EcritureLet||'#'+grp.size);if(!grp.has(k))grp.set(k,{a:o.CompteNum,p:o.CompAuxLib||o.CompAuxNum,ref:o.CompAuxNum,s:0,o,let:o.EcritureLet,n:0});const g=grp.get(k);g.s+=v;g.n++;if(o.EcritureDate>g.o.EcritureDate)g.o=o;}
+  const open=[...grp.values()].filter(g=>g.s!==0).map(g=>({a:g.a,p:g.p,ref:g.ref,s:g.s,label:(g.let&&g.n>1?`Reste lettre ${g.let} · `:'')+[g.o.PieceRef,g.o.EcritureLib].filter(Boolean).join(' · '),due:g.o.EcritureDate}));
+  const lines=[...bal.values()].filter(b=>b.s!==0).concat(open).sort((x,y)=>x.a.localeCompare(y.a)||x.p.localeCompare(y.p)||(x.due||'').localeCompare(y.due||''));
   const tot=lines.reduce((t,b)=>t+b.s,0);
-  const head=['date','journal_id','ref','line_ids/account_id','line_ids/partner_id','line_ids/name','line_ids/debit','line_ids/credit'];
-  const aoa=[head];lines.forEach((b,i)=>aoa.push([i?'':date,i?'':hints.journal||'MISC',i?'':'Balance d’ouverture au '+date.split('-').reverse().join('/'),b.a,b.p,b.p?'Solde '+b.p:'Solde '+(libs.get(b.a)||b.a),b.s>0?b.s/100:0,b.s<0?-b.s/100:0]));
+  const head=['date','journal_id','ref','line_ids/account_id','line_ids/partner_id','line_ids/name','line_ids/date_maturity','line_ids/debit','line_ids/credit'];
+  const iso=d=>d&&d.length===8?d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8):'';
+  const aoa=[head];lines.forEach((b,i)=>aoa.push([i?'':date,i?'':hints.journal||'MISC',i?'':'Balance d’ouverture au '+date.split('-').reverse().join('/'),b.a,b.p,b.label||(b.p?'Solde '+b.p:'Solde '+(libs.get(b.a)||b.a)),iso(b.due),b.s>0?b.s/100:0,b.s<0?-b.s/100:0]));
   const pAoa=[['name','ref'],...[...partners].map(([ref,name])=>[name,ref])];
   const missing=[...new Set(lines.map(b=>b.a))].filter(a=>!PCG_ACTIVE.has(a));
-  return {date,lines:lines.length,tot,res,aoa,pAoa,partners:partners.size,missing,libs};
+  return {date,lines:lines.length,tot,res,aoa,pAoa,partners:partners.size,missing,libs,openItems:open.length};
 }
 function xlsxBlob(aoa,sheet){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),sheet);return new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})]);}
 async function saveFile(filename,data){
@@ -651,19 +655,19 @@ async function saveFile(filename,data){
 }
 
 /* ---------- Catalogue : explication simple, où agir, temps ---------- */
-// where : auto (le FEC corrigé s’en charge) · odoo (dans Odoo avant l’import) · source (logiciel d’origine / expert-comptable) · after (dans Odoo après l’import) · note (rien à faire)
+// where : auto (le fichier de reprise s’en charge) · odoo (dans Odoo avant l’import) · source (logiciel d’origine / expert-comptable) · after (dans Odoo après l’import) · note (rien à faire)
 // effect : bloque (l’import échoue) · fausse (import réussi mais données fausses) · suivi (à reprendre ensuite) · dgfip (norme seulement, Odoo l’accepte) · aucun
 const C=(re,o)=>Object.assign({re},o);
 const CAT=[
- C(/^Séparateur « /,{t:'Le fichier utilise le mauvais séparateur de colonnes',why:'Odoo ne lit que les fichiers séparés par des tabulations ou des barres |.',how:['Le FEC corrigé est écrit avec des tabulations.'],where:'auto',effect:'bloque'}),
+ C(/^Séparateur « /,{t:'Le fichier utilise le mauvais séparateur de colonnes',why:'Odoo ne lit que les fichiers séparés par des tabulations ou des barres |.',how:['Le fichier de reprise est écrit avec des tabulations.'],where:'auto',effect:'bloque'}),
  C(/^Séparateurs mélangés/,{t:'Deux séparateurs différents dans l’en-tête',why:'L’en-tête mélange tabulations et barres |, on ne peut pas savoir où s’arrêtent les colonnes.',how:['Redemander l’export au logiciel d’origine en choisissant « tabulation ».'],where:'source',effect:'bloque',min:()=>20,delay:true}),
- C(/^Lignes? vides?/,{t:'Lignes vides dans le fichier',why:'Une seule ligne vide fait échouer en silence tout un paquet de 1 000 lignes : Odoo affiche « Aucune donnée importée » sans dire pourquoi.',how:['Le FEC corrigé ne contient plus de ligne vide.'],where:'auto',effect:'bloque'}),
+ C(/^Lignes? vides?/,{t:'Lignes vides dans le fichier',why:'Une seule ligne vide fait échouer en silence tout un paquet de 1 000 lignes : Odoo affiche « Aucune donnée importée » sans dire pourquoi.',how:['Le fichier de reprise ne contient plus de ligne vide.'],where:'auto',effect:'bloque'}),
  C(/^Nombre de champs différent/,{t:'Certaines lignes n’ont pas 18 colonnes',why:'Un libellé contient probablement un séparateur, ou une colonne manque. Odoo refuse alors tout le fichier.',how:['Ouvrir le fichier dans un éditeur de texte (Notepad++), aller aux lignes citées et rétablir les 18 colonnes.','S’il y en a beaucoup, redemander l’export.'],where:'source',effect:'bloque',min:n=>Math.min(5+3*n,240),delay:n=>n>20}),
- C(/^(Colonnes présentes mais dans le désordre|Noms de colonnes avec une casse|En-tête non conforme|Colonnes supplémentaires)/,{t:'En-tête de colonnes non standard',why:'L’ordre, la casse ou le nombre de colonnes ne suivent pas la norme. Selon le cas, Odoo refuse le fichier ou s’en accommode.',how:['Le FEC corrigé remet les 18 colonnes réglementaires, dans l’ordre.'],where:'auto',effect:'bloque'}),
+ C(/^(Colonnes présentes mais dans le désordre|Noms de colonnes avec une casse|En-tête non conforme|Colonnes supplémentaires)/,{t:'En-tête de colonnes non standard',why:'L’ordre, la casse ou le nombre de colonnes ne suivent pas la norme. Selon le cas, Odoo refuse le fichier ou s’en accommode.',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.'],where:'auto',effect:'bloque'}),
  C(/^(Total débit ≠ total crédit|Écritures déséquilibrées)/,{t:'Écritures dont le débit ne vaut pas le crédit',why:'Une écriture comptable doit être équilibrée. Odoo arrête l’import au premier paquet qui en contient une.',how:['Ne pas corriger soi-même : demander au client ou à l’expert-comptable de corriger ces écritures dans le logiciel d’origine, puis de refaire l’export.'],where:'source',effect:'bloque',min:n=>15*Math.max(n,1),delay:true}),
- C(/^Encodage /,{t:'Encodage ancien (Windows)',why:'Odoo lit les accents, mais le symbole € disparaît sans prévenir.',how:['Le FEC corrigé est enregistré en UTF-8.'],where:'auto',effect:'fausse'}),
+ C(/^Encodage /,{t:'Encodage ancien (Windows)',why:'Odoo lit les accents, mais le symbole € disparaît sans prévenir.',how:['Le fichier de reprise est enregistré en UTF-8.'],where:'auto',effect:'fausse'}),
  C(/^BOM UTF-8/,{t:'Marque d’encodage en tête de fichier',why:'Sans effet sur Odoo.',how:[],where:'note',effect:'aucun'}),
- C(/^Fins de ligne mixtes/,{t:'Fins de ligne mélangées',why:'Le fichier mélange deux conventions de retour à la ligne.',how:['Le FEC corrigé est homogène.'],where:'auto',effect:'dgfip'}),
+ C(/^Fins de ligne mixtes/,{t:'Fins de ligne mélangées',why:'Le fichier mélange deux conventions de retour à la ligne.',how:['Le fichier de reprise est homogène.'],where:'auto',effect:'dgfip'}),
  C(/^Nom de fichier non conforme/,{t:'Nom de fichier hors norme',why:'La DGFiP attend SIRENFECAAAAMMJJ.txt. Odoo ne regarde pas le nom.',how:['Renommer le fichier seulement s’il doit être remis à l’administration.'],where:'note',effect:'dgfip'}),
  C(/^Codes journaux repris des journaux par défaut/,{t:'Journaux qui iront dans les journaux Odoo existants',why:'Même code et même nature : c’est voulu, typique d’un FEC exporté depuis Odoo.',how:[],where:'note',effect:'aucun'}),
  C(/^Comptes absents/,{t:'Comptes qui seront créés',why:'Ces comptes n’existent pas dans la base. Odoo les crée en copiant le type du compte le plus proche.',how:['Après l’import, survoler la liste des comptes créés et corriger un type si besoin.'],where:'after',effect:'suivi',min:n=>n?5+Math.ceil(n/20):0}),
@@ -673,20 +677,20 @@ const CAT=[
  C(/^Journaux absents de la base cible/,{t:'Journaux qui seront créés',why:'Ces journaux n’existent pas dans la base, Odoo va les créer.',how:[],where:'note',effect:'aucun'}),
  C(/^Pas de journal d’à-nouveaux/,{t:'Pas d’à-nouveaux dans le fichier',why:'Normal pour un premier exercice. Sinon, les soldes d’ouverture manquent.',how:[],where:'note',effect:'aucun'}),
  C(/^Type prévu des journaux créés/,{t:'Type que prendront les journaux créés',why:'Odoo devine le type de chaque journal d’après son contenu.',how:[],where:'note',effect:'aucun'}),
- C(/^Variante Montant \/ Sens/,{t:'Format Montant / Sens',why:'Format autorisé (BNC). Odoo le lit correctement.',how:['Le FEC corrigé le convertit en Débit / Crédit.'],where:'auto',effect:'aucun'}),
+ C(/^Variante Montant \/ Sens/,{t:'Format Montant / Sens',why:'Format autorisé (BNC). Odoo le lit correctement.',how:['Le fichier de reprise le convertit en Débit / Crédit.'],where:'auto',effect:'aucun'}),
  C(/^Écritures en devise étrangère/,{t:'Écritures en devises étrangères',why:'Odoo ignore une devise inactive : le montant en devise serait perdu.',how:['Dans Odoo : Comptabilité → Configuration → Devises, activer chaque devise citée.'],where:'odoo',effect:'fausse',min:()=>3}),
- C(/^Code journal déjà utilisé/,{t:'Un code journal du FEC est déjà pris dans Odoo par un journal d’un autre type',why:'Les écritures iraient dans le journal Odoo existant (par exemple l’inventaire « INV » dans les factures clients « INV »).',how:['Le FEC corrigé renomme ces journaux (code suivi de F).'],where:'auto',effect:'fausse'}),
- C(/^Codes de compte courts créés tels quels/,{t:'Codes de compte trop courts',why:'Un code comme 5120 serait créé tel quel au lieu de 512000 : le plan comptable deviendrait incohérent.',how:['Le FEC corrigé complète ces codes à 6 chiffres.'],where:'auto',effect:'fausse'}),
+ C(/^Code journal déjà utilisé/,{t:'Un code journal du FEC est déjà pris dans Odoo par un journal d’un autre type',why:'Les écritures iraient dans le journal Odoo existant (par exemple l’inventaire « INV » dans les factures clients « INV »).',how:['Le fichier de reprise renomme ces journaux (code suivi de F).'],where:'auto',effect:'fausse'}),
+ C(/^Codes de compte courts créés tels quels/,{t:'Codes de compte trop courts',why:'Un code comme 5120 serait créé tel quel au lieu de 512000 : le plan comptable deviendrait incohérent.',how:['Le fichier de reprise complète ces codes à 6 chiffres.'],where:'auto',effect:'fausse'}),
  C(/^Codes de compte à plus de 6 chiffres/,{t:'Codes de compte trop longs',why:'Odoo garde ces codes tels quels : le plan mélangerait des comptes à 6 et à 8 chiffres.',how:['Décider avec le client d’un compte à 6 chiffres pour chacun (table de correspondance), puis remplacer dans le fichier ou créer ces comptes dans Odoo.'],where:'source',effect:'fausse',min:n=>10+3*n}),
  C(/^Compte existant mais archivé/,{t:'Comptes archivés dans Odoo',why:'Odoo ne voit pas les comptes archivés : l’import échoue (« Account codes must be unique ») ou la comptabilisation est refusée.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Archivé », sélectionner ces comptes, Action → Désarchiver.'],where:'odoo',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
- C(/^Compte à créer sans libellé/,{t:'Comptes à créer sans libellé',why:'Odoo refuse de créer un compte sans nom.',how:['Le FEC corrigé reprend le libellé d’une autre ligne du même compte, sinon écrit « Compte 512000 ». Le renommer ensuite dans Odoo si besoin.'],where:'auto',effect:'bloque'}),
+ C(/^Compte à créer sans libellé/,{t:'Comptes à créer sans libellé',why:'Odoo refuse de créer un compte sans nom.',how:['Le fichier de reprise reprend le libellé d’une autre ligne du même compte, sinon écrit « Compte 512000 ». Le renommer ensuite dans Odoo si besoin.'],where:'auto',effect:'bloque'}),
  C(/^Comptes qui seront créés archivés/,{t:'Comptes qui seront créés archivés',why:'Odoo copie un compte voisin archivé : le nouveau compte est archivé aussi, et les pièces qui l’utilisent seront refusées à la comptabilisation (« Le compte … est archivé »).',how:['Juste après l’import, avant de comptabiliser : Plan comptable, filtre « Archivé », sélectionner ces comptes, Action → Désarchiver.','Désarchiver le compte voisin avant l’import ne suffit pas (vérifié).'],where:'after',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
  C(/^Export des comptes inactifs manquant/,{t:'Il manque l’export des comptes inactifs',why:'Odoo cache les comptes archivés dans son export par défaut, et ce sont eux qui bloquent.',how:['Dans Odoo : Plan comptable, filtre « Comptes inactifs », tout sélectionner, Exporter. Déposer ce fichier avec les autres.'],where:'odoo',effect:'aucun',min:()=>3}),
  C(/^Pièces déséquilibrées une fois regroupées/,{t:'Numéros d’écriture absents et pièces impossibles à reconstituer',why:'Sans numéro d’écriture, Odoo regroupe les lignes par référence de pièce. Ici ces regroupements ne sont pas équilibrés : l’import s’arrêtera.',how:['Redemander un export avec le numéro d’écriture (EcritureNum) rempli. Pas de correction possible à la main.'],where:'source',effect:'bloque',min:()=>30,delay:true}),
- C(/^Regroupement par PieceRef équilibré/,{t:'Numéros d’écriture absents',why:'Odoo regroupera les lignes par référence de pièce : des écritures distinctes de même référence seraient fusionnées.',how:['Le FEC corrigé numérote les écritures (une par journal, référence et date).'],where:'auto',effect:'fausse'}),
- C(/^Source Excel/,{t:'FEC fourni en Excel',why:'L’import FEC d’Odoo n’accepte que le fichier texte. Excel peut aussi avoir abîmé dates et codes.',how:['Le FEC corrigé est un .txt. Mieux encore : redemander le .txt d’origine.'],where:'auto',effect:'bloque'}),
- C(/^Tiers placés dans CompteNum/,{t:'Clients et fournisseurs rangés dans les numéros de compte',why:'Odoo créerait un compte d’actif par tiers, sans fiche client ni fournisseur, sans lettrage possible.',how:['Le FEC corrigé remet 401000 / 411000 et place le code du tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
- C(/^Comptes de tiers individuels/,{t:'Un compte comptable par client ou fournisseur',why:'Odoo crée un compte par tiers, mais aucune fiche partenaire : pas de relances ni de balance âgée par client.',how:['Le FEC corrigé regroupe sur 401000 / 411000 avec le tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
+ C(/^Regroupement par PieceRef équilibré/,{t:'Numéros d’écriture absents',why:'Odoo regroupera les lignes par référence de pièce : des écritures distinctes de même référence seraient fusionnées.',how:['Le fichier de reprise numérote les écritures (une par journal, référence et date).'],where:'auto',effect:'fausse'}),
+ C(/^Source Excel/,{t:'FEC fourni en Excel',why:'L’import FEC d’Odoo n’accepte que le fichier texte. Excel peut aussi avoir abîmé dates et codes.',how:['Le fichier de reprise est un .txt. Mieux encore : redemander le .txt d’origine.'],where:'auto',effect:'bloque'}),
+ C(/^Tiers placés dans CompteNum/,{t:'Clients et fournisseurs rangés dans les numéros de compte',why:'Odoo créerait un compte d’actif par tiers, sans fiche client ni fournisseur, sans lettrage possible.',how:['Le fichier de reprise remet 401000 / 411000 et place le code du tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
+ C(/^Comptes de tiers individuels/,{t:'Un compte comptable par client ou fournisseur',why:'Odoo crée un compte par tiers, mais aucune fiche partenaire : pas de relances ni de balance âgée par client.',how:['Le fichier de reprise regroupe sur 401000 / 411000 avec le tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
  C(/^Volume important/,{t:'Fichier très volumineux',why:'Sur Odoo Online, un import trop long peut être interrompu.',how:['Découper le FEC par période (un fichier par trimestre) et les importer dans l’ordre.'],where:'odoo',effect:'suivi',min:()=>15}),
  C(/^Codes de compte distincts fusionnés/,{t:'Plusieurs codes deviendront le même compte',why:'Après simplification des zéros, ces codes désignent le même compte Odoo : leurs soldes seront additionnés.',how:['Vérifier avec le client que c’est voulu.'],where:'after',effect:'suivi',min:()=>5}),
  C(/^Codes de compte non numériques/,{t:'Codes de compte avec des lettres',why:'Odoo les crée tels quels, avec un type deviné.',how:['Choisir avec le client un compte à 6 chiffres pour chacun.'],where:'source',effect:'fausse',min:n=>5+3*n}),
@@ -698,42 +702,42 @@ const CAT=[
  C(/^Libellé de compte variable/,{t:'Un même compte porte plusieurs libellés',why:'Odoo garde le dernier libellé rencontré.',how:[],where:'note',effect:'aucun'}),
  C(/^Libellé de journal variable/,{t:'Un même journal porte plusieurs libellés',why:'Odoo garde le dernier libellé rencontré.',how:[],where:'note',effect:'aucun'}),
  C(/^Libellé de tiers variable/,{t:'Un même tiers porte plusieurs noms',why:'Odoo crée une seule fiche, avec le premier nom rencontré.',how:[],where:'note',effect:'aucun'}),
- C(/^À-nouveaux non datés au premier jour/,{t:'À-nouveaux datés en cours d’année',why:'Le logiciel a daté les soldes d’ouverture au jour de leur saisie : jusqu’à cette date, banque et capital seraient faux dans Odoo.',how:['Le FEC corrigé date les à-nouveaux au premier jour de l’exercice.'],where:'auto',effect:'fausse'}),
+ C(/^À-nouveaux non datés au premier jour/,{t:'À-nouveaux datés en cours d’année',why:'Le logiciel a daté les soldes d’ouverture au jour de leur saisie : jusqu’à cette date, banque et capital seraient faux dans Odoo. Changer la date d’une écriture n’est pas une correction technique : la page ne le fait pas.',how:['Demander à l’expert-comptable de les redater au premier jour de l’exercice dans le logiciel d’origine, puis de refaire l’export.','À défaut, importer tel quel et ne pas utiliser les états arrêtés avant cette date.'],where:'source',effect:'fausse',min:()=>20}),
  C(/^Écritures avec plusieurs dates/,{t:'Écritures à plusieurs dates',why:'Odoo garde la date de la première ligne de chaque écriture.',how:['Vérifier avec le client ; en général sans conséquence.'],where:'after',effect:'suivi',min:()=>5}),
  // Anomalies ligne à ligne
- C(/^Caractère \| ou tabulation dans un champ/,{t:'Séparateur caché dans un libellé',why:'Un | ou une tabulation à l’intérieur d’un libellé décale les colonnes.',how:['Le FEC corrigé les remplace par un espace.'],where:'auto',effect:'bloque'}),
- C(/^(Guillemet à l’intérieur d’un champ|Champ entièrement entre guillemets)/,{t:'Guillemets dans les libellés',why:'Odoo lit les guillemets comme des délimiteurs : il voit un nombre de colonnes faux et refuse tout le fichier.',how:['Le FEC corrigé retire les guillemets (aucune valeur comptable).'],where:'auto',effect:'bloque'}),
- C(/^CompAuxNum sans CompAuxLib/,{t:'Tiers sans nom',why:'Odoo nommera la fiche du tiers avec son code.',how:['Le FEC corrigé reprend le code comme nom.'],where:'auto',effect:'dgfip'}),
+ C(/^Caractère \| ou tabulation dans un champ/,{t:'Séparateur caché dans un libellé',why:'Un | ou une tabulation à l’intérieur d’un libellé décale les colonnes.',how:['Le fichier de reprise les remplace par un espace.'],where:'auto',effect:'bloque'}),
+ C(/^(Guillemet à l’intérieur d’un champ|Champ entièrement entre guillemets)/,{t:'Guillemets dans les libellés',why:'Odoo lit les guillemets comme des délimiteurs : il voit un nombre de colonnes faux et refuse tout le fichier.',how:['Le fichier de reprise retire les guillemets (aucune valeur comptable).'],where:'auto',effect:'bloque'}),
+ C(/^CompAuxNum sans CompAuxLib/,{t:'Tiers sans nom',why:'Odoo nommera la fiche du tiers avec son code.',how:['Le fichier de reprise reprend le code comme nom.'],where:'auto',effect:'dgfip'}),
  C(/^(CompAuxLib sans CompAuxNum|Compte 401\/411 sans CompAuxNum)/,{t:'Lignes clients ou fournisseurs sans tiers',why:'Odoo importe la ligne sans partenaire : elle n’apparaîtra dans aucune balance âgée par client.',how:['Sans effet bloquant ; à signaler au client si le suivi par tiers compte.'],where:'note',effect:'aucun'}),
- C(/^CompteLib vide/,{t:'Libellés de compte vides',why:'Exigé par la norme. Bloquant dans Odoo seulement si le compte doit être créé.',how:['Le FEC corrigé complète le libellé.'],where:'auto',effect:'dgfip'}),
+ C(/^CompteLib vide/,{t:'Libellés de compte vides',why:'Exigé par la norme. Bloquant dans Odoo seulement si le compte doit être créé.',how:['Le fichier de reprise complète le libellé.'],where:'auto',effect:'dgfip'}),
  C(/^CompteNum ne commence pas par 3 chiffres/,{t:'Comptes qui ne commencent pas par 3 chiffres',why:'La norme l’exige ; le détail est donné par les autres points sur les codes de compte.',how:[],where:'note',effect:'dgfip'}),
- C(/^(Débit|Crédit|Montant) mal formaté \((point|séparateur)/,{t:'Montants mal écrits',why:'La norme impose la virgule décimale, sans séparateur de milliers. Odoo refuse « 1 035,46 ».',how:['Le FEC corrigé réécrit tous les montants (1035,46).'],where:'auto',effect:'bloque'}),
+ C(/^(Débit|Crédit|Montant) mal formaté \((point|séparateur)/,{t:'Montants mal écrits',why:'La norme impose la virgule décimale, sans séparateur de milliers. Odoo refuse « 1 035,46 ».',how:['Le fichier de reprise écrit la même valeur au bon format (1035,46). Les totaux sont contrôlés au centime.'],where:'auto',effect:'bloque'}),
  C(/^(Débit|Crédit|Montant|Montantdevise) mal formaté/,{t:'Montants illisibles',why:'Certains montants ne sont pas des nombres.',how:['Vérifier les lignes citées dans le fichier d’origine.'],where:'source',effect:'bloque',min:n=>5+2*n}),
  C(/^EcritureLet sans DateLet/,{t:'Lettrages sans date de lettrage',why:'Exigé par la norme ; Odoo n’utilise pas la date de lettrage et importe quand même.',how:[],where:'note',effect:'dgfip'}),
- C(/^(DateLet hors format|DateLet sans EcritureLet)/,{t:'Dates de lettrage incomplètes',why:'Exigé par la norme ; Odoo n’utilise pas la date de lettrage.',how:['Le FEC corrigé vide les dates de lettrage orphelines.'],where:'auto',effect:'dgfip'}),
- C(/^Débit et Crédit tous deux renseignés/,{t:'Débit et crédit sur la même ligne',why:'Odoo garde la différence, sans prévenir.',how:['Le FEC corrigé fait la même compensation, de façon visible.'],where:'auto',effect:'fausse'}),
+ C(/^(DateLet hors format|DateLet sans EcritureLet)/,{t:'Dates de lettrage incomplètes',why:'Exigé par la norme ; Odoo n’utilise pas la date de lettrage.',how:[],where:'note',effect:'dgfip'}),
+ C(/^Débit et Crédit tous deux renseignés/,{t:'Débit et crédit sur la même ligne',why:'Odoo ne garde que la différence, sans prévenir : les totaux du journal changent. Le fichier de reprise ne touche pas aux montants.',how:['Faire corriger ces lignes dans le logiciel d’origine (une ligne au débit, une au crédit).'],where:'source',effect:'fausse',min:n=>5+n}),
  C(/^(EcritureDate vide|JournalCode vide|Sens différent de D\/C)/,{t:'Informations indispensables manquantes',why:'Sans date, journal ou sens, la ligne ne peut pas être importée.',how:['Demander la correction au client pour les lignes citées.'],where:'source',effect:'bloque',min:n=>5+2*n,delay:n=>n>10}),
  C(/^(EcritureLib vide|PieceRef vide|PieceRef = « - »|PieceDate fictive)/,{t:'Libellés ou références de pièce manquants',why:'Exigé par la norme. Odoo importe quand même.',how:[],where:'note',effect:'dgfip'}),
  C(/^EcritureNum vide/,{t:'Numéros d’écriture absents',why:'Voir le point sur le regroupement par référence de pièce.',how:[],where:'note',effect:'aucun'}),
- C(/^Espaces en bordure/,{t:'Espaces parasites dans les codes',why:'Odoo enlève les espaces des codes journal, mais pas des numéros d’écriture : « 1 » et « 1 » suivi d’un espace deviendraient deux pièces.',how:['Le FEC corrigé retire ces espaces.'],where:'auto',effect:'fausse'}),
+ C(/^Espaces en bordure/,{t:'Espaces parasites dans les codes',why:'Odoo enlève les espaces des codes journal, mais pas des numéros d’écriture : « 1 » et « 1 » suivi d’un espace deviendraient deux pièces.',how:['Le fichier de reprise retire ces espaces.'],where:'auto',effect:'fausse'}),
  C(/^Idevise inconnue/,{t:'Code devise inconnu',why:'Odoo ignore une devise qu’il ne connaît pas.',how:['Vérifier le code (ISO 4217, ex. USD) avec le client.'],where:'source',effect:'fausse',min:()=>10}),
- C(/^(Idevise sans Montantdevise|Montantdevise sans Idevise|Montantdevise ≠ Débit − Crédit en EUR)/,{t:'Montants en devise incohérents',why:'En euros, Odoo remplace le montant par le montant en devise s’ils diffèrent.',how:['Le FEC corrigé vide ces montants en devise (l’euro est la devise de la société).'],where:'auto',effect:'fausse'}),
+ C(/^(Idevise sans Montantdevise|Montantdevise sans Idevise|Montantdevise ≠ Débit − Crédit en EUR)/,{t:'Montants en devise incohérents',why:'En euros, Odoo remplace le montant par le montant en devise s’ils diffèrent : le montant importé serait faux. La page ne modifie pas les données de devise.',how:['Faire corriger l’export (montant en devise vide ou égal au montant en euros sur les lignes en EUR).'],where:'source',effect:'fausse',min:n=>10+n}),
  C(/^Montantdevise de signe opposé/,{t:'Montant en devise de sens contraire',why:'Le montant en devise devrait suivre le sens débit / crédit.',how:['Vérifier les lignes citées avec le client.'],where:'source',effect:'fausse',min:n=>5+n}),
- C(/^JournalLib vide/,{t:'Journaux sans libellé',why:'Exigé par la norme.',how:['Le FEC corrigé reprend le code comme libellé.'],where:'auto',effect:'dgfip'}),
+ C(/^JournalLib vide/,{t:'Journaux sans libellé',why:'Exigé par la norme.',how:[],where:'note',effect:'dgfip'}),
  C(/^Ligne sans montant/,{t:'Lignes à zéro',why:'Odoo les importe telles quelles.',how:[],where:'note',effect:'aucun'}),
  C(/^Lignes strictement identiques/,{t:'Lignes en double',why:'Odoo les importe deux fois. C’est peut-être voulu (deux achats identiques), peut-être un doublon d’export.',how:['Faire confirmer par le client ; supprimer les doublons dans le logiciel d’origine si besoin.'],where:'source',effect:'fausse',min:n=>5+n}),
- C(/^Montant négatif/,{t:'Montants négatifs',why:'Odoo les passe de l’autre côté (débit ↔ crédit) sans prévenir.',how:['Le FEC corrigé fait la même inversion, de façon visible.'],where:'auto',effect:'fausse'}),
- C(/^Montant à plus de 2 décimales/,{t:'Montants à 3 décimales ou plus',why:'Odoo arrondit chaque ligne au centime ; une écriture peut alors ne plus être équilibrée.',how:['Le FEC corrigé arrondit comme Odoo ; s’il reste un déséquilibre, il apparaît dans « écritures déséquilibrées ».'],where:'auto',effect:'fausse'}),
- C(/^(PieceDate vide)/,{t:'Dates de pièce vides',why:'Exigé par la norme ; Odoo importe quand même.',how:['Le FEC corrigé reprend la date d’écriture.'],where:'auto',effect:'dgfip'}),
+ C(/^Montant négatif/,{t:'Montants négatifs',why:'Odoo les passera de l’autre côté (débit ↔ crédit) sans prévenir. Le fichier de reprise ne touche pas aux montants.',how:['Faire confirmer le sens par le client ou son expert-comptable ; le corriger dans le logiciel d’origine si besoin.','Après l’import, vérifier ces lignes dans Odoo.'],where:'source',effect:'fausse',min:n=>5+n}),
+ C(/^Montant à plus de 2 décimales/,{t:'Montants à 3 décimales ou plus',why:'Odoo arrondit chaque ligne au centime ; une écriture peut alors ne plus être équilibrée. Arrondir revient à modifier un montant : la page ne le fait pas.',how:['Demander un export arrondi au centime depuis le logiciel d’origine.'],where:'source',effect:'fausse',min:n=>10+n}),
+ C(/^(PieceDate vide)/,{t:'Dates de pièce vides',why:'Exigé par la norme ; Odoo importe quand même.',how:[],where:'note',effect:'dgfip'}),
  C(/^(ValidDate|Écriture datée dans le futur|Écriture postérieure)/,{t:'Dates de validation absentes ou incohérentes',why:'Exigé par la norme ; Odoo n’utilise pas la date de validation.',how:['Seul le logiciel d’origine peut fournir la vraie date de validation.'],where:'note',effect:'dgfip'}),
  C(/^Date inexistante \(PieceDate/,{t:'Dates de pièce qui n’existent pas (ex. 30 février)',why:'Odoo convertit aussi la date de pièce : même arrêt attendu.',how:['Corriger ces dates avec le client.'],where:'source',effect:'bloque',min:n=>5+2*n}),
  C(/^Date inexistante/,{t:'Dates d’écriture qui n’existent pas (ex. 30 février)',why:'Odoo s’arrête sur une erreur serveur.',how:['Corriger ces dates avec le client.'],where:'source',effect:'bloque',min:n=>5+2*n}),
- C(/^(EcritureDate|PieceDate) hors format/,{t:'Dates au mauvais format',why:'Odoo attend AAAAMMJJ (20250131) et refuse « 31/01/2025 ».',how:['Le FEC corrigé convertit les dates.'],where:'auto',effect:'bloque'}),
+ C(/^(EcritureDate|PieceDate) hors format/,{t:'Dates au mauvais format',why:'Odoo attend AAAAMMJJ (20250131) et refuse « 31/01/2025 ».',how:['Le fichier de reprise convertit les dates.'],where:'auto',effect:'bloque'}),
  C(/numéros? de pièce .* en commun entre/,{t:'Des numéros de pièce reviennent d’un exercice à l’autre',why:'Sans préfixe, Odoo fusionne les pièces de même journal et même numéro.',how:['Dans l’assistant d’import, saisir un préfixe différent pour chaque exercice (« 2024 », « 2025 »).'],where:'odoo',effect:'fausse',min:()=>2}),
- C(/journal d’à-nouveaux .* alors qu’un exercice antérieur/,{t:'À-nouveaux en double entre deux exercices',why:'Les soldes de bilan et le résultat seraient comptés deux fois.',how:['Le FEC corrigé de ce fichier ne contient plus les à-nouveaux.'],where:'auto',effect:'fausse'}),
+ C(/journal d’à-nouveaux .* alors qu’un exercice antérieur/,{t:'À-nouveaux en double entre deux exercices',why:'Les soldes de bilan et le résultat seraient comptés deux fois.',how:['Décision de reprise à valider avec l’expert-comptable : ne pas importer les lignes du journal d’à-nouveaux de ce fichier (les retirer d’une copie, jamais du FEC d’origine).'],where:'source',effect:'fausse',min:()=>10}),
  C(/période qui chevauche/,{t:'Deux fichiers couvrent la même période',why:'Les écritures communes seraient importées deux fois.',how:['Vérifier les fichiers avec le client.'],where:'source',effect:'fausse',min:()=>15}),
 ];
-const WHERE={auto:{t:'Corrigé automatiquement',s:'Le FEC corrigé règle ces points. Rien à faire à la main.'},odoo:{t:'À faire dans Odoo, avant l’import',s:'Des réglages rapides dans la base du client.'},source:{t:'À corriger à la source',s:'Seul le client, son expert-comptable ou son logiciel peut corriger ces points.'},after:{t:'À reprendre dans Odoo, après l’import',s:'L’import passe, mais ces points demandent une vérification ensuite.'},note:{t:'Pour information',s:'Aucune action nécessaire.'}};
+const WHERE={auto:{t:'Corrigé automatiquement',s:'Le fichier de reprise règle ces points. Rien à faire à la main.'},odoo:{t:'À faire dans Odoo, avant l’import',s:'Des réglages rapides dans la base du client.'},source:{t:'À corriger à la source',s:'Seul le client, son expert-comptable ou son logiciel peut corriger ces points.'},after:{t:'À reprendre dans Odoo, après l’import',s:'L’import passe, mais ces points demandent une vérification ensuite.'},note:{t:'Pour information',s:'Aucune action nécessaire.'}};
 const EFFECT={bloque:'Bloque l’import',fausse:'Fausse les données',suivi:'À vérifier ensuite',dgfip:'Norme DGFiP seulement',aucun:''};
 function classify(i){const c=CAT.find(x=>x.re.test(i.title));const n=i.lines.length;
   if(!c){const where=i.sev==='err'?'source':i.sev==='odoo'?'odoo':i.sev==='warn'?'after':'note';return {t:i.title,why:i.desc,how:[],where,effect:i.sev==='err'||i.sev==='odoo'?'bloque':'suivi',min:where==='note'?0:10,delay:false,n};}
@@ -755,8 +759,8 @@ ${i.lines.length||tech?`<details class="more"><summary>${i.lines.length?`${esc(i
 function planOf(R){
   const still=R._after?new Set(R._after.issues.map(i=>i.title)):null;
   for(const i of R.issues){const k=classify(i);
-    if(still&&!i.cross){ // le FEC corrigé fait foi : un point qui disparaît après correction est corrigé par la page
-      if(!still.has(i.title)&&['source','after','odoo'].includes(k.where)&&k.effect!=='aucun'&&!/^(Compte existant mais archivé|Comptes qui seront créés archivés|Écritures en devise|Comptes absents|Volume)/.test(i.title)){k.where='auto';k.how=['Le FEC corrigé règle ce point.'];k.min=0;k.delay=false;}
+    if(still&&!i.cross){ // le fichier de reprise fait foi : un point qui disparaît après correction est corrigé par la page
+      if(!still.has(i.title)&&['source','after','odoo'].includes(k.where)&&k.effect!=='aucun'&&!/^(Compte existant mais archivé|Comptes qui seront créés archivés|Écritures en devise|Comptes absents|Volume)/.test(i.title)){k.where='auto';k.how=['Le fichier de reprise règle ce point.'];k.min=0;k.delay=false;}
       else if(still.has(i.title)&&k.where==='auto'){k.where=i.sev==='err'?'source':'after';k.how=['La correction automatique ne suffit pas : voir les lignes citées.'];k.min=k.min||10;}}
     i._k=k;}
   const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);
@@ -768,7 +772,7 @@ function planOf(R){
   const total=m.odoo+m.source+m.after+autoMin;
   let level,title,sub;
   if(!blockSrc.length&&!g.auto.some(i=>['bloque','fausse'].includes(i._k.effect))){level='ok';title='Importable tel quel';sub=g.odoo.length||g.after.length?'Quelques réglages dans Odoo, rien à corriger dans le fichier.':'Rien à corriger.';}
-  else if(!blockSrc.length){level='ok';title='Importable avec le FEC corrigé';sub='La page corrige le fichier ; il reste seulement les réglages Odoo listés.';}
+  else if(!blockSrc.length){level='ok';title='Importable avec le fichier de reprise';sub='La page met le fichier au format attendu par Odoo, sans toucher aux montants ; il reste les réglages Odoo listés.';}
   else if(!delay&&m.source<=60){level='warn';title='À corriger avant import';sub='Quelques corrections à faire à la source, réalisables sans attendre un nouvel export.';}
   else{level='err';title='FEC déconseillé en l’état';sub=delay?'Il faut un nouvel export ou des corrections dans le logiciel d’origine : cela dépend du client et prend souvent plusieurs jours.':'Les corrections à la main seraient longues et risquées.';}
   return {g,m,total,autoMin,level,title,sub,delay,blockSrc};
@@ -777,7 +781,8 @@ function altHTML(R,P){
   const o=R._open;if(!o)return '';
   const ok=o.tot===0;
   return `<section class="alt" aria-labelledby="alt-${R._id}"><h3 id="alt-${R._id}">${P.level==='err'?'Méthode recommandée : importer une balance d’ouverture':'Autre méthode : importer une balance d’ouverture'}</h3>
-<p>Au lieu de tout l’historique, on importe dans Odoo les soldes au ${o.date.split('-').reverse().join('/')} : une seule écriture d’ouverture, avec le détail par client et fournisseur pour les comptes 401 / 411. C’est la reprise la plus rapide quand l’historique détaillé n’est pas indispensable dans Odoo. Le FEC d’origine reste la pièce à présenter en cas de contrôle fiscal : le conserver.</p>
+<p>Au lieu de tout l’historique, on importe dans Odoo les soldes au ${o.date.split('-').reverse().join('/')} : une seule écriture d’ouverture. ${o.openItems?`Clients et fournisseurs sont repris pièce par pièce (${o.openItems} pièces non lettrées, avec leur date), pour garder relances et balance âgée.`:'Clients et fournisseurs sont repris par tiers.'} Les comptes de charges et produits ne sont pas repris : leur solde net va au résultat de l’exercice (120 / 129). C’est la reprise la plus rapide quand l’historique détaillé n’est pas indispensable dans Odoo.</p>
+<p class="legal">La balance d’ouverture doit reprendre exactement la balance de clôture validée par l’expert-comptable : mêmes soldes, aucun écart compensé. Faire valider ce fichier avant import. Le FEC d’origine reste la pièce à présenter en cas de contrôle pour les exercices tenus dans l’ancien logiciel : le conserver.</p>
 <dl class="kv"><div><dt>Lignes</dt><dd>${o.lines}</dd></div><div><dt>Tiers</dt><dd>${o.partners}</dd></div><div><dt>Résultat de l’exercice</dt><dd>${fmtE(-o.res)} €</dd></div><div><dt>Temps estimé</dt><dd>≈ ${fmtMin(15+Math.ceil(o.missing.length/5))}</dd></div></dl>
 ${ok?'':`<p class="warnline">La balance n’est pas équilibrée (écart ${fmtE(o.tot)} €) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
 <ol class="howto">
@@ -796,12 +801,12 @@ function ctrlTable(R){
 }
 let REPORTS=[];
 function prepare(R,crossFlags){
-  // FEC corrigé + ré-analyse + balance d’ouverture
+  // Fichier de reprise + ré-analyse + balance d’ouverture
   if(!R.rows||R.rows.length<2)return;
   const hints=Object.assign({},R.hints||{},crossFlags||{});
   const fx=fixFEC(R.rows,hints);if(fx.error){R._fixErr=fx.error;return;}
   R._fix=fx;
-  const m=R.meta||{};if(m.source==='Excel')fx.changes['Converti d’Excel en fichier texte']=1;else{if(m.enc&&!String(m.enc).startsWith('UTF-8'))fx.changes['Réenregistré en UTF-8']=1;if(m.sep&&m.sep!=='tabulation')fx.changes['Séparateur remplacé par la tabulation']=1;}
+  const m=R.meta||{},F1={n:1,kind:'fmt'};if(m.source==='Excel')fx.changes['Converti d’Excel en fichier texte (valeurs lues dans les cellules)']={...F1};else{if(m.enc&&!String(m.enc).startsWith('UTF-8'))fx.changes['Réenregistré en UTF-8']={...F1};if(m.sep&&m.sep!=='tabulation')fx.changes['Séparateur remplacé par la tabulation']={...F1};}
   CAPTURE=[];runText(R.name.replace(/\.(xlsx?|csv|txt)$/i,'')+'.txt',new TextEncoder().encode(fx.text).buffer,false);R._after=CAPTURE[0];CAPTURE=null;
   if(R._after)planOf(R._after);
   R._open=buildOpening(fx.out,hints);
@@ -821,7 +826,7 @@ function render(reports){
     const P=planOf(R);const S=R.stats;const A=R._after?planOf(R._after):null;
     const changes=R._fix?Object.entries(R._fix.changes):[];
     const steps=[];
-    if(changes.length)steps.push(['auto','Télécharger le FEC corrigé et l’importer à la place de l’original',P.autoMin]);
+    if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(Object.values(R._fix.changes).some(v=>v.kind==='map')?' et faire valider les correspondances':''),P.autoMin+(Object.values(R._fix.changes).some(v=>v.kind==='map')?10:0)]);
     if(P.g.source.length)steps.push(['source','Faire corriger à la source les points listés',P.m.source]);
     if(P.g.odoo.length)steps.push(['odoo','Préparer la base Odoo',P.m.odoo]);
     steps.push(['import','Importer dans Odoo (assistant Import FEC) et comptabiliser',10]);
@@ -836,11 +841,16 @@ function render(reports){
 ${useAlt?altHTML(R,P):''}
 ${useAlt?'<p class="eyebrow">Si l’historique complet est indispensable dans Odoo</p>':''}
 <ol class="route">${(useAlt?steps:shownSteps).map(([w,t,m])=>`<li class="${w}"><span>${esc(t)}</span><em>${m?'≈ '+fmtMin(m):''}</em></li>`).join('')}</ol>
-${useAlt?'':''}${changes.length?`<section class="fixbox"><div><h3>FEC corrigé prêt</h3><p>${changes.length} type${changes.length>1?'s':''} de correction appliqué${changes.length>1?'s':''} :</p><ul>${changes.map(([k,n])=>`<li>${esc(k)} <span class="count">${n.toLocaleString('fr-FR')}</span></li>`).join('')}</ul>
-${A?`<p class="after ${A.level}">Après correction : <b>${esc(A.title)}</b>${A.g.source.length?` — il reste ${A.g.source.length} point${A.g.source.length>1?'s':''} à corriger à la source`:''}.</p>`:''}
-${R._fix.left.length?`<p class="warnline">Non corrigé : ${R._fix.left.slice(0,5).map(esc).join(' ; ')}</p>`:''}
-<p class="note">Le fichier d’origine n’est pas modifié. Corrections purement techniques : aucun montant d’écriture n’est changé, sauf l’arrondi au centime qu’Odoo ferait de toute façon.</p></div>
-<button class="btn primary" type="button" data-dl="fix" data-r="${R._id}">Télécharger le FEC corrigé</button></section>`:R._fixErr?`<p class="warnline">${esc(R._fixErr)}</p>`:''}
+${useAlt?'':''}${changes.length?(()=>{const F=R._fix,I=F.integrity,fm=changes.filter(([k,v])=>v.kind==='fmt'),mp=changes.filter(([k,v])=>v.kind==='map');const li=a=>a.map(([k,v])=>`<li>${esc(k)} <span class="count">${v.n.toLocaleString('fr-FR')}</span></li>`).join('');
+return `<section class="fixbox"><div class="fixmain"><h3>Fichier de reprise pour Odoo</h3>
+<p class="legal">Ce fichier sert uniquement à l’import dans Odoo. Ce n’est pas un FEC : seul le fichier produit par le logiciel du client a valeur légale (art. L47 A du LPF) et doit être conservé tel quel, 6 ans au titre fiscal (art. L102 B du LPF) et 10 ans au titre commercial (art. L123-22 du Code de commerce). Ne jamais le remettre à l’administration.</p>
+${fm.length?`<p><b>Écriture technique</b> : mêmes valeurs, présentées comme Odoo les attend.</p><ul>${li(fm)}</ul>`:''}
+${mp.length?`<p><b>Correspondances de reprise</b> : à valider avec l’expert-comptable du client, chaque changement est listé ligne à ligne dans la table de correspondance.</p><ul>${li(mp)}</ul>`:''}
+<p class="integ ${I.ok?'ok':'bad'}">${I.ok?'✓':'✕'} Contrôle d’intégrité : ${I.lines.toLocaleString('fr-FR')} lignes, débit ${fmtE(I.debit)} €, crédit ${fmtE(I.credit)} € ${I.ok?'— identiques au fichier d’origine, au centime. Aucun montant, sens, date d’écriture ni devise n’a été modifié.':`— différent du fichier d’origine (${I.srcLines} lignes, ${fmtE(I.srcDebit)} / ${fmtE(I.srcCredit)}) : fichier de reprise bloqué.`}</p>
+${A?`<p class="after">Avec ce fichier : <b>${esc(A.title)}</b>${A.g.source.length?`, il reste ${A.g.source.length} point${A.g.source.length>1?'s':''} à corriger à la source`:''}.</p>`:''}
+${F.left.length?`<p class="warnline">Laissé tel quel : ${F.left.slice(0,4).map(esc).join(' ; ')}${F.left.length>4?` … (+${F.left.length-4})`:''}</p>`:''}
+${mp.length&&I.ok?`<label class="confirm"><input type="checkbox" id="ok-${R._id}" data-confirm="${R._id}"> Les correspondances ci-dessus ont été validées avec le client ou son expert-comptable.</label>`:''}</div>
+<div class="fixbtns"><button class="btn primary" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp.length?'':'disabled'}>Télécharger le fichier de reprise</button>${F.corr.length?`<button class="btn" type="button" data-dl="corr" data-r="${R._id}">Table de correspondance</button>`:''}</div></section>`;})():R._fixErr?`<p class="warnline">${esc(R._fixErr)}</p>`:''}
 ${P.level==='warn'||(P.level==='err'&&!R._open)?altHTML(R,P):''}
 ${['source','odoo','after','auto','note'].filter(w=>P.g[w].length).map(w=>`<section class="group ${w}"><header><h3>${WHERE[w].t} <span class="count">${P.g[w].length}</span></h3><p>${WHERE[w].s}${P.m[w]?` Temps estimé : ≈ ${fmtMin(P.m[w])}.`:''}</p></header>${w==='note'||w==='auto'?`<details class="block"><summary>Voir les ${P.g[w].length} point${P.g[w].length>1?'s':''}</summary><div class="items">${P.g[w].map(issueHTML).join('')}</div></details>`:`<div class="items">${P.g[w].map(issueHTML).join('')}</div>`}</section>`).join('')}
 ${!R.issues.length?'<p class="note">Aucune anomalie détectée.</p>':''}
@@ -852,9 +862,11 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
   }
   $('reports').innerHTML=html;lastReport=txt.trim();
 }
+document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const b=document.querySelector(`[data-dl="fix"][data-r="${c.dataset.confirm}"]`);if(b&&REPORTS[+c.dataset.confirm]?._fix.integrity.ok)b.disabled=!c.checked;});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;const R=REPORTS[+b.dataset.r];if(!R)return;
   const base=R.name.replace(/\.(xlsx?|csv|txt)$/i,'');const kind=b.dataset.dl;const old=b.textContent;b.disabled=true;
-  try{let st;if(kind==='fix')st=await saveFile((/^\d{9}FEC\d{8}$/.test(base)?base:base+'_corrige')+'.txt',R._fix.text);
+  try{let st;if(kind==='fix')st=await saveFile(base+'_reprise_odoo.txt',R._fix.text);
+    else if(kind==='corr')st=await saveFile(base+'_correspondances.csv','\ufeff'+R._fix.corrCsv);
     else if(kind==='open')st=await saveFile('balance_ouverture.xlsx',xlsxBlob(R._open.aoa,'Balance'));
     else st=await saveFile('tiers.xlsx',xlsxBlob(R._open.pAoa,'Tiers'));
     b.textContent=st==='declined'?'Téléchargement annulé':'Téléchargé';}catch(e){b.textContent='Téléchargement impossible ici';}

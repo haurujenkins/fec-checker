@@ -23,8 +23,8 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 - **Un verdict pour l'import Odoo** : importable tel quel, importable avec le FEC corrigé, à corriger avant import, ou FEC déconseillé. Avec un temps estimé (indicatif) et le délai client quand une correction dépend du logiciel d'origine.
 - **Un parcours en étapes** et les points regroupés par endroit où agir : corrigé automatiquement, dans Odoo avant l'import, à la source, dans Odoo après l'import. Chaque point est expliqué simplement, avec la marche à suivre.
-- **Un FEC corrigé** à télécharger pour tout ce qui est mécanique : guillemets, espaces, séparateur, encodage, en-tête, montants (virgule, milliers, négatifs, 3 décimales, débit + crédit), dates JJ/MM/AAAA, codes de compte courts ou à 8 chiffres, tiers rangés dans CompteNum (0/9 Quadra, 401XXX), à-nouveaux mal datés, codes journaux en collision, libellés vides, numérotation des écritures quand elle est reconstituable. Le fichier corrigé est réanalysé : la page affiche ce qui reste.
-- **Une balance d'ouverture** au format import Odoo (pièce comptable + fichier des tiers) quand le FEC ne vaut pas la peine d'être corrigé.
+- **Un fichier de reprise pour Odoo** (pas un FEC : le FEC d'origine reste la seule pièce légale, à conserver). Il ne change ni montant, ni sens, ni date d'écriture, ni devise, n'ajoute ni ne retire aucune ligne : seulement l'écriture technique (encodage, séparateur, en-tête, guillemets, espaces, virgule décimale, dates AAAAMMJJ) et des correspondances de reprise listées ligne à ligne (codes de compte, tiers rangés dans CompteNum, code journal en collision, numéros d'écriture reconstituables, libellés vides). Contrôle d'intégrité au centime ; téléchargement soumis à validation des correspondances par l'expert-comptable. Le fichier est réanalysé : la page affiche ce qui reste.
+- **Une balance d'ouverture** au format import Odoo (pièce comptable + fichier des tiers, clients et fournisseurs repris pièce par pièce) quand le FEC ne vaut pas la peine d'être corrigé. À faire valider : elle doit reprendre exactement la balance de clôture.
 
 ## Ce que la page détecte
 
