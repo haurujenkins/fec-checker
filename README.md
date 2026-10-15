@@ -19,6 +19,13 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 4. Plusieurs exercices : déposer tous les FEC ensemble pour le contrôle croisé (à-nouveaux en double, numéros de pièces communs, chevauchement de périodes).
 5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Analyse des écritures.
 
+## Ce que la page rend
+
+- **Un verdict pour l'import Odoo** : importable tel quel, importable avec le FEC corrigé, à corriger avant import, ou FEC déconseillé. Avec un temps estimé (indicatif) et le délai client quand une correction dépend du logiciel d'origine.
+- **Un parcours en étapes** et les points regroupés par endroit où agir : corrigé automatiquement, dans Odoo avant l'import, à la source, dans Odoo après l'import. Chaque point est expliqué simplement, avec la marche à suivre.
+- **Un FEC corrigé** à télécharger pour tout ce qui est mécanique : guillemets, espaces, séparateur, encodage, en-tête, montants (virgule, milliers, négatifs, 3 décimales, débit + crédit), dates JJ/MM/AAAA, codes de compte courts ou à 8 chiffres, tiers rangés dans CompteNum (0/9 Quadra, 401XXX), à-nouveaux mal datés, codes journaux en collision, libellés vides, numérotation des écritures quand elle est reconstituable. Le fichier corrigé est réanalysé : la page affiche ce qui reste.
+- **Une balance d'ouverture** au format import Odoo (pièce comptable + fichier des tiers) quand le FEC ne vaut pas la peine d'être corrigé.
+
 ## Ce que la page détecte
 
 - **Bloquant DGFiP** : en-tête, séparateur, nombre de champs, dates, montants (virgule décimale), champs obligatoires vides, écritures déséquilibrées, lignes vides.

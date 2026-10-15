@@ -41,7 +41,7 @@ Fichier testé : FEC_2025_Client_A.txt (12 000 lignes environ, tabulation, UTF-8
 - À la comptabilisation : « Le compte Remboursement sur charges sociales (649500) est archivé. »
 - Cause : pour un code inconnu, Odoo copie le compte existant du PCG ayant le plus long préfixe commun (égalité → le plus petit code) pour en déduire le type ; si ce « parent » est archivé (608000, 649000, 2151x, 267x…), le compte créé hérite de active=False.
 - Vérifié : 608100 ← 608000, 649500 ← 649000. Heuristique « plus long préfixe commun » reproduit exactement.
-- Remède : désarchiver les comptes parents AVANT l'import, ou désarchiver les comptes créés après.
+- Remède (corrigé le 15/10 après test) : désarchiver le parent avant l'import NE suffit PAS ; désarchiver les comptes créés après.
 
 ## Erreur 6 — « Mettre à jour » duplique les lignes
 - Après un import partiel (60 écritures commitées), relancer le même fichier avec l'option doublons = « Mettre à jour » AJOUTE les lignes aux écritures existantes au lieu de les remplacer : écriture AN 300 lignes → 600 lignes, 120 comptes avec montants doublés.
@@ -201,3 +201,10 @@ Fichiers synthétiques uniquement (`tests/fixtures/editeurs`, `tests/fixtures/va
 - Débit / crédit vides : lus comme 0 ; espaces autour des montants : retirés.
 - Règles ajoutées à la page : type prévu des journaux créés et alerte si différent du libellé ; tiers dans CompteNum (0/9 et 401XXX/411XXX) ; codes courts créés tels quels ; compte à créer sans libellé ; montants à plus de 2 décimales (arrondi exact au demi-centime supérieur) ; date inexistante ; lettre isolée et lettrage non soldé ; descriptions « vérifié » pour ValidDate / PieceDate vides, libellés variables.
 - Base remise à l'état d'origine : 0 écriture, 677 comptes dont 28 archivés, 8 journaux, 12 partenaires, module désinstallé.
+
+## Page v14 : verdict, FEC corrigé, balance d'ouverture (base de test, 15/10 17:00)
+- FEC Quadra corrigé par la page (tiers 0/9 → 401000/411000 + CompAuxNum, comptes 8 → 6 chiffres) : 133 écritures, 8 partenaires, journaux VT/AC en Ventes/Achats, 60 lettrages complets à la comptabilisation, balance identique au fichier Sage d'origine.
+- FEC client A corrigé par la page (guillemets, espaces, INV renommé INVF), 609100 / 608000 / 649000 désarchivés avant : 5 295 écritures, 392 partenaires, INVF en Divers (plus dans le journal de ventes), balance identique au fichier sur les 203 comptes.
+- Constat : même avec 608000 et 649000 désarchivés AVANT l'import, 608100 / 608200 / 649500 sont créés archivés (178 pièces refusées à la comptabilisation). Remède vérifié : désarchiver ces comptes juste après l'import, puis comptabiliser.
+- Balance d'ouverture générée par la page (import standard : Contacts puis Pièces comptables) : refus « No matching record found for name '101000' » tant que les comptes absents ne sont pas créés ; après création, 1 pièce importée dans MISC (journal reconnu par son code), tiers rattachés par leur nom, comptabilisée.
+- Base remise à l'état d'origine, module désinstallé.
