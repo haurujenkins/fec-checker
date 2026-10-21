@@ -45,6 +45,25 @@ code{font-family:var(--mono);font-size:.88em}
 .btn:disabled{opacity:.7;cursor:default}
 .linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+/* Onglets et méthodologie */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);scroll-margin-top:12px;overflow-x:auto}
+.tab{font:inherit;font-weight:500;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:8px 14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--fg)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:4px}
+.tabpanel{display:grid;gap:22px}
+.tabpanel[hidden]{display:none}
+.method{display:grid;gap:16px}
+.mlead{margin:0;color:var(--muted);max-width:72ch}
+.mstep{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:10px}
+.mstep h2{margin:0;font-size:1.1rem;font-weight:600;display:flex;gap:10px;align-items:center}
+.check,.plain{list-style:none;margin:0;padding:0;display:grid}
+.check li{border-top:1px solid var(--line)}.check li:first-child{border-top:0}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:9px 0;cursor:pointer;font-size:.95rem}
+.check input{margin-top:5px;accent-color:var(--ok);flex:none}
+.check input:checked+span{color:var(--muted)}
+.check b,.plain b{font-weight:600}
+.plain li{padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}.plain li:first-child{border-top:0}
 /* Encarts de dépôt */
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
 .slot{align-content:start}
@@ -103,7 +122,7 @@ main>*,.results>*,#reports>*,.report>*,.detailin>*,.group>*{min-width:0}
 .verdict{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:20px 22px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--muted)}
 .fisc{margin:10px 0 0;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.92rem}
 .fisc>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}.fisc>summary::-webkit-details-marker{display:none}
-.fisc .ft{font-weight:600}.fisc.ok .ft{color:var(--ok)}.fisc.err .ft{color:var(--err)}.fisc .fs{color:var(--muted)}
+.fsum{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}.fisc .ft{font-weight:600}.fisc.ok .ft{color:var(--ok)}.fisc.err .ft{color:var(--err)}.fisc .fs{color:var(--muted)}
 .fisc .ft::before{content:none}.fisc .fo{margin-left:auto;color:var(--accent);font-size:.85rem;font-weight:500}.fisc[open] .fo{display:none}
 .fbody{display:grid;gap:12px;margin-top:12px}
 .fsec{border-left:3px solid var(--line);padding:2px 0 2px 12px}
@@ -226,12 +245,9 @@ table.ctrl th,table.ctrl td{padding:7px 10px;border-bottom:1px solid var(--line)
 table.ctrl th:nth-child(-n+2),table.ctrl td:nth-child(-n+2){text-align:left}
 table.ctrl td:first-child{font-family:var(--mono)}
 table.ctrl tfoot td{font-weight:600;border-bottom:0}
-.guide{display:grid;gap:8px}
-.guide h3{margin:0;font-size:1.05rem;font-weight:600}
 .gloss{margin:0;display:grid;gap:6px;font-size:.92rem;max-width:75ch}
 .gloss dt{font-weight:600}
 .gloss dd{margin:0;color:var(--muted)}
-.steps{margin:0;padding-left:22px;font-size:.93rem;display:grid;gap:6px;max-width:75ch}
 .slot .drop{padding:18px 14px}
 @media (max-width:760px){.inputs{grid-template-columns:1fr}}
 @media (max-width:600px){.files li{grid-template-columns:1fr}.files li>.btn{justify-self:start}.todo li{grid-template-columns:1fr auto}.todo li .wtag{grid-column:1/-1;justify-self:start}.verdict,.fixbox{grid-template-columns:1fr}.vtime{text-align:left;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.route li{grid-template-columns:2rem 1fr}.route em{grid-column:2}.passed{columns:1}}
@@ -247,6 +263,12 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
   <p class="privacy"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 12 6h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5H6V4.5a2 2 0 1 1 4 0V6Z"/></svg>Rien ne quitte votre poste · fonctionne hors ligne</p>
 </header>
 
+<nav class="tabs" id="tabsNav" role="tablist" aria-label="Sections">
+  <button class="tab" id="tabBtnCheck" role="tab" type="button" aria-selected="true" aria-controls="tabCheck" data-tab="tabCheck">Contrôle du FEC</button>
+  <button class="tab" id="tabBtnMethod" role="tab" type="button" aria-selected="false" aria-controls="tabMethod" data-tab="tabMethod" tabindex="-1">Méthodologie avant import</button>
+</nav>
+
+<div class="tabpanel" id="tabCheck" role="tabpanel" aria-labelledby="tabBtnCheck">
 <section class="inputs" aria-label="Fichiers à contrôler">
   <div class="slot" id="slotFec">
     <div class="slot-head"><span class="num" aria-hidden="true">1</span><div><h2>FEC du client</h2><p>Obligatoire</p></div></div>
@@ -266,7 +288,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
       <input type="file" id="refFile" accept=".xlsx,.xls,.csv" multiple>
     </label>
     <ul class="refstat" id="refStat" aria-live="polite"></ul>
-    <details class="howexp"><summary>Comment exporter ces fichiers depuis Odoo</summary>
+    <details class="howexp" id="howexp"><summary>Comment exporter ces fichiers depuis Odoo</summary>
       <ol>
         <li><b>Comptes actifs</b> : Comptabilité → Configuration → Plan comptable, tout sélectionner, Action → Exporter avec <em>Code, Nom du compte, Type, Actif</em>.</li>
         <li><b>Comptes inactifs</b> : même export avec le filtre <em>Comptes inactifs</em>. Odoo masque les comptes archivés par défaut : sans cet export, la page ne les voit pas.</li>
@@ -279,7 +301,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 
 <section class="results" id="results" aria-label="Résultat">
   <div class="resbar" id="resbar" hidden>
-    <div class="resinfo"><p class="eyebrow">Résultat du contrôle</p><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p></div>
+    <div class="resinfo"><p class="eyebrow">Résultat du contrôle</p><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p><p class="refline">Précautions communes à tous les FEC : <button class="linkbtn" type="button" data-tab="tabMethod">méthodologie avant import</button>.</p></div>
     <div class="actions"><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Nouveau contrôle</button></div>
   </div>
   <div class="empty" id="empty">
@@ -293,19 +315,46 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
   </div>
   <div id="reports"></div>
 </section>
-<details class="block guide" id="guide"><summary>Mode d’emploi complet de l’import FEC dans Odoo</summary>
-<ol class="steps">
-<li><strong>Exporter la base cible</strong> (recommandé) : plan comptable (comptes actifs, puis comptes inactifs) et journaux, à déposer dans l’encart 2 « Plan comptable de la base Odoo cible ». Le détail est dans cet encart.</li>
-<li><strong>Travailler sur une copie de test</strong> (staging) ou après une sauvegarde : un import raté laisse des écritures à moitié importées.</li>
-<li><strong>Installer le module</strong> « France - FEC Import » (<code>l10n_fr_fec_import</code>). Il n’a pas de menu : chercher « Import FEC » dans la barre de recherche d’Odoo.</li>
-<li><strong>Préparer la base</strong> avec les points « À faire dans Odoo, avant l’import » (comptes existants à désarchiver, devises à activer).</li>
-<li><strong>Importer</strong> le fichier de reprise : saisir un préfixe de document (ex. « 2025 ») et laisser « Ignorer » pour les doublons. Plusieurs exercices : du plus ancien au plus récent, un préfixe par exercice, à-nouveaux seulement dans le premier.</li>
-<li><strong>Désarchiver les comptes créés archivés</strong> s’il y en a, puis <strong>comptabiliser</strong> les pièces (elles arrivent en brouillon) : le lettrage est alors reconstitué.</li>
-<li><strong>Contrôler</strong> : totaux par journal (tableau de la page), puis balance Odoo contre balance du logiciel d’origine. Reprendre les points « après l’import ».</li>
-<li><strong>Verrouiller</strong> les périodes reprises (Comptabilité → Configuration → Paramètres → dates de verrouillage) : les écritures validées ne doivent plus être modifiées, seulement contre-passées.</li>
-<li><strong>Conserver le FEC d’origine</strong> et les états du logiciel d’origine : pour les exercices tenus dans l’ancien logiciel, c’est ce FEC qui fait foi en cas de contrôle, pas un FEC réexporté depuis Odoo.</li>
-</ol>
-<h3>Lexique</h3>
+</div>
+
+<div class="tabpanel" id="tabMethod" role="tabpanel" aria-labelledby="tabBtnMethod" hidden>
+<section class="method" id="guide">
+<p class="mlead">Ce qui vaut pour tout import de FEC dans Odoo, quel que soit le fichier. Le résultat du contrôle ne liste que ce qui est propre au FEC déposé. Les cases servent d’aide-mémoire : elles ne sont pas enregistrées.</p>
+
+<div class="mstep"><h2><span class="num" aria-hidden="true">1</span>Avant l’import</h2>
+<ul class="check">
+<li><label><input type="checkbox"><span><b>Exporter le plan comptable et les journaux de la base cible</b>, puis les déposer dans l’encart 2 de l’onglet « Contrôle du FEC ». Sans eux, la page contrôle contre un plan Odoo 20 FR neuf, et une base déjà paramétrée peut réagir autrement.</span></label></li>
+<li><label><input type="checkbox"><span><b>Travailler sur une copie de test</b> (staging) ou après une sauvegarde. L’import n’est pas atomique : Odoo enregistre par paquets de 1 000 lignes. En cas d’erreur, les premiers paquets restent en base, et relancer avec « Mettre à jour » double les montants.</span></label></li>
+<li><label><input type="checkbox"><span><b>Installer le module</b> « France - FEC Import » (<code>l10n_fr_fec_import</code>). Il n’a pas de menu : chercher « Import FEC » dans la barre de recherche d’Odoo.</span></label></li>
+<li><label><input type="checkbox"><span><b>Préparer la base</b> avec les points « Dans Odoo, avant » du résultat : comptes existants à désarchiver, devises à activer.</span></label></li>
+<li><label><input type="checkbox"><span><b>Garder le FEC d’origine tel quel</b>, avec les états du logiciel d’origine (balance, grand livre) qui serviront au contrôle final.</span></label></li>
+</ul></div>
+
+<div class="mstep"><h2><span class="num" aria-hidden="true">2</span>Pendant l’import</h2>
+<ul class="check">
+<li><label><input type="checkbox"><span><b>Importer le fichier de reprise</b> si la page en propose un, sinon le FEC. Saisir un préfixe de document (ex. « 2025 ») et laisser « Ignorer » pour les doublons.</span></label></li>
+<li><label><input type="checkbox"><span><b>Plusieurs exercices</b> : du plus ancien au plus récent, un préfixe par exercice, et les à-nouveaux dans le premier seulement. Déposer tous les FEC ensemble dans la page pour le contrôle croisé.</span></label></li>
+<li><label><input type="checkbox"><span><b>En cas d’échec</b> : supprimer les écritures déjà importées, ou restaurer la sauvegarde, avant de relancer.</span></label></li>
+</ul></div>
+
+<div class="mstep"><h2><span class="num" aria-hidden="true">3</span>Après l’import</h2>
+<ul class="check">
+<li><label><input type="checkbox"><span><b>Désarchiver les comptes créés archivés</b> s’il y en a. Le faire après l’import : désarchiver le parent avant ne sert à rien.</span></label></li>
+<li><label><input type="checkbox"><span><b>Contrôler les totaux par journal avant de comptabiliser</b> : regrouper les écritures importées par journal (Débit, Crédit, Nombre) et comparer avec le tableau « Contrôle après import » du résultat. Un écart signale des pièces fusionnées, ignorées ou doublées.</span></label></li>
+<li><label><input type="checkbox"><span><b>Comptabiliser</b> les pièces, qui arrivent en brouillon. Le lettrage est alors reconstitué.</span></label></li>
+<li><label><input type="checkbox"><span><b>Comparer la balance Odoo</b> avec la balance du logiciel d’origine, puis reprendre les points « Dans Odoo, après » du résultat.</span></label></li>
+<li><label><input type="checkbox"><span><b>Verrouiller les périodes reprises</b> (Comptabilité → Comptabilité → Dates de verrouillage). Les écritures validées ne se modifient plus : elles se contre-passent.</span></label></li>
+</ul></div>
+
+<div class="mstep"><h2><span class="num" aria-hidden="true">§</span>Cadre légal</h2>
+<ul class="plain">
+<li><b>Le FEC du client est la seule pièce légale</b> pour les exercices tenus dans l’ancien logiciel (art. L47 A du LPF). Il se conserve tel quel, 6 ans au titre fiscal (art. L102 B du LPF) et 10 ans au titre commercial (art. L123-22 du Code de commerce). En cas de contrôle, c’est lui qui fait foi, pas un FEC réexporté depuis Odoo.</li>
+<li><b>Le fichier de reprise n’est pas un FEC.</b> Il sert uniquement à l’import et ne se remet jamais à l’administration. La page ne change jamais un montant, un sens, une date d’écriture ni une devise. Les écritures validées sont intangibles et ne se corrigent que par contre-passation (<a href="https://bofip.impots.gouv.fr/export/pdf/5001" target="_blank" rel="noopener">BOFiP BOI-BIC-DECLA-30-10-20-40</a>).</li>
+<li><b>Les correspondances de reprise et la balance d’ouverture</b> sont validées par l’expert-comptable avant l’import. La balance d’ouverture reprend exactement la balance de clôture validée : mêmes soldes, aucun écart compensé.</li>
+<li><b>Verdict fiscal</b> : la page reprend les contrôles de forme du testeur officiel de la DGFiP (Test Compta Démat), selon l’arrêté du 29 juillet 2013 (art. A47 A-1 du LPF). Un FEC refusé expose à l’amende de l’art. 1729 D du CGI : c’est au logiciel du client de produire un FEC conforme. Le testeur ne vérifie ni l’équilibre des écritures ni la cohérence comptable ; la page les contrôle côté Odoo.</li>
+</ul></div>
+
+<div class="mstep"><h2><span class="num" aria-hidden="true">?</span>Lexique</h2>
 <dl class="gloss">
 <div><dt>Fichier de reprise</dt><dd>Copie du FEC mise au format attendu par Odoo (encodage, séparateur, dates, virgule décimale) sans changer aucun montant. Il sert uniquement à l’import : ce n’est pas un FEC.</dd></div>
 <div><dt>Correspondance de reprise</dt><dd>Changement de code (compte trop long, tiers rangé dans CompteNum…) que le fichier de reprise applique ligne par ligne. Il doit être validé par l’expert-comptable.</dd></div>
@@ -315,8 +364,9 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <div><dt>Compte archivé</dt><dd>Compte inactif dans Odoo, masqué dans la liste du plan comptable. Un FEC qui l’utilise peut échouer ou créer un compte archivé.</dd></div>
 <div><dt>Testeur DGFiP</dt><dd>Logiciel officiel Test Compta Démat, qui vérifie la forme du FEC. La page reprend ses contrôles.</dd></div>
 </dl>
-<p class="note">Cadre légal : le FEC est la copie des écritures produite par le logiciel de l’entreprise (art. L47 A du LPF) ; les écritures validées sont intangibles et ne se corrigent que par contre-passation (<a href="https://bofip.impots.gouv.fr/export/pdf/5001" target="_blank" rel="noopener">BOFiP BOI-BIC-DECLA-30-10-20-40</a>). La page ne modifie donc jamais un montant, un sens, une date d’écriture ni une devise. Pour remettre un FEC à l’administration, l’outil Test Compta Démat de la DGFiP reste la référence.</p>
-</details>
+</div>
+</section>
+</div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -362,7 +412,12 @@ document.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer&&ev
 $('sample').addEventListener('click',()=>{FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
 $('refClear').addEventListener('click',()=>{REF_FILES=[];REF_NOTE='';applyBase();showRef();if(FEC_FILES.length)runAll(false);});
 $('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';$('resbar').hidden=true;$('empty').hidden=false;window.scrollTo({top:0,behavior:'smooth'});});
-document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
+// Onglets : « Contrôle du FEC » et « Méthodologie avant import »
+function showTab(id,focus){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.dataset.tab===id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus();});
+  document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=p.id!==id);}
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tab]');if(!b)return;showTab(b.dataset.tab);if(b.getAttribute('role')!=='tab')$('tabsNav').scrollIntoView({behavior:'smooth',block:'start'});});
+document.addEventListener('keydown',ev=>{const b=ev.target.closest&&ev.target.closest('[role=tab]');if(!b||!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;ev.preventDefault();const t=[...document.querySelectorAll('[role=tab]')];const i=t.indexOf(b);const n=ev.key==='Home'?0:ev.key==='End'?t.length-1:(i+(ev.key==='ArrowRight'?1:-1)+t.length)%t.length;showTab(t[n].dataset.tab,true);});
+document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;const pn=t.closest('.tabpanel');if(pn&&pn.hidden)showTab(pn.id);t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
 
 let lastReport='';
 $('copy').addEventListener('click',async()=>{
@@ -1124,6 +1179,12 @@ function planOf(R){
   const nv=R.issues.filter(i=>i._k.effect==='verif').length;if(level==='ok'&&nv)sub+=` ${nv} point${nv>1?'s':''} de cohérence comptable à vérifier avec le client.`;
   return {g,m,total,autoMin,level,title,sub,delay,blockSrc};
 }
+// Points communs à tous les FEC : ils restent dans l’analyse, mais l’affichage les renvoie à l’onglet Méthodologie (ou au bandeau du référentiel)
+const GENERIC=/^(Import Odoo : non atomique|Contrôle sur le plan comptable Odoo 20 par défaut)/;
+function viewPlan(P){const g={};for(const w in P.g)g[w]=P.g[w].filter(i=>!GENERIC.test(i.title));
+  const m={};for(const w of ['odoo','source','after'])m[w]=g[w].reduce((t,i)=>t+i._k.min,0);
+  let sub=P.sub;if(P.title==='Importable tel quel'&&!g.odoo.length&&!g.after.length)sub=sub.replace('Quelques réglages dans Odoo, rien à corriger dans le fichier.','Rien à corriger.');
+  return {...P,g,m,sub};}
 function summaryHTML(R,P,useAlt){
   const W={source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'};
   const key=['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)).map(i=>[w,i]));
@@ -1135,14 +1196,14 @@ function summaryHTML(R,P,useAlt){
   if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
   const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
   return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${verT.slice(0,3).map(esc).join(', ')}${verT.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
-${files.length?`<section class="files"><h3>Fichiers à télécharger</h3><ul>${files.join('')}</ul><p class="note">Le FEC d’origine reste la seule pièce légale : le conserver tel quel, et ne jamais remettre ces fichiers à l’administration.</p></section>`:''}`;
+${files.length?`<section class="files"><h3>Fichiers à télécharger</h3><ul>${files.join('')}</ul><p class="note">Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p></section>`:''}`;
 }
 function altHTML(R,P){
   const o=R._open;if(!o)return '';
   const ok=o.tot===0;
   return `<section class="alt" aria-labelledby="alt-${R._id}"><h3 id="alt-${R._id}">${P.level==='err'?'Méthode recommandée : importer une balance d’ouverture':'Autre méthode : importer une balance d’ouverture'}</h3>
 <p>Au lieu de tout l’historique, on importe dans Odoo les soldes au ${o.date.split('-').reverse().join('/')} : une seule écriture d’ouverture. ${o.openItems?`Clients et fournisseurs sont repris pièce par pièce (${o.openItems} pièces non lettrées, avec leur date), pour garder relances et balance âgée.`:'Clients et fournisseurs sont repris par tiers.'} Les comptes de charges et produits ne sont pas repris : leur solde net va au résultat de l’exercice (120 / 129). C’est la reprise la plus rapide quand l’historique détaillé n’est pas indispensable dans Odoo.</p>
-<p class="legal">La balance d’ouverture doit reprendre exactement la balance de clôture validée par l’expert-comptable : mêmes soldes, aucun écart compensé. Faire valider ce fichier avant import. Le FEC d’origine reste la pièce à présenter en cas de contrôle pour les exercices tenus dans l’ancien logiciel : le conserver.</p>
+<p class="legal">À faire valider par l’expert-comptable : la balance d’ouverture doit reprendre exactement la balance de clôture validée.</p>
 <dl class="kv"><div><dt>Lignes</dt><dd>${o.lines}</dd></div><div><dt>Tiers</dt><dd>${o.partners}</dd></div><div><dt>Résultat de l’exercice</dt><dd>${fmtE(-o.res)} €</dd></div><div><dt>Temps estimé</dt><dd>≈ ${fmtMin(15+Math.ceil(o.missing.length/5))}</dd></div></dl>
 ${ok?'':`<p class="warnline">La balance n’est pas équilibrée (écart ${fmtE(o.tot)} €) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
 <ol class="howto">
@@ -1160,16 +1221,17 @@ function fiscHTML(R){const D=R.dgfip;if(!D)return '';
   const rj=[...D.rej],al=[...D.al],nr=[...(D.nor||new Map())],ok=!rj.length;
   const sec=(cls,t,sub,arr)=>arr.length?`<div class="fsec ${cls}"><p class="fh">${t}<span>${sub}</span></p><ul>${arr.map(([k,a])=>`<li><span>${esc(k)}</span>${ln(a)}</li>`).join('')}</ul></div>`:'';
   const resume=ok?[al.length?pl(al.length,'alerte'):'',nr.length?pl(nr.length,'écart')+' à l’arrêté':''].filter(Boolean).join(' · ')||'aucune alerte':pl(rj.length,'motif')+' de refus';
+  if(ok&&!al.length&&!nr.length)return `<div class="fisc ok"><p class="fsum"><b>Exigences fiscales</b><span class="ft">✓ Accepté par le testeur officiel DGFiP</span><span class="fs">aucune alerte</span></p></div>`;
   return `<details class="fisc ${ok?'ok':'err'}"><summary><b>Exigences fiscales</b><span class="ft">${ok?'✓ Accepté par le testeur officiel DGFiP':'✕ Refusé par le testeur officiel DGFiP'}</span><span class="fs">${resume}</span><span class="fo">Voir le détail</span></summary>
 <div class="fbody">
 ${sec('rej','Motifs de refus','bloquent la remise du FEC à l’administration',rj)}
 ${sec('nor','Écarts à l’arrêté','non contrôlés par le testeur, mais contraires au texte',nr)}
 ${sec('al','Alertes','signalées par le testeur, non bloquantes',al)}
-<p class="fnote">${ok?'Le testeur DGFiP vérifie la forme du fichier (arrêté du 29 juillet 2013, art. A47 A-1 du LPF). Il ne vérifie ni l’équilibre des écritures ni la cohérence comptable : ces points sont contrôlés plus bas, côté Odoo.':'Un FEC refusé par ce testeur expose à l’amende de l’art. 1729 D du CGI en cas de contrôle. C’est au logiciel du client de produire un FEC conforme : le fichier de reprise sert à l’import dans Odoo et ne corrige pas le FEC légal.'} Contrôles repris du logiciel Test Compta Démat de la DGFiP.</p>
+${ok?'':`<p class="fnote">C’est au logiciel du client de produire un FEC conforme : le fichier de reprise ne corrige pas le FEC légal. Portée du testeur et risque d’amende : <button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>.</p>`}
 </div></details>`;}
 function ctrlTable(R){
   const rows=R.jt.map(t=>`<tr><td>${esc(t.code)}</td><td>${esc(t.lib)}</td><td>${t.ecritures.toLocaleString('fr-FR')}</td><td>${t.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(t.d)}</td><td>${fmtE(t.c)}</td></tr>`).join('');
-  return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : Comptabilité → Analyse des écritures, regrouper par journal, mesures Débit, Crédit et Nombre. Comparer ligne à ligne, par code de journal. Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
+  return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : comparer ces totaux avec ceux des écritures importées, journal par journal (<button class="linkbtn" type="button" data-tab="tabMethod">méthode</button>). Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
 <div class="tablewrap"><table class="ctrl"><thead><tr><th>Journal</th><th>Libellé</th><th>Écritures</th><th>Lignes</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total</td><td>${R.stats.ecritures.toLocaleString('fr-FR')}</td><td>${R.stats.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(R.totD)}</td><td>${fmtE(R.totC)}</td></tr></tfoot></table></div></details>`;
 }
 let REPORTS=[];
@@ -1197,7 +1259,7 @@ function render(reports){
   if(rs.some(R=>R.isSample))html+=`<p class="sampleban">Rapport d’exemple, sur un petit FEC fictif. Déposez le FEC de votre client dans <button class="linkbtn" type="button" data-goto="slotFec">l’encart 1</button> pour lancer le vrai contrôle.</p>`;
   if(multi)html+=`<div class="cross"><h2>${rs.length} exercices déposés</h2><p>Ordre d’import conseillé, du plus ancien au plus récent. ${cross.length?`${cross.length} point${cross.length>1?'s':''} entre fichiers, repris dans chaque rapport.`:'Aucun conflit entre les fichiers.'}</p><ol class="multi">${rs.map((r,ix)=>{const P=planOf(r);return `<li><a href="#rep-${ix}">${esc(r.name)}</a><small>${esc(fmtP(r.stats.periode))}</small><span class="vpill ${P.level}">${esc(P.title)}</span></li>`;}).join('')}</ol></div>`;
   for(const R of rs){
-    const P=planOf(R);const S=R.stats;const A=R._after?planOf(R._after):null;
+    const P=viewPlan(planOf(R));const S=R.stats;const A=R._after?planOf(R._after):null;
     const seen={};for(const i of R.issues){(seen[i._k.t]=seen[i._k.t]||[]).push(i);}for(const a of Object.values(seen))if(a.length>1)for(const i of a){const c=i.title.match(/^[A-Z][A-Za-z]+(?= )/);i._dup=c?c[0]:'';}
     const changes=R._fix?Object.entries(R._fix.changes):[];
     const steps=[];
@@ -1225,7 +1287,7 @@ return `<section class="fixbox"><div class="fixmain"><h3>Fichier de reprise pour
 <div class="chg">${fm.length?`<div><p class="hl">Écriture technique <span>mêmes valeurs, autre présentation</span></p><ul>${li(fm)}</ul></div>`:''}${mp.length?`<div class="map"><p class="hl">Correspondances de reprise <span>à valider avec l’expert-comptable</span></p><ul>${li(mp)}</ul>${F.corr.length?'<p class="note">Chaque changement est listé ligne par ligne dans la table de correspondance.</p>':''}</div>`:''}</div>
 <div class="integ ${I.ok?'ok':'bad'}"><p class="hl">${I.ok?'✓ Contrôle d’intégrité réussi':'✕ Contrôle d’intégrité en échec : fichier bloqué'}</p><dl class="kv"><div><dt>Lignes</dt><dd>${I.lines.toLocaleString('fr-FR')}</dd></div><div><dt>Total débit</dt><dd>${fmtE(I.debit)} €</dd></div><div><dt>Total crédit</dt><dd>${fmtE(I.credit)} €</dd></div></dl><p>${I.ok?'Identiques au fichier d’origine, au centime. Aucun montant, sens, date d’écriture ni devise n’a été modifié.':`Le fichier d’origine compte ${I.srcLines} lignes, ${fmtE(I.srcDebit)} € au débit et ${fmtE(I.srcCredit)} € au crédit.`}</p></div>
 ${F.left.length?`<p class="warnline">Laissé tel quel : ${F.left.slice(0,4).map(esc).join(' ; ')}${F.left.length>4?` … (+${F.left.length-4})`:''}</p>`:''}
-<p class="legal">Ce fichier sert uniquement à l’import dans Odoo : ce n’est pas un FEC. Seul le fichier produit par le logiciel du client a valeur légale (art. L47 A du LPF). Il doit être conservé tel quel, 6 ans au titre fiscal (art. L102 B du LPF) et 10 ans au titre commercial (art. L123-22 du Code de commerce). Ne jamais remettre le fichier de reprise à l’administration.</p>
+<p class="legal">Ce n’est pas un FEC : il sert uniquement à l’import et ne se remet jamais à l’administration (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p>
 ${mp.length&&I.ok?`<label class="confirm"><input type="checkbox" id="ok-${R._id}" data-confirm="${R._id}"> Les correspondances ci-dessus ont été validées avec le client ou son expert-comptable.</label>`:''}</div>
 <div class="fixbtns"><button class="btn primary" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp.length?'':'disabled'}>Télécharger le fichier de reprise</button>${F.corr.length?`<button class="btn" type="button" data-dl="corr" data-r="${R._id}">Table de correspondance</button>`:''}</div></section>`;})():R._fixErr?`<p class="warnline">${esc(R._fixErr)}</p>`:''}
 ${P.level==='warn'||(P.level==='err'&&!R._open)?altHTML(R,P):''}
