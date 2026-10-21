@@ -46,6 +46,10 @@ node tests/run.js tests/fixtures/dc.txt
 node tests/run.js tests/fixtures/neg.txt tests/fixtures/odoo20_fr_export_comptes_actifs.xlsx tests/fixtures/odoo20_fr_export_comptes_inactifs.xlsx tests/fixtures/odoo20_fr_export_journaux.xlsx
 ```
 
+## Banc d'essai
+
+Sur un jeu de 400 paires de FEC fictifs (17 styles d'export, 1 567 erreurs connues) : 400 FEC corrects sur 400 jugés importables, 98,6 % des erreurs détectées, et un échantillon de 31 fichiers confirmé par import réel dans Odoo 20. `node tests/bench_dataset.js "chemin/fichiers FECS"` puis `python3 tests/bench_measure.py`.
+
 ## Limites
 
 - Comportements relevés sur Odoo 20 (SaaS, plan comptable français). Une autre version peut différer : rejouer les cas de `tests/fixtures` sur une base de test.
