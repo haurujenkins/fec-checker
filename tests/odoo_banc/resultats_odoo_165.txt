@@ -1,0 +1,165 @@
+E_P0113~ERR~day 30 must be in range 1..28 for month 2~0
+E_P0156~ERR~Soldes incorrects~111
+E_P0227~ERR~Soldes incorrects~157
+E_P0305~ERR~time data 'PieceDate' does not match~0
+E_P0376~ERR~time data '17-04-2022' does not match~0
+E_P0394~ERR~Soldes incorrects~130
+E_P0023~ERR~Soldes incorrects~0
+E_P0024~ERR~time data 'PieceDate' does not match~0
+E_P0039~DIFF~montants pris dans Montantdevise~166
+E_P0041~ERR~could not convert string to float: 'REF'~0
+E_P0158~ERR~could not convert string to float: 'REF'~0
+E_P0225~ERR~time data '20250000' does not match~0
+E_P0229~ERR~Soldes incorrects~0
+E_P0261~ERR~account non trouvé~0
+E_P0267~ERR~time data '17/02/2022' does not match~0
+E_P0273~ERR~account non trouvé~0
+E_P0274~ERR~Soldes incorrects~324
+E_P0304~ERR~Soldes incorrects~279
+E_P0323~ERR~Soldes incorrects~171
+E_P0332~ERR~Soldes incorrects~319
+E_P0366~ERR~Soldes incorrects~309
+E_P0014~ERR~Soldes incorrects~323
+E_P0037~ERR~could not convert string to float: '2 962.59'~338
+E_P0083~ERR~Soldes incorrects~325
+E_P0096~REFUSE~La ligne 1494 n'a pas de nom de pièce valide~
+E_P0109~ERR~Soldes incorrects~682
+E_P0111~ERR~Soldes incorrects~301
+E_P0176~ERR~could not convert string to float: '1.028.00'~0
+E_P0191~ERR~account non trouvé~324
+E_P0192~ERR~journal non trouvé~0
+E_P0291~ERR~journal non trouvé~0
+E_P0293~ERR~account non trouvé~0
+E_P0314~REFUSE~La ligne 234 n'a pas de nom de pièce valide~
+E_P0320~ERR~Soldes incorrects~670
+E_P0352~ERR~Soldes incorrects~630
+E_P0370~ERR~could not convert string to float: '1 149.00'~0
+E_P0393~ERR~could not convert string to float: 'REF'~0
+E_P0062~ERR~Soldes incorrects~0
+E_P0078~ERR~unconverted data remains: 0~331
+E_P0179~REFUSE~La ligne 48 n'a pas de nom de pièce valide~
+E_P0239~ERR~time data 'PieceDate' does not match~692
+E_P0260~DIFF~~693
+E_P0318~ERR~account non trouvé~0
+E_P0355~ERR~Soldes incorrects~724
+E_P0398~ERR~Soldes incorrects~717
+C_P0022~OK~~
+C_P0050~OK~~
+C_P0058~OK~~
+C_P0061~OK~~
+C_P0071~OK~~
+C_P0086~OK~~
+C_P0113~OK~~
+C_P0156~OK~~
+C_P0161~OK~~
+C_P0166~OK~~
+C_P0202~OK~~
+C_P0246~OK~~
+C_P0268~OK~~
+C_P0284~OK~~
+C_P0292~OK~~
+C_P0322~OK~~
+C_P0342~OK~~
+C_P0349~OK~~
+C_P0354~OK~~
+C_P0376~OK~~
+C_P0394~OK~~
+C_P0396~OK~~
+C_P0055~OK~~
+C_P0267~OK~~
+C_P0282~OK~~
+C_P0124~OK~~
+E_P0016~OK~~
+E_P0050~OK~~
+E_P0058~OK~~
+E_P0063~OK~~
+E_P0071~OK~~
+E_P0075~OK~~
+E_P0081~OK~~
+E_P0086~OK~~
+E_P0094~OK~~
+E_P0152~OK~~
+E_P0161~OK~~
+E_P0166~OK~~
+E_P0193~OK~~
+E_P0246~OK~~
+E_P0321~OK~~
+E_P0322~OK~~
+E_P0354~OK~~
+E_P0357~OK~~
+E_P0380~OK~~
+E_P0392~OK~~
+E_P0009~OK~~
+E_P0029~OK~~
+E_P0040~OK~~
+E_P0046~OK~~
+E_P0066~OK~~
+E_P0070~OK~~
+E_P0120~OK~~
+E_P0149~OK~~
+E_P0153~OK~~
+E_P0164~OK~~
+E_P0167~OK~~
+E_P0171~OK~~
+E_P0186~OK~~
+E_P0197~OK~~
+E_P0199~OK~~
+E_P0208~OK~~
+E_P0224~OK~~
+E_P0253~OK~~
+E_P0254~OK~~
+E_P0258~OK~~
+E_P0271~OK~~
+E_P0278~OK~~
+E_P0299~OK~~
+E_P0309~OK~~
+E_P0339~OK~~
+E_P0343~OK~~
+E_P0369~OK~~
+E_P0373~OK~~
+E_P0384~OK~~
+E_P0390~OK~~
+E_P0011~OK~~
+E_P0031~OK~~
+E_P0033~OK~~
+E_P0054~OK~~
+E_P0059~OK~~
+E_P0103~OK~~
+E_P0114~OK~~
+E_P0127~OK~~
+E_P0134~OK~~
+E_P0139~OK~~
+E_P0142~OK~~
+E_P0147~OK~~
+E_P0175~OK~~
+E_P0196~OK~~
+E_P0222~OK~~
+E_P0238~OK~~
+E_P0249~OK~~
+E_P0252~OK~~
+E_P0257~OK~~
+E_P0272~OK~~
+E_P0330~OK~~
+E_P0341~OK~~
+E_P0347~OK~~
+E_P0356~OK~~
+E_P0381~OK~~
+E_P0389~OK~~
+E_P0060~OK~~
+E_P0089~OK~~
+E_P0104~OK~~
+E_P0112~OK~~
+E_P0135~OK~~
+E_P0136~OK~~
+E_P0170~OK~~
+E_P0230~OK~~
+E_P0235~OK~~
+E_P0270~OK~~
+E_P0279~OK~~
+E_P0311~OK~~
+E_P0317~OK~~
+E_P0334~OK~~
+E_P0346~OK~~
+E_P0360~OK~~
+E_P0363~OK~~
+E_P0007~OK~~
