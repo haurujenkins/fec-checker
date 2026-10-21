@@ -7,7 +7,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout : une colonne de travail. Dépôt → verdict et temps → parcours en étapes → fichier de reprise → points groupés par endroit où agir. */
+/* Layout : une colonne de travail. Deux encarts de dépôt (1. FEC, 2. base Odoo cible) → résultat : verdict et temps → points à régler → fichiers → détail. */
 :root{
   --bg:#f5f6f3; --surface:#ffffff; --sunk:#eef0ec; --fg:#18212c; --muted:#59636f; --line:#d8dcd4;
   --accent:#1f4e79; --accent-fg:#ffffff;
@@ -29,10 +29,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15.5
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
 main{max-width:860px;margin:0 auto;display:grid;gap:22px}
 h1,h2,h3,h4{text-wrap:balance}
-header h1{font-size:1.75rem;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
-header p{margin:0;color:var(--muted);max-width:66ch}
+header.top h1{font-size:1.75rem;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+header.top p{margin:0;color:var(--muted);max-width:66ch}
+header.top .privacy{margin-top:8px;display:inline-flex;gap:6px;align-items:center;font-size:.86rem;color:var(--ok);background:var(--ok-bg);padding:3px 10px;border-radius:999px}
 code{font-family:var(--mono);font-size:.88em}
-.drop{position:relative;border:2px dashed var(--line);border-radius:12px;background:var(--surface);padding:26px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;display:grid;gap:6px}
+.drop{position:relative;border:2px dashed var(--line);border-radius:10px;background:var(--bg);padding:22px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;display:grid;gap:6px}
 .drop.over,.drop:focus-visible{border-color:var(--accent);outline:none;background:var(--info-bg)}
 .drop strong{font-size:1.05rem;font-weight:600}
 .drop span{color:var(--muted);font-size:.9rem;max-width:62ch;margin:0 auto}
@@ -42,8 +43,57 @@ code{font-family:var(--mono);font-size:.88em}
 .btn:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 .btn:disabled{opacity:.7;cursor:default}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.toolbar .file{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+/* Encarts de dépôt */
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.slot{align-content:start}
+.slot{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.slot.filled{border-color:var(--ok)}
+.slot-head{display:flex;gap:12px;align-items:flex-start}
+.slot-head h2{margin:0;font-size:1.05rem;font-weight:600;line-height:1.3}
+.slot-head p{margin:2px 0 0;font-size:.86rem;color:var(--muted)}
+.num{flex:none;width:1.8rem;height:1.8rem;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:.9rem;background:var(--accent);color:var(--accent-fg)}
+.slot.filled .num{background:var(--ok);color:var(--surface)}
+.hint{margin:0;font-size:.86rem;color:var(--muted)}
+.loaded,.refstat{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.loaded:empty{display:none}
+.loaded li{display:flex;gap:8px;align-items:baseline;min-width:0}
+.loaded .fn{font-family:var(--mono);font-size:.86rem;overflow-wrap:anywhere;min-width:0}
+.loaded small{margin-left:auto;color:var(--muted);font-size:.8rem;white-space:nowrap}
+.loaded .tag-ex{margin-left:0}
+.refstat li{display:flex;gap:10px;align-items:flex-start}
+.refstat li>span:last-child{display:grid;min-width:0}
+.refstat b{font-weight:500;font-size:.93rem}
+.refstat small{color:var(--muted);font-size:.83rem;overflow-wrap:anywhere}
+.refstat li.note{font-size:.85rem;color:var(--muted);background:var(--sunk);padding:6px 10px;border-radius:8px}
+.mark{flex:none;width:1.25rem;height:1.25rem;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;margin-top:2px;background:var(--sunk);color:var(--muted)}
+.mark.ok{background:var(--ok-bg);color:var(--ok)}.mark.warn{background:var(--warn-bg);color:var(--warn)}
+.howexp>summary{cursor:pointer;color:var(--accent);font-size:.88rem;font-weight:500}
+.howexp ol{margin:8px 0 0;padding-left:20px;font-size:.88rem;display:grid;gap:4px}
+.slot .linkbtn{justify-self:start;font-size:.85rem;color:var(--muted)}
+/* Résultat */
+.results{display:grid;gap:18px;scroll-margin-top:12px}
+.resbar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.resbar[hidden],.empty[hidden]{display:none}
+.resinfo{display:grid;gap:2px;min-width:0;flex:1 1 320px}
+.resbar .file{font-family:var(--mono);font-size:.9rem;min-width:0;overflow-wrap:anywhere}
+.refline{margin:0;font-size:.88rem;color:var(--muted)}
+.refline b{font-weight:500;color:var(--fg)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:18px 20px;display:grid;gap:10px;justify-items:start}
+.empty ul{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--muted);font-size:.93rem;max-width:72ch}
+.empty b{color:var(--fg);font-weight:500}
+.sampleban{margin:0;padding:10px 14px;border-radius:10px;background:var(--warn-bg);font-size:.92rem}
+.multi{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:6px;counter-reset:m}
+.multi li{counter-increment:m;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.multi li::before{content:counter(m) ".";color:var(--muted);font-variant-numeric:tabular-nums}
+.multi a{font-family:var(--mono);font-size:.9rem;color:var(--accent);overflow-wrap:anywhere}
+.multi small{color:var(--muted)}
+.vpill{font-size:.74rem;font-weight:600;padding:1px 9px;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.vpill.ok{background:var(--ok-bg);color:var(--ok)}.vpill.warn{background:var(--warn-bg);color:var(--warn)}.vpill.err{background:var(--err-bg);color:var(--err)}
+#reports{display:grid;gap:18px}
+.report{scroll-margin-top:12px}
 .tag-ex{display:inline-block;font-family:var(--sans);font-size:.72rem;font-weight:600;background:var(--warn-bg);color:var(--warn);padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:8px}
 .report{display:grid;gap:18px;margin-bottom:36px}
 .rname{font-size:1.05rem;font-weight:600;margin:0;font-family:var(--mono);overflow-wrap:anywhere}
@@ -151,6 +201,8 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 .guide{display:grid;gap:8px}
 .guide h3{margin:0;font-size:1.05rem;font-weight:600}
 .steps{margin:0;padding-left:22px;font-size:.93rem;display:grid;gap:6px;max-width:75ch}
+.slot .drop{padding:18px 14px}
+@media (max-width:760px){.inputs{grid-template-columns:1fr}}
 @media (max-width:600px){.todo li{grid-template-columns:1fr auto}.todo li .wtag{grid-column:1/-1;justify-self:start}.verdict,.fixbox{grid-template-columns:1fr}.vtime{text-align:left;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.route li{grid-template-columns:2rem 1fr}.route em{grid-column:2}.passed{columns:1}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -158,29 +210,61 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <body>
 
 <main>
-<header>
+<header class="top">
   <h1>Contrôle FEC</h1>
-  <p>Déposez le FEC du client : la page dit s’il passera dans Odoo, ce qu’il faut régler et en combien de temps. Le fichier reste sur votre poste.</p>
+  <p>Avant d’importer un FEC dans Odoo : verdict, points à régler avec leur temps estimé, et fichier de reprise prêt à importer.</p>
+  <p class="privacy"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 12 6h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5H6V4.5a2 2 0 1 1 4 0V6Z"/></svg>Rien ne quitte votre poste · fonctionne hors ligne</p>
 </header>
 
-<label class="drop" id="drop" tabindex="0">
-  <strong>Glissez le FEC ici, ou cliquez pour le choisir</strong>
-  <span>Ajoutez les exports du plan comptable et des journaux de la base Odoo cible pour un résultat exact (voir le mode d’emploi).</span>
-  <input type="file" id="file" accept=".txt,.csv,.tsv,.xlsx,.xls" multiple>
-</label>
-
-<div class="toolbar">
-  <div class="file" id="fname"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn" id="copy" type="button">Copier le rapport</button>
-    <button class="btn" id="sample" type="button">Recharger l'exemple</button>
+<section class="inputs" aria-label="Fichiers à contrôler">
+  <div class="slot" id="slotFec">
+    <div class="slot-head"><span class="num" aria-hidden="true">1</span><div><h2>FEC du client</h2><p>Obligatoire</p></div></div>
+    <label class="drop" id="drop" tabindex="0">
+      <strong id="dropT">Glissez le FEC ici</strong>
+      <span>ou cliquez pour le choisir · .txt, .csv ou .xlsx</span>
+      <input type="file" id="file" accept=".txt,.csv,.tsv,.xlsx,.xls" multiple>
+    </label>
+    <ul class="loaded" id="fecList" aria-live="polite"></ul>
+    <p class="hint">Plusieurs exercices ? Déposez-les ensemble : la page repère les doublons entre fichiers et donne l’ordre d’import.</p>
   </div>
-</div>
+  <div class="slot" id="slotRef">
+    <div class="slot-head"><span class="num" aria-hidden="true">2</span><div><h2>Plan comptable de la base Odoo cible</h2><p>Recommandé · sans lui, contrôle sur le plan Odoo 20 FR par défaut</p></div></div>
+    <label class="drop" id="refDrop" tabindex="0">
+      <strong id="refDropT">Glissez les exports Odoo ici</strong>
+      <span>ou cliquez pour les choisir · .xlsx ou .csv, un ou plusieurs à la fois</span>
+      <input type="file" id="refFile" accept=".xlsx,.xls,.csv" multiple>
+    </label>
+    <ul class="refstat" id="refStat" aria-live="polite"></ul>
+    <details class="howexp"><summary>Comment exporter ces fichiers depuis Odoo</summary>
+      <ol>
+        <li><b>Comptes actifs</b> : Comptabilité → Configuration → Plan comptable, tout sélectionner, Action → Exporter avec <em>Code, Nom du compte, Type, Actif</em>.</li>
+        <li><b>Comptes inactifs</b> : même export avec le filtre <em>Comptes inactifs</em>. Odoo masque les comptes archivés par défaut : sans cet export, la page ne les voit pas.</li>
+        <li><b>Journaux</b> : Comptabilité → Configuration → Journaux, tout sélectionner, Action → Exporter (code court, nom, type).</li>
+      </ol>
+    </details>
+    <button class="linkbtn" id="refClear" type="button" hidden>Retirer les exports et revenir au plan par défaut</button>
+  </div>
+</section>
 
-<div id="reports"></div>
+<section class="results" id="results" aria-label="Résultat">
+  <div class="resbar" id="resbar" hidden>
+    <div class="resinfo"><p class="eyebrow">Résultat du contrôle</p><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p></div>
+    <div class="actions"><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Nouveau contrôle</button></div>
+  </div>
+  <div class="empty" id="empty">
+    <p class="eyebrow">Ce que vous obtiendrez</p>
+    <ul>
+      <li><b>Le verdict pour Odoo</b> : importable tel quel, avec le fichier de reprise, à corriger, ou déconseillé, avec le temps estimé.</li>
+      <li><b>Les points à régler</b>, rangés par endroit où agir : à la source, dans Odoo avant ou après l’import.</li>
+      <li><b>Le fichier de reprise</b> au format attendu par Odoo, sans toucher aux montants, et le verdict du testeur officiel DGFiP.</li>
+    </ul>
+    <button class="btn" id="sample" type="button">Voir un exemple de rapport</button>
+  </div>
+  <div id="reports"></div>
+</section>
 <details class="block guide" id="guide"><summary>Mode d’emploi complet de l’import FEC dans Odoo</summary>
 <ol class="steps">
-<li><strong>Exporter la base cible</strong> (recommandé) : Comptabilité → Configuration → Plan comptable, tout sélectionner, Action → Exporter avec <em>Code, Nom du compte, Type, Actif</em>. Refaire l’export avec le filtre <em>Comptes inactifs</em>. Puis Configuration → Journaux → Exporter. Déposer ces fichiers avec le FEC.</li>
+<li><strong>Exporter la base cible</strong> (recommandé) : plan comptable (comptes actifs, puis comptes inactifs) et journaux, à déposer dans l’encart 2 « Plan comptable de la base Odoo cible ». Le détail est dans cet encart.</li>
 <li><strong>Travailler sur une copie de test</strong> (staging) ou après une sauvegarde : un import raté laisse des écritures à moitié importées.</li>
 <li><strong>Installer le module</strong> « France - FEC Import » (<code>l10n_fr_fec_import</code>). Il n’a pas de menu : chercher « Import FEC » dans la barre de recherche d’Odoo.</li>
 <li><strong>Préparer la base</strong> avec les points « À faire dans Odoo, avant l’import » (comptes existants à désarchiver, devises à activer).</li>
@@ -222,13 +306,22 @@ BQ|Banque|4|20250210|411000|Clients|411DUP|DUPONT SA|REL02|20250210|Virement cli
 `;
 
 const $=id=>document.getElementById(id);
-const drop=$('drop'),input=$('file');
-['dragenter','dragover'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('over')}));
-['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('over')}));
-drop.addEventListener('drop',ev=>{if(ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files)});
-drop.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();input.click()}});
-input.addEventListener('change',()=>{if(input.files.length)handleFiles(input.files)});
-$('sample').addEventListener('click',()=>{PCG_ACTIVE=PCG_DEF_ACTIVE;PCG_ARCHIVED=PCG_DEF_ARCHIVED;BASE_JOURNALS=ODOO_DEF_JOURNALS;BASE_SRC=null;BASE_HAS_J=false;BASE_NO_INACTIVE=false;startBatch(1);runText(SAMPLE_NAME,new TextEncoder().encode(SAMPLE).buffer,true);});
+// Deux encarts : 1. le FEC, 2. les exports de la base Odoo cible. Les fichiers restent en mémoire : ajouter ou retirer un export relance le contrôle du FEC déjà déposé.
+let FEC_FILES=[],REF_FILES=[],SAMPLE_ON=false,REF_NOTE='',SCROLL_NEXT=false;
+function zone(dropId,inputId,where){const d=$(dropId),i=$(inputId);
+  ['dragenter','dragover'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();ev.stopPropagation();d.classList.add('over')}));
+  ['dragleave','drop'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.classList.remove('over')}));
+  d.addEventListener('drop',ev=>{ev.stopPropagation();if(ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files,where)});
+  d.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();i.click()}});
+  i.addEventListener('change',()=>{if(i.files.length)handleFiles(i.files,where);i.value='';});}
+zone('drop','file','fec');zone('refDrop','refFile','ref');
+// Un fichier lâché à côté des encarts ne remplace pas la page : il est rangé d’après son contenu
+document.addEventListener('dragover',ev=>ev.preventDefault());
+document.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer&&ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files);});
+$('sample').addEventListener('click',()=>{FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
+$('refClear').addEventListener('click',()=>{REF_FILES=[];REF_NOTE='';applyBase();showRef();if(FEC_FILES.length)runAll(false);});
+$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';$('resbar').hidden=true;$('empty').hidden=false;window.scrollTo({top:0,behavior:'smooth'});});
+document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
 
 let lastReport='';
 $('copy').addEventListener('click',async()=>{
@@ -256,26 +349,67 @@ function refKind(tab){if(!tab||!tab.length)return null;const h=tab[0].map(norm);
   return null;}
 const JT_FROM={ventes:'sale',vente:'sale',sale:'sale',achats:'purchase',achat:'purchase',purchase:'purchase',banque:'bank',bank:'bank',especes:'cash',cash:'cash','carte de credit':'credit',credit:'credit',divers:'general',general:'general','operations diverses':'general'};
 const truthy=v=>/^(true|vrai|1|oui|yes|x)$/i.test(String(v).trim());
-async function handleFiles(list){
+async function handleFiles(list,where){
   const files=await Promise.all([...list].map(readBuf));
   $('fname').textContent='Lecture de '+files.map(f=>f.name).join(', ')+'…';
-  const accA=new Set(),accX=new Set();let jr=null;const used=[],fecs=[];
+  const fecs=[],refs=[],moved=[],bad=[];
   for(const f of files){const tab=tableOf(f);const k=refKind(tab);
-    if(k==='accounts'){const h=tab[0].map(norm);const ic=h.findIndex(x=>x==='code');const ia=h.findIndex(x=>x==='actif'||x==='active');
-      for(const r of tab.slice(1)){const c=String(r[ic]||'').trim();if(!c)continue;const act=ia<0?true:truthy(r[ia]);(act?accA:accX).add(c);}
-      used.push(`${f.name} (${tab.length-1} comptes${ia<0?', colonne Actif absente : tous supposés actifs':''})`);}
-    else if(k==='journals'){const h=tab[0].map(norm);const ic=h.findIndex(x=>['prefixe de la sequence','code court','code'].includes(x));const inn=h.findIndex(x=>['nom du journal','name','nom'].includes(x));const it=h.findIndex(x=>x==='type');
-      jr=jr||{};for(const r of tab.slice(1)){const c=String(r[ic]||'');if(!c.trim())continue;jr[c]={name:String(r[inn]||''),type:JT_FROM[norm(r[it])]||norm(r[it])};}
-      used.push(`${f.name} (${tab.length-1} journaux)`);}
-    else fecs.push(f);}
-  if(accA.size||accX.size){for(const c of accX)accA.delete(c);PCG_ACTIVE=accA;BASE_NO_INACTIVE=!accX.size;PCG_ARCHIVED=accX.size?accX:new Set([...PCG_DEF_ARCHIVED].filter(c=>!accA.has(c)));}else{PCG_ACTIVE=PCG_DEF_ACTIVE;PCG_ARCHIVED=PCG_DEF_ARCHIVED;}
-  BASE_JOURNALS=jr||ODOO_DEF_JOURNALS;BASE_HAS_J=!!jr;if(!(accA.size||accX.size))BASE_NO_INACTIVE=false;
-  BASE_SRC=used.length?used.join(' · ')+((accA.size||accX.size)&&!accX.size?' — attention : aucun compte inactif fourni (export « Comptes inactifs » manquant ?)':'')+((accA.size||accX.size)&&!jr?' — journaux : liste par défaut':'')+(jr&&!(accA.size||accX.size)?' — comptes : plan par défaut':''):null;
-  if(!fecs.length){$('fname').textContent='Exports de la base chargés : '+used.join(' · ')+'. Déposez maintenant le FEC avec eux.';return;}
-  startBatch(fecs.length);
-  for(const f of fecs){ if(/\.xlsx?$/i.test(f.name)) runXlsx(f.name,f.buf); else runText(f.name,f.buf,false); }
+    if(k){f.tab=tab;f.kind=k;refs.push(f);if(where==='fec')moved.push(f.name+' → encart 2');}
+    else if(where==='ref'&&!(tab===null&&!/\.xlsx?$/i.test(f.name))&&!(tab&&tab[0]&&tab[0].some(c=>/journalcode/i.test(c))))bad.push(f.name);
+    else{fecs.push(f);if(where==='ref')moved.push(f.name+' → encart 1 (c’est un FEC)');}}
+  if(refs.length){const names=new Set(refs.map(f=>f.name));REF_FILES=REF_FILES.filter(f=>!names.has(f.name)).concat(refs);applyBase();}
+  REF_NOTE=[moved.length?'Rangé automatiquement : '+moved.join(' · ')+'.':'',bad.length?'Non reconnu : '+bad.join(', ')+'. Attendu : un export Odoo avec les colonnes Code, Nom du compte et Type (comptes), ou Code court, Nom et Type (journaux).':''].filter(Boolean).join(' ');
+  showRef();
+  if(fecs.length){FEC_FILES=fecs;SAMPLE_ON=false;showFecList();runAll(true);}
+  else if(FEC_FILES.length&&refs.length)runAll(false);
+  else $('fname').textContent=refs.length?'Exports de la base chargés : '+REF_FILES.map(f=>f.name).join(' · ')+'. Déposez maintenant le FEC dans l’encart 1.':'';
 }
-
+let REF_STAT={acc:[],jr:[]};
+function applyBase(){
+  const accA=new Set(),accX=new Set();let jr=null;const used=[];REF_STAT={acc:[],jr:[]};
+  for(const f of REF_FILES){const tab=f.tab;
+    if(f.kind==='accounts'){const h=tab[0].map(norm);const ic=h.findIndex(x=>x==='code');const ia=h.findIndex(x=>x==='actif'||x==='active');let nA=0,nX=0;
+      for(const r of tab.slice(1)){const c=String(r[ic]||'').trim();if(!c)continue;const act=ia<0?true:truthy(r[ia]);(act?accA:accX).add(c);act?nA++:nX++;}
+      REF_STAT.acc.push({name:f.name,nA,nX,noCol:ia<0});
+      used.push(`${f.name} (${tab.length-1} comptes${ia<0?', colonne Actif absente : tous supposés actifs':''})`);}
+    else{const h=tab[0].map(norm);const ic=h.findIndex(x=>['prefixe de la sequence','code court','code'].includes(x));const inn=h.findIndex(x=>['nom du journal','name','nom'].includes(x));const it=h.findIndex(x=>x==='type');
+      jr=jr||{};let n=0;for(const r of tab.slice(1)){const c=String(r[ic]||'');if(!c.trim())continue;jr[c]={name:String(r[inn]||''),type:JT_FROM[norm(r[it])]||norm(r[it])};n++;}
+      REF_STAT.jr.push({name:f.name,n});
+      used.push(`${f.name} (${tab.length-1} journaux)`);}}
+  const onlyX=!accA.size&&accX.size; // export des comptes inactifs seul : les comptes actifs restent ceux du plan par défaut
+  if(accA.size||accX.size){for(const c of accX)accA.delete(c);PCG_ACTIVE=onlyX?new Set([...PCG_DEF_ACTIVE].filter(c=>!accX.has(c))):accA;BASE_NO_INACTIVE=!accX.size;PCG_ARCHIVED=accX.size?accX:new Set([...PCG_DEF_ARCHIVED].filter(c=>!accA.has(c)));}else{PCG_ACTIVE=PCG_DEF_ACTIVE;PCG_ARCHIVED=PCG_DEF_ARCHIVED;}
+  BASE_JOURNALS=jr||ODOO_DEF_JOURNALS;BASE_HAS_J=!!jr;if(!(accA.size||accX.size))BASE_NO_INACTIVE=false;
+  BASE_SRC=used.length?used.join(' · ')+((accA.size||accX.size)&&!accX.size?' — attention : aucun compte inactif fourni (export « Comptes inactifs » manquant ?)':'')+(onlyX?' — comptes actifs : plan par défaut (export des comptes actifs manquant)':'')+((accA.size||accX.size)&&!jr?' — journaux : liste par défaut':'')+(jr&&!(accA.size||accX.size)?' — comptes : plan par défaut':''):null;
+}
+function runAll(scroll){
+  SCROLL_NEXT=scroll;startBatch(FEC_FILES.length);
+  for(const f of FEC_FILES){ if(/\.xlsx?$/i.test(f.name)) runXlsx(f.name,f.buf); else runText(f.name,f.buf,SAMPLE_ON); }
+}
+const kb=n=>n<1024?n+' o':n<1048576?Math.round(n/1024)+' Ko':(n/1048576).toLocaleString('fr-FR',{maximumFractionDigits:1})+' Mo';
+function showFecList(){
+  $('fecList').innerHTML=FEC_FILES.map(f=>`<li><span class="mark ok" aria-hidden="true">✓</span><span class="fn">${esc(f.name)}</span><small>${SAMPLE_ON?'<span class="tag-ex">Exemple fictif</span>':kb(f.buf.byteLength)}</small></li>`).join('');
+  $('slotFec').className='slot'+(FEC_FILES.length?' filled':'');
+  $('dropT').textContent=FEC_FILES.length?'Remplacer le FEC':'Glissez le FEC ici';
+}
+function showRef(){
+  const A=REF_STAT.acc,nA=A.reduce((t,a)=>t+a.nA,0),nX=A.reduce((t,a)=>t+a.nX,0),nJ=REF_STAT.jr.reduce((t,a)=>t+a.n,0);
+  const files=a=>a.map(x=>esc(x.name)).join(', ');
+  const row=(st,t,d)=>`<li class="${st}"><span class="mark ${st}" aria-hidden="true">${st==='ok'?'✓':st==='warn'?'!':'○'}</span><span><b>${t}</b><small>${d}</small></span></li>`;
+  const aF=A.filter(a=>a.nA),xF=A.filter(a=>a.nX);
+  $('refStat').innerHTML=[
+    nA?row('ok','Comptes actifs',`${nA.toLocaleString('fr-FR')} comptes · ${files(aF)}${aF.some(a=>a.noCol)?' · colonne Actif absente : tous supposés actifs':''}`):row(A.length?'warn':'none','Comptes actifs',A.length?'Export manquant : plan Odoo 20 FR par défaut':'Non fourni : plan Odoo 20 FR par défaut'),
+    nX?row('ok','Comptes inactifs',`${nX.toLocaleString('fr-FR')} comptes · ${files(xF)}`):row(A.length?'warn':'none','Comptes inactifs',A.length?'Export manquant : refaire l’export avec le filtre « Comptes inactifs »':'Non fourni : comptes archivés par défaut d’Odoo'),
+    nJ?row('ok','Journaux',`${nJ.toLocaleString('fr-FR')} journaux · ${files(REF_STAT.jr)}`):row('none','Journaux','Non fourni : journaux par défaut d’Odoo')
+  ].join('')+(REF_NOTE?`<li class="note">${esc(REF_NOTE)}</li>`:'');
+  $('slotRef').className='slot'+(REF_FILES.length?' filled':'');
+  $('refClear').hidden=!REF_FILES.length;
+  $('refDropT').textContent=REF_FILES.length?'Ajouter ou remplacer un export':'Glissez les exports Odoo ici';
+}
+function refLineHTML(){
+  if(!BASE_SRC)return `Contrôlé contre le <b>plan comptable Odoo 20 FR par défaut</b>. <button class="linkbtn" type="button" data-goto="slotRef">Ajouter le plan de la base cible</button> pour un résultat exact.`;
+  const A=REF_STAT.acc,ok=A.some(a=>a.nA),okX=A.some(a=>a.nX),okJ=REF_STAT.jr.length;
+  return `Contrôlé contre la <b>base Odoo cible</b> : comptes actifs ${ok?'✓':'par défaut'} · comptes inactifs ${okX?'✓':'manquants'} · journaux ${okJ?'✓':'par défaut'}.`;
+}
 /* ---------- Lecture ---------- */
 function decode(buf){
   const bytes=new Uint8Array(buf);
@@ -557,8 +691,8 @@ function analyse({name,rows:rows0,meta,isSample}){
   if(ltSingle.length)add('warn','Lettre de lettrage présente sur une seule ligne','Vérifié : Odoo reprend le code de lettrage mais n’a rien à rapprocher : la ligne reste ouverte. Souvent un export partiel (période coupée) ou une lettre posée d’un seul côté.',ltSingle,'Lettre');
   if(ltPart.length)add('warn','Lettrages non soldés','Vérifié : à la comptabilisation, Odoo relettre les lignes de même lettre ; si leur somme n’est pas nulle, il crée un lettrage partiel et laisse le reste dû ouvert.',ltPart,'Lettre');
   if(lt.length&&!ltSingle.length&&!ltPart.length)ok(`Lettrage cohérent (${lt.length} lettre${lt.length>1?'s':''} soldée${lt.length>1?'s':''}) : vérifié, Odoo le reconstitue à la comptabilisation`);
-  if(BASE_SRC)ok(`Contrôlé contre la base cible : ${BASE_SRC}`);else add('info','Contrôle sur le plan comptable Odoo 20 par défaut','Pour contrôler contre la base réelle du client, déposez avec le FEC les exports du plan comptable (comptes actifs + comptes inactifs) et des journaux. Voir « Avant d’importer dans Odoo ».');
-  if(BASE_NO_INACTIVE)add('odoo','Export des comptes inactifs manquant','Odoo masque les comptes archivés dans la liste du plan comptable : sans un second export avec le filtre « Comptes inactifs », la page ne voit pas ceux de la base et suppose les comptes archivés par défaut d’Odoo. Faire ce second export et le redéposer avec les autres.');
+  if(BASE_SRC)ok(`Contrôlé contre la base cible : ${BASE_SRC}`);else add('info','Contrôle sur le plan comptable Odoo 20 par défaut','Pour contrôler contre la base réelle du client, déposez dans l’encart 2 « Plan comptable de la base Odoo cible » les exports du plan comptable (comptes actifs + comptes inactifs) et des journaux.');
+  if(BASE_NO_INACTIVE)add('odoo','Export des comptes inactifs manquant','Odoo masque les comptes archivés dans la liste du plan comptable : sans un second export avec le filtre « Comptes inactifs », la page ne voit pas ceux de la base et suppose les comptes archivés par défaut d’Odoo. Faire ce second export et l’ajouter dans l’encart 2 « Plan comptable de la base Odoo cible ».');
   if(!L['ValidDate vide'])ok('ValidDate renseignée');
   if(!L['EcritureNum vide (Odoo utilisera PieceRef)'])ok('EcritureNum renseigné partout');
   if(!L['EcritureDate hors format AAAAMMJJ']&&!L['PieceDate hors format AAAAMMJJ']&&!L['Date inexistante (EcritureDate)']&&!L['Date inexistante (PieceDate)']&&!L['EcritureDate vide']&&!L['PieceDate vide'])ok('Dates au format AAAAMMJJ');
@@ -954,8 +1088,8 @@ function summaryHTML(R,P,useAlt){
   if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo</b><span>${I.ok?'Même contenu, au format attendu par Odoo. Montants contrôlés au centime.':'Bloqué : le contrôle d’intégrité a échoué.'}</span>${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de compte validées avec le client</label>`:''}</div><button class="btn${useAlt?'':' primary'}" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
   if(F&&F.corr.length)files.push(`<li><div><b>Table de correspondance</b><span>Chaque changement de code, ligne par ligne, pour l’expert-comptable.</span></div><button class="btn" type="button" data-dl="corr" data-r="${R._id}">Télécharger</button></li>`);
   if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
-  const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));
-  return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${ver.slice(0,3).map(i=>esc(i._k.t.toLowerCase())).join(', ')}${ver.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
+  const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
+  return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${verT.slice(0,3).map(esc).join(', ')}${verT.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
 ${files.length?`<section class="files"><h3>Fichiers à télécharger</h3><ul>${files.join('')}</ul><p class="note">Le FEC d’origine reste la seule pièce légale : le conserver tel quel, et ne jamais remettre ces fichiers à l’administration.</p></section>`:''}`;
 }
 function altHTML(R,P){
@@ -1007,8 +1141,9 @@ function render(reports){
   rs.forEach((R,ix)=>{R._id=ix;const drop=cross.some(i=>i.title.startsWith(R.name+' : journal d’à-nouveaux'));prepare(R,drop?{dropAN:true}:null);
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
   REPORTS=rs;
-  $('fname').innerHTML=rs.map(R=>esc(R.name)+(R.isSample?'<span class="tag-ex">Exemple</span>':'')).join(' · ');
-  if(multi)html+=`<div class="cross"><h2>${rs.length} exercices déposés</h2><p>Ordre d’import conseillé : ${rs.map(r=>esc(r.name)).join(' → ')}. ${cross.length?`${cross.length} point${cross.length>1?'s':''} entre fichiers, repris dans chaque rapport.`:'Aucun conflit entre les fichiers.'}</p></div>`;
+  $('fname').innerHTML=rs.map(R=>esc(R.name)+(R.isSample?'<span class="tag-ex">Exemple fictif</span>':'')).join(' · ');
+  if(rs.some(R=>R.isSample))html+=`<p class="sampleban">Rapport d’exemple, sur un petit FEC fictif. Déposez le FEC de votre client dans <button class="linkbtn" type="button" data-goto="slotFec">l’encart 1</button> pour lancer le vrai contrôle.</p>`;
+  if(multi)html+=`<div class="cross"><h2>${rs.length} exercices déposés</h2><p>Ordre d’import conseillé, du plus ancien au plus récent. ${cross.length?`${cross.length} point${cross.length>1?'s':''} entre fichiers, repris dans chaque rapport.`:'Aucun conflit entre les fichiers.'}</p><ol class="multi">${rs.map((r,ix)=>{const P=planOf(r);return `<li><a href="#rep-${ix}">${esc(r.name)}</a><small>${esc(r.stats.periode)}</small><span class="vpill ${P.level}">${esc(P.title)}</span></li>`;}).join('')}</ol></div>`;
   for(const R of rs){
     const P=planOf(R);const S=R.stats;const A=R._after?planOf(R._after):null;
     const changes=R._fix?Object.entries(R._fix.changes):[];
@@ -1022,7 +1157,7 @@ function render(reports){
     const altMin=R._open?15+Math.ceil(R._open.missing.length/5):0;const useAlt=P.level==='err'&&R._open;
     const shownSteps=useAlt?[['auto','Importer les tiers (tiers.xlsx)',5],['odoo','Créer les comptes absents de la base'+(R._open.missing.length?` (${R._open.missing.length})`:''),Math.ceil(R._open.missing.length/5)],['import','Importer la balance d’ouverture et la comptabiliser',5],['after','Contrôler la balance Odoo contre celle du logiciel d’origine',5]].filter(s=>s[2]):steps;
     const vTime=useAlt?altMin:total;
-    html+=`<div class="report">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(S.periode)}</small></h2>`:''}
+    html+=`<div class="report" id="rep-${R._id}">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(S.periode)}</small></h2>`:''}
 <section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${esc(P.sub)}</p></div>
 <div class="vtime"><span>${useAlt?'Avec la balance d’ouverture':'Temps estimé'}</span><b>≈ ${fmtMin(vTime)}</b>${useAlt?`<small>Corriger le FEC : ≈ ${fmtMin(total)}${P.delay?' + délai du client':''}</small>`:P.delay?'<small>+ délai du client</small>':''}</div></section>
 ${fiscHTML(R)}
@@ -1050,7 +1185,9 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
 <details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div></details></div>`;
     txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
-  $('reports').innerHTML=html;lastReport=txt.trim();
+  $('reports').innerHTML=html;lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
+  $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;$('empty').hidden=true;
+  if(SCROLL_NEXT){SCROLL_NEXT=false;const r=$('results');if(r.getBoundingClientRect&&r.getBoundingClientRect().top>innerHeight*.5)r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
 }
 document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const r=c.dataset.confirm;if(!REPORTS[+r]?._fix.integrity.ok)return;document.querySelectorAll(`[data-confirm="${r}"]`).forEach(x=>x.checked=c.checked);document.querySelectorAll(`[data-dl="fix"][data-r="${r}"]`).forEach(b=>b.disabled=!c.checked);});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;const R=REPORTS[+b.dataset.r];if(!R)return;
@@ -1063,7 +1200,7 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl
   setTimeout(()=>{b.textContent=old;b.disabled=false;},2200);});
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-startBatch(1);runText(SAMPLE_NAME,new TextEncoder().encode(SAMPLE).buffer,true);
+showRef();
 </script>
 
 </body>
