@@ -303,9 +303,9 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
     <ul class="refstat" id="refStat" aria-live="polite"></ul>
     <details class="howexp" id="howexp"><summary>Comment exporter ces fichiers depuis Odoo</summary>
       <ol>
-        <li><b>Comptes actifs</b> : Comptabilité → Configuration → Plan comptable, tout sélectionner, Action → Exporter avec <em>Code, Nom du compte, Type, Actif</em>.</li>
+        <li><b>Comptes actifs</b> : Comptabilité → Configuration → Plan comptable, tout sélectionner, Actions → Exporter avec <em>Code, Nom du compte, Type, Actif</em>.</li>
         <li><b>Comptes inactifs</b> : même export avec le filtre « Comptes inactifs ». Odoo masque les comptes archivés par défaut : sans cet export, la page ne les voit pas.</li>
-        <li><b>Journaux</b> : Comptabilité → Configuration → Journaux, tout sélectionner, Action → Exporter (code court, nom, type).</li>
+        <li><b>Journaux</b> : Comptabilité → Configuration → Journaux, tout sélectionner, Actions → Exporter (code court, nom, type).</li>
       </ol>
     </details>
     <button class="linkbtn" id="refClear" type="button" hidden>Retirer les exports et revenir au plan par défaut</button>
@@ -1065,10 +1065,10 @@ const CAT=[
  C(/^Code journal déjà utilisé/,{t:'Un code journal du FEC est déjà pris dans Odoo par un journal d’un autre type',why:'Les écritures iraient dans le journal Odoo existant (par exemple l’inventaire « INV » dans les factures clients « INV »).',how:['Le fichier de reprise renomme ces journaux (code suivi de F).'],where:'auto',effect:'fausse'}),
  C(/^Codes de compte courts créés tels quels/,{t:'Codes de compte trop courts',why:'Un code comme 5120 serait créé tel quel au lieu de 512000 : le plan comptable deviendrait incohérent.',how:['Le fichier de reprise complète ces codes à 6 chiffres.'],where:'auto',effect:'fausse'}),
  C(/^Codes de compte à plus de 6 chiffres/,{t:'Codes de compte trop longs',why:'Odoo garde ces codes tels quels : le plan mélangerait des comptes à 6 et à 8 chiffres.',how:['Décider avec le client d’un compte à 6 chiffres pour chacun (table de correspondance), puis remplacer dans le fichier ou créer ces comptes dans Odoo.'],where:'source',effect:'fausse',min:n=>10+3*n}),
- C(/^Compte existant mais archivé/,{t:'Comptes archivés dans Odoo',why:'Odoo ne voit pas les comptes archivés : l’import échoue (« Account codes must be unique ») ou la comptabilisation est refusée.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Action → Désarchiver.'],where:'odoo',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
+ C(/^Compte existant mais archivé/,{t:'Comptes archivés dans Odoo',why:'Odoo ne voit pas les comptes archivés : l’import échoue (« Account codes must be unique ») ou la comptabilisation est refusée.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Actions → Désarchiver.'],where:'odoo',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
  C(/^Compte à créer sans libellé/,{t:'Comptes à créer sans libellé',why:'Odoo refuse de créer un compte sans nom.',how:['Le fichier de reprise reprend le libellé d’une autre ligne du même compte, sinon écrit « Compte 512000 ». Le renommer ensuite dans Odoo si besoin.'],where:'auto',effect:'bloque'}),
- C(/^Comptes qui seront créés archivés/,{t:'Comptes qui seront créés archivés',why:'Odoo copie un compte voisin archivé : le nouveau compte est archivé aussi, et les pièces qui l’utilisent seront refusées à la comptabilisation (« Le compte … est archivé »).',how:['Juste après l’import, avant de comptabiliser : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Action → Désarchiver.','Désarchiver le compte voisin avant l’import ne suffit pas (vérifié).'],where:'after',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
- C(/^Export des comptes inactifs manquant/,{t:'Il manque l’export des comptes inactifs',why:'Odoo cache les comptes archivés dans son export par défaut, et ce sont eux qui bloquent.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », tout sélectionner, Action → Exporter. Déposer ce fichier avec les autres.'],where:'odoo',effect:'aucun',min:()=>3}),
+ C(/^Comptes qui seront créés archivés/,{t:'Comptes qui seront créés archivés',why:'Odoo copie un compte voisin archivé : le nouveau compte est archivé aussi, et les pièces qui l’utilisent seront refusées à la comptabilisation (« Le compte … est archivé »).',how:['Juste après l’import, avant de comptabiliser : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Actions → Désarchiver.','Désarchiver le compte voisin avant l’import ne suffit pas (vérifié).'],where:'after',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
+ C(/^Export des comptes inactifs manquant/,{t:'Il manque l’export des comptes inactifs',why:'Odoo cache les comptes archivés dans son export par défaut, et ce sont eux qui bloquent.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », tout sélectionner, Actions → Exporter. Déposer ce fichier avec les autres.'],where:'odoo',effect:'aucun',min:()=>3}),
  C(/^Pièces déséquilibrées une fois regroupées/,{t:'Numéros d’écriture absents et pièces impossibles à reconstituer',why:'Sans numéro d’écriture, Odoo regroupe les lignes par référence de pièce. Ici ces regroupements ne sont pas équilibrés : l’import s’arrêtera.',how:['Redemander un export avec le numéro d’écriture (EcritureNum) rempli. Pas de correction possible à la main.'],where:'source',effect:'bloque',min:()=>30,delay:true}),
  C(/^Regroupement par PieceRef équilibré/,{t:'Numéros d’écriture absents',why:'Odoo regroupera les lignes par référence de pièce : des écritures distinctes de même référence seraient fusionnées.',how:['Le fichier de reprise numérote les écritures (une par journal, référence et date).'],where:'auto',effect:'fausse'}),
  C(/^Source Excel/,{t:'FEC fourni en Excel',why:'L’import FEC d’Odoo n’accepte que le fichier texte. Excel peut aussi avoir abîmé dates et codes.',how:['Le fichier de reprise est un .txt. Mieux encore : redemander le .txt d’origine.'],where:'auto',effect:'bloque'}),
@@ -1220,9 +1220,9 @@ function altHTML(R,P){
 <dl class="kv"><div><dt>Lignes</dt><dd>${o.lines}</dd></div><div><dt>Tiers</dt><dd>${o.partners}</dd></div><div><dt>Résultat de l’exercice</dt><dd>${fmtE(-o.res)} €</dd></div><div><dt>Temps estimé</dt><dd>≈ ${fmtMin(15+Math.ceil(o.missing.length/5))}</dd></div></dl>
 ${ok?'':`<p class="warnline">La balance n’est pas équilibrée (écart ${fmtE(o.tot)} €) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
 <ol class="howto">
-<li>Importer d’abord les tiers : Comptabilité → Clients → Clients, ⚙ → Importer des enregistrements, fichier <b>tiers.xlsx</b> (nom, référence).</li>
+<li>Importer d’abord les tiers : Comptabilité → Clients → Clients, ⋮ → Importer, fichier <b>tiers.xlsx</b> (nom, référence).</li>
 ${o.missing.length?`<li>Créer les comptes absents de la base : ${o.missing.slice(0,12).map(esc).join(', ')}${o.missing.length>12?` … (+${o.missing.length-12})`:''}.</li>`:''}
-<li>Comptabilité → Comptabilité → Pièces comptables, ⚙ → Importer des enregistrements, fichier <b>balance_ouverture.xlsx</b>. Les colonnes sont reconnues automatiquement. Tester, puis Importer, puis comptabiliser la pièce.</li>
+<li>Comptabilité → Comptabilité → Pièces comptables, ⋮ → Importer, fichier <b>balance_ouverture.xlsx</b>. Les colonnes sont reconnues automatiquement. Tester, puis Importer, puis comptabiliser la pièce.</li>
 <li>Contrôler la balance Odoo au ${o.date.split('-').reverse().join('/')} contre la balance de clôture du logiciel d’origine.</li>
 </ol>
 <div class="btns"><button class="btn" type="button" data-dl="open" data-r="${R._id}">Télécharger balance_ouverture.xlsx</button><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger tiers.xlsx</button></div>
@@ -1330,24 +1330,24 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 /* ---------- Chemins de menu Odoo et captures au survol ----------
    Chaque chemin cité dans la page devient une étiquette. Si la capture existe dans captures/ (à côté de index.html),
    l’étiquette l’affiche au survol, au focus ou au toucher. Sans le dossier (page enregistrée seule), le chemin reste lisible.
-   Menus relevés sur Odoo 20 (ir.ui.menu) le 21/10/2026. box : zone à encadrer, en % de l’image [gauche, haut, largeur, hauteur]. */
+   Menus et captures relevés sur Odoo 20 (société de test) le 21/10/2026. box : zone à encadrer, en % de l’image [gauche, haut, largeur, hauteur]. */
 const NAV=[
- {txt:'Comptabilité → Configuration → Plan comptable',shot:'menu-configuration.png'},
- {txt:'Comptabilité → Configuration → Journaux',shot:'menu-configuration.png'},
- {txt:'Comptabilité → Configuration → Devises',shot:'menu-configuration.png'},
- {txt:'Comptabilité → Comptabilité → Pièces comptables',shot:'menu-comptabilite.png'},
- {txt:'Comptabilité → Comptabilité → Dates de verrouillage',shot:'menu-comptabilite.png'},
- {txt:'Comptabilité → Révision → Écritures comptables',shot:'menu-revision.png'},
+ {txt:'Comptabilité → Configuration → Plan comptable',shot:'menu-configuration.png',box:[[70.8, 24.7, 23.2, 7]]},
+ {txt:'Comptabilité → Configuration → Journaux',shot:'menu-configuration.png',box:[[70.8, 35.5, 23.2, 7]]},
+ {txt:'Comptabilité → Configuration → Devises',shot:'menu-configuration.png',box:[[70.8, 40.9, 23.2, 7]]},
+ {txt:'Comptabilité → Comptabilité → Pièces comptables',shot:'menu-comptabilite.png',box:[[45.7, 20.9, 21.2, 11.1]]},
+ {txt:'Comptabilité → Comptabilité → Dates de verrouillage',shot:'menu-comptabilite.png',box:[[45.7, 82, 21.2, 11.1]]},
+ {txt:'Comptabilité → Révision → Écritures comptables',shot:'menu-revision.png',box:[[56, 11.7, 25.7, 6.2]]},
  {txt:'Comptabilité → Clients → Clients'},
- {txt:'filtre « Comptes inactifs »',shot:'filtre-comptes-inactifs.png'},
- {txt:'Action → Désarchiver',shot:'action-desarchiver.png'},
- {txt:'Action → Exporter',shot:'action-exporter.png'},
- {txt:'⚙ → Importer des enregistrements',shot:'importer-enregistrements.png'},
+ {txt:'filtre « Comptes inactifs »',shot:'filtre-comptes-inactifs.png',box:[[35.1, 76.4, 18, 8]]},
+ {txt:'Actions → Désarchiver',shot:'action-desarchiver.png',box:[[52.8, 36.8, 19.6, 8]]},
+ {txt:'Actions → Exporter',shot:'action-exporter.png',box:[[59.1, 12.3, 19.6, 8], [44.6, 3.6, 12.2, 7.3]]},
+ {txt:'⋮ → Importer',shot:'importer-enregistrements.png',box:[[29.5, 16.2, 20.4, 11.7]]},
  {txt:'« Import FEC »',shot:'assistant-import-fec.png'},
- {txt:'vue tableau croisé, regrouper par journal',shot:'ecritures-par-journal.png'},
- {txt:'activer chaque devise citée',shot:'devise-activer.png'},
- {txt:'corriger le type de chaque journal cité',shot:'journal-type.png'},
- {txt:'archiver le journal BNK vide',shot:'journal-archiver.png'}
+ {txt:'vue tableau croisé, regrouper par journal',shot:'ecritures-par-journal.png',box:[[36.4, 13.8, 10.6, 26.7], [90.9, 12.5, 2.9, 29.2]]},
+ {txt:'activer chaque devise citée',shot:'devise-activer.png',box:[[86.2, 21, 11.7, 15.9]]},
+ {txt:'corriger le type de chaque journal cité',shot:'journal-type.png',box:[[2.4,43.5,28.8,9.5]]},
+ {txt:'archiver le journal BNK vide',shot:'journal-archiver.png',box:[[52.7, 30.7, 19.6, 8]]}
 ].sort((a,b)=>b.txt.length-a.txt.length);
 const SHOT_OK=new Set();
 const navChip=(n,ix)=>{const ok=n.shot&&SHOT_OK.has(n.shot);const parts=n.txt.split(' → ').map(esc);
