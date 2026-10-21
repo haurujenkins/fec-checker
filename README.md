@@ -10,12 +10,12 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 1. Ouvrir `index.html` (en local ou via GitHub Pages).
 2. Déposer le FEC (`.txt` à tabulation ou `|`, ou l'Excel dans lequel il a été collé).
-3. Recommandé : déposer avec lui trois exports de la base Odoo cible, pour contrôler contre le plan comptable et les journaux réels du client :
+3. Recommandé : dans l'encart 2 « Plan comptable de la base Odoo cible », déposer trois exports de la base, pour contrôler contre le plan comptable et les journaux réels du client :
    - Comptabilité → Configuration → Plan comptable → tout sélectionner → Actions → Exporter, avec les champs **Code, Nom du compte, Type, Actif** ;
    - le même export avec le filtre **Comptes inactifs** (Odoo masque les comptes archivés, et ce sont eux qui bloquent ; le champ Actif n'est pas mémorisé d'un export à l'autre) ;
    - Configuration → Journaux → tout sélectionner → Exporter (les champs par défaut suffisent).
 
-   La page reconnaît ces exports toute seule (.xlsx ou .csv, en-têtes français ou techniques). Sans eux, elle contrôle contre le plan comptable par défaut d'Odoo 20 France.
+   La page reconnaît ces exports toute seule (.xlsx ou .csv, en-têtes français ou techniques), en un ou plusieurs dépôts, avant ou après le FEC : le contrôle est relancé à chaque ajout. Un fichier déposé dans le mauvais encart est rangé automatiquement. Sans ces exports, elle contrôle contre le plan comptable par défaut d'Odoo 20 France.
 4. Plusieurs exercices : déposer tous les FEC ensemble pour le contrôle croisé (à-nouveaux en double, numéros de pièces communs, chevauchement de périodes).
 5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Analyse des écritures.
 

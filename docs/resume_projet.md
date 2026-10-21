@@ -43,7 +43,7 @@ Outil « Contrôle FEC » pour les consultants qui importent des FEC clients dan
 4. **Fichiers à télécharger** : fichier de reprise, table de correspondance, balance d'ouverture et tiers.
 5. **Détail** (replié) : plan d'action, explication de chaque point (pourquoi, comment, où), contrôles réussis, tableau de contrôle après import (totaux par journal) et mode d'emploi complet de l'import FEC dans Odoo.
 6. **Copier le rapport** : rapport texte, qui inclut le verdict fiscal.
-7. **Exports Odoo en option** : on peut déposer les exports du plan comptable (actifs et inactifs) et des journaux de la base cible pour contrôler contre la vraie base. Sans eux, la page contrôle contre le plan comptable Odoo 20 FR par défaut.
+7. **Deux encarts de dépôt** (depuis le 21/10) : 1. le FEC du client ; 2. le plan comptable de la base Odoo cible (exports des comptes actifs, des comptes inactifs et des journaux), avec l'état de chaque export et le mode d'export. Les exports peuvent arriver avant ou après le FEC, en plusieurs fois : le contrôle est relancé. Sans eux, la page contrôle contre le plan comptable Odoo 20 FR par défaut, et le bandeau du résultat le dit. La page ne charge plus d'exemple d'office : un bouton « Voir un exemple de rapport » le montre, marqué « Exemple fictif ».
 8. **Plusieurs exercices** : contrôle croisé (à-nouveaux en double, numéros communs, chevauchement) et ordre d'import conseillé.
 
 ## 4. Cadre légal retenu (important, demandé par l'utilisateur)
