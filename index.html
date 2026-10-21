@@ -50,6 +50,10 @@ code{font-family:var(--mono);font-size:.88em}
 .rname small{font-family:var(--sans);font-weight:400;color:var(--muted)}
 /* Verdict */
 .verdict{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:20px 22px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--muted)}
+.fisc{margin:10px 0 0;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.92rem}
+.fisc>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}.fisc>summary::-webkit-details-marker{display:none}
+.fisc .ft{font-weight:600}.fisc.ok .ft{color:var(--ok)}.fisc.err .ft{color:var(--err)}.fisc .fs{color:var(--muted)}
+.fisc ul{margin:8px 0 2px;padding-left:1.2em}.fisc li{margin:2px 0}.fisc p{margin:6px 0 0;color:var(--muted)}
 .verdict.ok{border-top-color:var(--ok)}.verdict.warn{border-top-color:var(--warn)}.verdict.err{border-top-color:var(--err)}
 .eyebrow{margin:0;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .verdict h2{margin:2px 0 4px;font-size:1.45rem;font-weight:600;line-height:1.25}
@@ -152,8 +156,6 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 </style>
 </head>
 <body>
-
-
 
 <main>
 <header>
@@ -333,7 +335,28 @@ function cents(s){ // retourne [valeurEnCentimes, anomalieFormat] — règles du
   return [neg?-v:v,bad];
 }
 function isDate(s){s=String(s??'').trim();if(!/^\d{8}$/.test(s))return false;const y=+s.slice(0,4),m=+s.slice(4,6),d=+s.slice(6,8);const t=new Date(Date.UTC(y,m-1,d));return m>=1&&m<=12&&t.getUTCMonth()===m-1&&t.getUTCDate()===d;}
-function analyse({name,rows,meta,isSample}){
+/* Ligne avec un séparateur dans un libellé : on cherche le seul libellé dont la fusion remet chaque colonne à sa place
+   (montants lisibles, dates valides, devise sur 3 lettres). Les textes sont gardés, le séparateur reste dans le libellé. */
+function realign(rows,sepChar){
+  const hdr=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim()),W=hdr.length,ix=k=>{const i=hdr.findIndex(h=>h.toLowerCase()===k.toLowerCase());return i;};
+  if(W<18)return {rows,fixed:[],resplit:[]};
+  const TXT=['JournalLib','CompteLib','CompAuxLib','PieceRef','EcritureLib'].map(ix).filter(i=>i>=0);
+  const AMT=['Debit','Credit','Montant','Montantdevise'].map(ix).filter(i=>i>=0),DT=['EcritureDate','PieceDate','DateLet','ValidDate'].map(ix).filter(i=>i>=0),iE=ix('EcritureDate'),iD=ix('Idevise'),iS=ix('Sens');
+  const isA=v=>v===''||/^[+-]?\d[\d . ]*([.,]\d+)?[+-]?$/.test(v),isD=v=>v===''||/^\d{8}$|^\d{2}[\/.-]\d{2}[\/.-]\d{4}$|^\d{4}-\d{2}-\d{2}/.test(v);
+  const okRow=c=>AMT.every(i=>isA(String(c[i]??'').trim()))&&DT.every(i=>isD(String(c[i]??'').trim()))&&(iE<0||String(c[iE]??'').trim()!=='')&&(iD<0||/^([A-Za-z]{3})?$/.test(String(c[iD]??'').trim()))&&(iS<0||/^[DCdc+-]?$|^-?1$/.test(String(c[iS]??'').trim()));
+  const fixed=[],resplit=[];const out=rows.map((r,ri)=>{if(ri===0)return r;
+    if(r.length<W&&r.some(x=>String(x).trim()!=='')){const line=r.join(sepChar);for(const o of [';','\t','|',',']){if(o===sepChar)continue;const c=line.split(o);if(c.length===W&&okRow(c)){resplit.push(ri+1);return c;}}return r;}
+    if(r.length<=W||(!r.slice(W).some(x=>String(x).trim()!=='')&&okRow(r.slice(0,W))))return r;
+    const k=r.length-W,cands=[];
+    for(const t of TXT){
+      const c=[...r.slice(0,t),r.slice(t,t+k+1).join(sepChar),...r.slice(t+k+1)];if(c.length===W&&okRow(c))cands.push(c);}
+    if(cands.length===1){fixed.push(ri+1);return cands[0];}
+    if(cands.length>1&&cands.every(c=>c.join('\u0001')===cands[0].join('\u0001'))){fixed.push(ri+1);return cands[0];}
+    return r;});
+  return {rows:out,fixed,resplit};
+}
+function analyse({name,rows:rows0,meta,isSample}){
+  const RA=meta.source==='texte'?realign(rows0,meta.sep==='tabulation'?'\t':meta.sep==='| (pipe)'?'|':(meta.sep||'|')):{rows:rows0,fixed:[],resplit:[]};const rows=RA.rows;
   const issues=[],passed=[];
   const add=(sev,title,desc,lines,label)=>issues.push({sev,title,desc,lines:lines||[],label:label||'Ligne'});
   const ok=t=>passed.push(t);
@@ -367,23 +390,32 @@ function analyse({name,rows,meta,isSample}){
   else if(EXPECTED.every(e=>hdr.map(x=>x.toLowerCase()).includes(e.toLowerCase()))){add('err','Noms de colonnes avec une casse différente','Vérifié : Odoo refuse le fichier (« La ligne 2 n’a pas de nom de pièce valide ») : les noms sont sensibles à la casse.');}
   else{
     const missing=EXPECTED.filter(e=>!hdr.includes(e));
-    add('err','En-tête non conforme',`Attendu : ${EXPECTED.join(', ')}. ${missing.length?'Manquants : '+missing.join(', ')+'. ':''}Reçu : ${hdr.join(', ')||'(vide)'}`);
+    const miss2=EXPECTED.filter(e=>!hdr.map(x=>x.toLowerCase()).includes(e.toLowerCase()));
+    const OPT=['CompAuxLib','DateLet','ValidDate','Idevise'];
+    if(miss2.length&&miss2.every(e=>OPT.includes(e)))add('err','En-tête : colonne absente ou mal nommée sans effet sur Odoo',`Colonne${miss2.length>1?'s':''} ${miss2.join(', ')} absente${miss2.length>1?'s':''} ou mal nommée${miss2.length>1?'s':''} : le testeur DGFiP refuse le fichier. Vérifié sur des imports réels : Odoo lit les colonnes par leur nom et importe quand même (il n’utilise pas ${miss2.length>1?'ces colonnes':'cette colonne'}). Reçu : ${hdr.join(', ')}`);
+    else add('err','En-tête non conforme',`Attendu : ${EXPECTED.join(', ')}. ${missing.length?'Manquants : '+missing.join(', ')+'. ':''}Reçu : ${hdr.join(', ')||'(vide)'}`);
   }
   const extra=hdr.slice(18).filter(h=>h!=='');
   if(extra.length)add('warn','Colonnes supplémentaires après Idevise',`Le fichier doit s’arrêter à la 18e colonne pour la DGFiP. Vérifié : Odoo ignore les colonnes en trop. Colonnes : ${extra.join(', ')}`);
 
   // Lignes
-  const data=[];rows.slice(1).forEach((r,i)=>{if(r.some(c=>String(c).trim()!==''))data.push({n:i+2,r});});
+  const hdrKey=hdr.map(x=>x.replace(/^\uFEFF/,'').toLowerCase()).join('|'),hdrRep=[];
+  const data=[];rows.slice(1).forEach((r,i)=>{if(!r.some(c=>String(c).trim()!==''))return;if(r.map(x=>String(x).replace(/^\uFEFF/,'').trim().toLowerCase()).join('|')===hdrKey){hdrRep.push(i+2);return;}data.push({n:i+2,r});});
+  if(hdrRep.length)add('err','Ligne d’en-tête répétée au milieu du fichier','Export concaténé de plusieurs périodes. Vérifié : Odoo lit cette ligne comme une écriture et s’arrête (« time data ’PieceDate’ does not match format »). Le fichier de reprise retire ces lignes, qui ne contiennent aucune donnée.',hdrRep);
   const widthBad=[],widthMore=[],blank=[];
   rows.slice(1).forEach((r,i)=>{if(!r.some(c=>String(c).trim()!==''))blank.push(i+2);});
-  if(blank.length)add('err','Lignes vides au milieu du fichier','Vérifié : Odoo abandonne tout le lot concerné sans message (« Aucune donnée importée »).',blank);
+  if(blank.length)add('err','Lignes vides au milieu du fichier','Vérifié : Odoo abandonne l’import (« Aucune donnée importée » par le bouton, « account non trouvé » par le serveur). Le testeur DGFiP, lui, signale la ligne sans bloquer.',blank);
   const F={};EXPECTED.forEach((k,i)=>F[k]=i);
+  { // colonnes lues par leur nom, comme Odoo, dès que l’en-tête est reconnaissable
+    const lo=hdr.map(h=>h.replace(/^\uFEFF/,'').toLowerCase()),pos=EXPECTED.map(k=>lo.indexOf(k.toLowerCase()));
+    if(pos.filter(i=>i>=0).length>=12&&!(lo[11]==='montant'&&lo[12]==='sens'))EXPECTED.forEach((k,i)=>F[k]=pos[i]>=0?pos[i]:999);
+  }
   const L={}; const push=(k,v)=>{(L[k]=L[k]||[]).push(v)};
   const ecr=new Map(),journals=new Map(),accounts=new Map(),aux=new Map(),numByJournal=new Map();
   const jacc=new Map();const byRef=new Map();const dates=[];let totD=0,totC=0;const currencies=new Set();const seen=new Map();const jt=new Map();const letters=new Map();const jent=new Map();const rowsInfo=[];
   for(const {n,r} of data){
     const g=k=>String(r[F[k]]??'').trim();
-    if(r.length<18)widthBad.push(n);else if(r.length>18&&r.slice(18).some(c=>String(c).trim()!==''))widthMore.push(n);else if(r.length>18)push('Séparateur en trop en fin de ligne',n);
+    const HW=hdr.length||18;if(r.length<HW)widthBad.push(n);else if(r.length>HW&&r.slice(HW).some(c=>String(c).trim()!==''))widthMore.push(n);else if(r.length>HW)push('Séparateur en trop en fin de ligne',n);
     const jc=g('JournalCode'),jl=g('JournalLib'),en=g('EcritureNum'),ed=g('EcritureDate'),cn=g('CompteNum'),cl=g('CompteLib'),can=g('CompAuxNum'),cal=g('CompAuxLib'),pr=g('PieceRef'),pd=g('PieceDate'),el=g('EcritureLib'),let_=g('EcritureLet'),dl=g('DateLet'),vd=g('ValidDate'),md=g('Montantdevise'),idv=g('Idevise');
     if(!jc)push('JournalCode vide',n); if(!jl)push('JournalLib vide',n);
     if(jc){if(!journals.has(jc))journals.set(jc,new Set());journals.get(jc).add(jl);if(!jacc.has(jc))jacc.set(jc,new Set());jacc.get(jc).add(String(r[F.CompteNum]??'').trim().slice(0,3));}
@@ -437,6 +469,8 @@ function analyse({name,rows,meta,isSample}){
     const k=jc+'\u0001'+en;if(!ecr.has(k))ecr.set(k,{jc,en,d:0,c:0,dates:new Set(),first:n});const e=ecr.get(k);e.d+=d;e.c+=c;e.dates.add(ed);
     if(!numByJournal.has(en))numByJournal.set(en,new Set());numByJournal.get(en).add(jc);
   }
+  if(RA.resplit.length)add('err','Lignes écrites avec un autre séparateur',`Ces lignes utilisent un autre séparateur que le reste du fichier (export concaténé ou retouché). Vérifié : Odoo refuse le fichier (moins de champs que l’en-tête). Découpées avec leur propre séparateur, elles donnent exactement les 18 champs attendus, montants et dates lisibles : le fichier de reprise les réécrit avec le séparateur du fichier, sans changer une valeur.`,RA.resplit);
+  if(RA.fixed.length)add('err','Séparateur à l’intérieur d’un libellé',`Le caractère séparateur apparaît dans un libellé : la ligne compte un champ de trop. Vérifié dans le code de l’assistant Odoo 20 : il accepte la ligne mais décale toutes les colonnes suivantes (montants, dates, lettrage lus au mauvais endroit). Le libellé concerné a été repéré sans ambiguïté : le fichier de reprise remplace ce séparateur par une espace, rien d’autre ne change.`,RA.fixed);
   if(widthMore.length)add('err','Lignes avec plus de 18 champs','Un séparateur se trouve probablement dans un libellé. Vérifié dans le code de l’assistant Odoo 20 : ces lignes sont acceptées, mais toutes les colonnes situées après le séparateur parasite sont décalées (montants, dates, lettrage lus dans la mauvaise colonne).',widthMore);
   if(widthBad.length)add('err','Nombre de champs différent de l’en-tête sur certaines lignes','Champ manquant ou guillemet dans un libellé. Vérifié : Odoo refuse le fichier (« Certaines lignes n’ont pas le même nombre de champs que l’en-tête »).',widthBad);
 
@@ -585,7 +619,8 @@ function analyse({name,rows,meta,isSample}){
   let fyStart='';if(cloture&&isDate(cloture)){const d=new Date(Date.UTC(+cloture.slice(0,4)-1,+cloture.slice(4,6)-1,+cloture.slice(6,8)+1));fyStart=d.toISOString().slice(0,10).replace(/-/g,'');}else if(nonAN.length)fyStart=nonAN[0].slice(0,6)+'01';
   const allJ=new Set([...journals.keys(),...Object.keys(BASE_JOURNALS)].map(x=>x.trim().toUpperCase()));const renameJ={};for(const j of collCodes){let k=j.trim()+'F',n=2;while(allJ.has(k.toUpperCase()))k=j.trim()+'F'+(n++);renameJ[j]=k;allJ.add(k.toUpperCase());}
   const hints={anJournals:[...anSet],fyStart,renameJ};
-  collect({rows,hints,name,isSample,meta,issues,passed,stats:{lignes:data.length,ecritures:ecr.size,journaux:journals.size,comptes:accounts.size,tiers:aux.size,periode:dates.length?periodStart+' → '+periodEnd:'—',total:(totD/100).toLocaleString('fr-FR',{minimumFractionDigits:2})+' €'},ecrKeys:new Set(ecr.keys()),jt:[...jt].map(([k,t])=>({code:k,lib:t.lib,lignes:t.n,ecritures:t.e.size,d:t.d,c:t.c})),totD,totC,hasAN,anJournals,periodStart,periodEnd,siren:m?m[1]:''});
+  const dgfip=dgfipTester(rows0,meta,name);
+  collect({rows,hints,dgfip,name,isSample,meta,issues,passed,stats:{lignes:data.length,ecritures:ecr.size,journaux:journals.size,comptes:accounts.size,tiers:aux.size,periode:dates.length?periodStart+' → '+periodEnd:'—',total:(totD/100).toLocaleString('fr-FR',{minimumFractionDigits:2})+' €'},ecrKeys:new Set(ecr.keys()),jt:[...jt].map(([k,t])=>({code:k,lib:t.lib,lignes:t.n,ecritures:t.e.size,d:t.d,c:t.c})),totD,totC,hasAN,anJournals,periodStart,periodEnd,siren:m?m[1]:''});
 }
 
 /* ---------- Rendu ---------- */
@@ -607,6 +642,51 @@ function crossChecks(reports){
   if(sirens.size>1)out.push({sev:'warn',title:'SIREN différents entre les fichiers',desc:[...sirens].join(', '),lines:[],label:'Ligne'});
   return out;
 }
+function fmtE0(){}
+/* ---------- Testeur officiel DGFiP (Test Compta Démat 1.00.10b) ----------
+   Transcription fidèle des contrôles bloquants (E) et des alertes (A) de trt_txt.pl :
+   en-tête reconnu sans tenir compte de la casse ni des accents, nombre de champs par ligne, champs obligatoires,
+   montants (point interdit, pas de séparateur de milliers, signe accepté), dates (AAAAMMJJ ou JJMMAAAA, séparateurs
+   / - . tolérés, heure tolérée), compte commençant par 3 chiffres (alerte), débit et crédit sur une même ligne (alerte).
+   Le testeur ne contrôle ni l'équilibre des écritures ni le séparateur (tabulation, |, ; ou , acceptés). */
+function dgfipTester(rows0,meta,name){
+  const rej=new Map(),al=new Map(),nor=new Map(),put=(m,k,n)=>{if(!m.has(k))m.set(k,[]);const L=m.get(k);if(n!=null&&L.length<300&&L[L.length-1]!==n)L.push(n);};
+  if(meta&&meta.source==='Excel'){put(rej,'Fichier Excel : le testeur n’accepte que le fichier texte (.txt) ou XML');return {rej,al,nor};}
+  // Préparation identique au testeur : espaces insécables en espaces, espaces autour des séparateurs et en fin de ligne supprimés
+  const rows=rows0.map(r=>r.map((x,i)=>{x=String(x??'').replace(/\u00A0/g,' ');if(i>0)x=x.replace(/^ +/,'');return x.replace(/ +$/,'');}));
+  if(name&&!/^\d{9}FEC\d{8}(\.[A-Za-z0-9]+)?$/.test(String(name).replace(/^.*[\/\\]/,'')))put(nor,'Nom de fichier hors norme (attendu SIRENFECAAAAMMJJ, ex. 123456789FEC20251231.txt)');
+  if(meta&&meta.sep&&!/^(tabulation|\| \(pipe\))$/.test(meta.sep))put(nor,'Séparateur « '+meta.sep+' » : l’arrêté prévoit la tabulation ou la barre verticale |');
+  const nm=h=>String(h??'').replace(/^﻿/,'').trim().normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'_');
+  const H=(rows[0]||[]).map(nm);const I={};H.forEach((h,i)=>{if(!(h in I))I[h]=i;});
+  const bnc=('MONTANT' in I)&&('SENS' in I);
+  const need=EXPECTED.map(e=>e.toUpperCase()).filter(w=>!(bnc&&(w==='DEBIT'||w==='CREDIT')));
+  const miss=need.filter(w=>!(w in I));if(miss.length)put(rej,'En-tête : champs de l’arrêté absents ou non reconnus ('+miss.join(', ')+')');
+  const OBL=['JOURNALCODE','ECRITURENUM','ECRITUREDATE','COMPTENUM','COMPTELIB','ECRITURELIB','VALIDDATE'];
+  const NUM=bnc?['MONTANT','MONTANTDEVISE']:['DEBIT','CREDIT','MONTANTDEVISE'];const DAT=['ECRITUREDATE','PIECEDATE','DATELET','VALIDDATE'];
+  const dA=String.raw`(?<a>(?:20|19)[0-9]{2})`,dA3=String.raw`(?<a>[0-9]{4})`,dM=String.raw`(?<m>[0-1][0-9])`,dJ=String.raw`(?<j>[0-3][0-9])`,S=String.raw`[\/\-\.]*`,T=String.raw`(?:[T ][0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})?`;
+  const P1=[new RegExp(`^${dA}${S}${dM}${S}${dJ}${T}$`),new RegExp(`^${dJ}${S}${dM}${S}${dA}${T}$`)],P2=[new RegExp(`^${dA3}${S}${dM}${S}${dJ}${T}$`),new RegExp(`^${dJ}${S}${dM}${S}${dA3}${T}$`)];
+  rows.slice(1).forEach((r,ix)=>{const n=ix+2;
+    if(r.length===1&&String(r[0]).trim()==='')return; // ligne vide : signalée, non bloquante
+    if(r.length!==H.length)put(rej,'Nombre de champs différent de l’en-tête',n);
+    const v=k=>(k in I)?String(r[I[k]]??''):'';
+    for(const k of OBL){if(!(k in I)||NUM.includes(k))continue;if(/^ *$/.test(v(k))&&!DAT.includes(k))put(rej,'Champ obligatoire vide : '+EXPECTED.find(e=>e.toUpperCase()===k),n);}
+    for(const k of NUM){if(!(k in I))continue;let x=v(k);if(x==='')continue;
+      if(/\./.test(x))put(rej,'Montant avec un point décimal',n);
+      const seps=x.replace(/[^ \.,]/g,'');
+      if(/^ *[0-9]+ [0-9]+/.test(x)||seps.length>1)put(rej,'Montant avec séparateur de milliers',n);
+      else if(!((/^ *[+-]*[0-9\.,]{1,} *[+-]* *$/.test(x)&&!/^.*-.*-.*$/.test(x))||/^ *[+-]*[0-9\.,]{1,}[Ee][0-9\+-]{1,} *$/.test(x)))put(rej,'Montant non numérique',n);}
+    for(const k of DAT){if(!(k in I))continue;const x=v(k);
+      if(/^[0\-\/\.]{1,}$|^ *$/.test(x)){if(OBL.includes(k))put(rej,'Date obligatoire vide : '+EXPECTED.find(e=>e.toUpperCase()===k),n);continue;}
+      let m=null;for(const p of P1){m=x.match(p);if(m)break;}
+      if(m){if(+m.groups.m>12||+m.groups.j>31)put(rej,'Date non calendaire (mois > 12 ou jour > 31)',n);else{if(!/^\d{8}$/.test(x))put(nor,'Date au format autre que AAAAMMJJ (tolérée par le testeur)',n);if(!isDate(m.groups.a+m.groups.m+m.groups.j))put(nor,'Date inexistante au calendrier, non détectée par le testeur (ex. 30 février, mois 00)',n);}continue;}
+      let m2=null;for(const p of P2){m2=x.match(p);if(m2)break;}
+      if(m2)put(al,'Date hors de la période 1900-2099',n);else put(rej,'Date au mauvais format',n);}
+    if(('COMPTENUM' in I)&&!/^[0-9]{3}/.test(v('COMPTENUM')))put(al,'CompteNum ne commence pas par trois chiffres',n);
+    if(!bnc&&('DEBIT' in I)&&('CREDIT' in I)){const d=parseFloat(v('DEBIT').replace(',','.'))||0,c=parseFloat(v('CREDIT').replace(',','.'))||0;if(!((d===0&&c!==0)||(d!==0&&c===0)))put(al,'Débit et crédit renseignés sur une même ligne, ou tous deux à zéro',n);}
+  });
+  return {rej,al,nor};
+}
+
 function fmtE(c){return (c/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 /* ---------- Correction automatique ---------- */
 // Corrige ce qui est mécanique et sans risque comptable. Ne touche jamais aux montants d’une écriture déséquilibrée,
@@ -641,6 +721,7 @@ function fixFEC(rows,hints){
   rows.slice(1).forEach((r,ri)=>{
     const ln=ri+2;
     if(!r.some(x=>String(x).trim()!=='')){c('Lignes vides supprimées (aucune donnée)','fmt');return;}
+    if(r.map(x=>String(x).replace(/^\uFEFF/,'').trim().toLowerCase()).join('|')===hdr.map(x=>x.toLowerCase()).join('|')){c('En-tête répété au milieu du fichier retiré (aucune donnée)','fmt');return;}
     srcN++;const o={};let q=false,sp=false,sepIn=false;
     for(const e of EXPECTED){let v=idx[e]>=0?String(r[idx[e]]??''):'';
       if(v.includes('"')){v=v.replace(/"/g,'');q=true;}
@@ -721,7 +802,8 @@ const CAT=[
  C(/^Séparateurs mélangés/,{t:'Deux séparateurs différents dans l’en-tête',why:'L’en-tête mélange tabulations et barres |, on ne peut pas savoir où s’arrêtent les colonnes.',how:['Redemander l’export au logiciel d’origine en choisissant « tabulation ».'],where:'source',effect:'bloque',min:()=>20,delay:true}),
  C(/^Lignes? vides?/,{t:'Lignes vides dans le fichier',why:'Une seule ligne vide fait échouer en silence tout un paquet de 1 000 lignes : Odoo affiche « Aucune donnée importée » sans dire pourquoi.',how:['Le fichier de reprise ne contient plus de ligne vide.'],where:'auto',effect:'bloque'}),
  C(/^Nombre de champs différent/,{t:'Certaines lignes n’ont pas 18 colonnes',why:'Un libellé contient probablement un séparateur, ou une colonne manque. Odoo refuse alors tout le fichier.',how:['Ouvrir le fichier dans un éditeur de texte (Notepad++), aller aux lignes citées et rétablir les 18 colonnes.','S’il y en a beaucoup, redemander l’export.'],where:'source',effect:'bloque',min:n=>Math.min(5+3*n,240),delay:n=>n>20}),
- C(/^(Colonnes présentes mais dans le désordre|Noms de colonnes avec une casse|En-tête non conforme|Colonnes supplémentaires)/,{t:'En-tête de colonnes non standard',why:'L’ordre, la casse ou le nombre de colonnes ne suivent pas la norme. Selon le cas, Odoo refuse le fichier ou s’en accommode.',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.'],where:'auto',effect:'bloque'}),
+ C(/^(En-tête : colonne absente ou mal nommée sans effet|Colonnes présentes mais dans le désordre|Colonnes supplémentaires)/,{t:'En-tête de colonnes hors norme',why:'Colonne absente, mal nommée, en trop ou dans le désordre : le FEC n’est pas conforme pour l’administration, mais Odoo l’importe (vérifié).',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.','Signaler au client que son logiciel produit un FEC non conforme.'],where:'auto',effect:'dgfip'}),
+ C(/^(Noms de colonnes avec une casse|En-tête non conforme)/,{t:'En-tête de colonnes non standard',why:'L’ordre, la casse ou le nombre de colonnes ne suivent pas la norme. Selon le cas, Odoo refuse le fichier ou s’en accommode.',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.'],where:'auto',effect:'bloque'}),
  C(/^(Total débit ≠ total crédit|Écritures déséquilibrées)/,{t:'Écritures dont le débit ne vaut pas le crédit',why:'Une écriture comptable doit être équilibrée. Odoo arrête l’import au premier paquet qui en contient une.',how:['Ne pas corriger soi-même : demander au client ou à l’expert-comptable de corriger ces écritures dans le logiciel d’origine, puis de refaire l’export.'],where:'source',effect:'bloque',min:n=>15*Math.max(n,1),delay:true}),
  C(/^Encodage /,{t:'Encodage ancien (Windows)',why:'Odoo lit les accents, mais le symbole € disparaît sans prévenir.',how:['Le fichier de reprise est enregistré en UTF-8.'],where:'auto',effect:'fausse'}),
  C(/^BOM UTF-8/,{t:'Marque d’encodage en tête de fichier',why:'Sans effet sur Odoo.',how:[],where:'note',effect:'aucun'}),
@@ -763,6 +845,9 @@ const CAT=[
  C(/^À-nouveaux non datés au premier jour/,{t:'À-nouveaux datés en cours d’année',why:'Le logiciel a daté les soldes d’ouverture au jour de leur saisie : jusqu’à cette date, banque et capital seraient faux dans Odoo. Changer la date d’une écriture n’est pas une correction technique : la page ne le fait pas.',how:['Demander à l’expert-comptable de les redater au premier jour de l’exercice dans le logiciel d’origine, puis de refaire l’export.','À défaut, importer tel quel et ne pas utiliser les états arrêtés avant cette date.'],where:'source',effect:'fausse',min:()=>20}),
  C(/^Écritures avec plusieurs dates/,{t:'Écritures à plusieurs dates',why:'Odoo garde la date de la première ligne de chaque écriture.',how:['Vérifier avec le client ; en général sans conséquence.'],where:'after',effect:'suivi',min:()=>5}),
  // Anomalies ligne à ligne
+ C(/^Ligne d’en-tête répétée/,{t:'En-tête répété au milieu du fichier',why:'Plusieurs exports ont été mis bout à bout : Odoo prend la ligne d’en-tête pour une écriture et s’arrête.',how:['Le fichier de reprise retire ces lignes, qui ne contiennent aucune donnée.'],where:'auto',effect:'bloque',min:0}),
+ C(/^Lignes écrites avec un autre séparateur/,{t:'Lignes avec un autre séparateur',why:'Quelques lignes utilisent un autre séparateur : Odoo refuserait tout le fichier.',how:['Le fichier de reprise les réécrit avec le bon séparateur ; aucune valeur ne change.'],where:'auto',effect:'bloque',min:0}),
+ C(/^Séparateur à l’intérieur d’un libellé/,{t:'Séparateur dans un libellé',why:'Un séparateur s’est glissé dans un libellé : sans correction, Odoo lirait les montants et les dates de ces lignes dans la mauvaise colonne.',how:['Le fichier de reprise remplace ce séparateur par une espace dans le libellé ; montants et dates restent identiques.'],where:'auto',effect:'bloque',min:0}),
  C(/^Lignes avec plus de 18 champs/,{t:'Lignes avec un champ de trop',why:'Un séparateur s’est glissé dans un libellé. Odoo accepte la ligne mais décale toutes les colonnes suivantes : montants et dates seraient lus au mauvais endroit.',how:['Faire corriger le libellé à la source, ou retirer le séparateur parasite dans une copie du fichier (lignes citées).'],where:'source',effect:'bloque',min:n=>5+2*n}),
  C(/^Séparateur en trop en fin de ligne/,{t:'Séparateur en trop en fin de ligne',why:'La norme impose exactement 18 champs. Odoo ignore le champ vide en trop.',how:[],where:'note',effect:'dgfip'}),
  C(/^Espaces en bordure d’autres champs/,{t:'Espaces autour de certaines valeurs',why:'Odoo retire ces espaces à la lecture (vérifié dans son code). Écart de forme seulement.',how:[],where:'note',effect:'dgfip'}),
@@ -890,6 +975,12 @@ ${o.missing.length?`<li>Créer les comptes absents de la base : ${o.missing.slic
 <div class="btns"><button class="btn" type="button" data-dl="open" data-r="${R._id}">Télécharger balance_ouverture.xlsx</button><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger tiers.xlsx</button></div>
 </section>`;
 }
+function fiscHTML(R){const D=R.dgfip;if(!D)return '';
+  const ln=a=>a.length?` <span class="count">${a.length>=300?'300+':a.length} ligne${a.length>1?'s':''}</span>${a.length?` <small>(${a.slice(0,6).join(', ')}${a.length>6?'…':''})</small>`:''}`:'';
+  const rj=[...D.rej],al=[...D.al],nr=[...(D.nor||new Map())],ok=!rj.length;
+  return `<details class="fisc ${ok?'ok':'err'}"><summary><b>Exigences fiscales</b><span class="ft">${ok?'Accepté par le testeur officiel DGFiP':'Refusé par le testeur officiel DGFiP'}</span><span class="fs">${ok?[al.length?al.length+' alerte'+(al.length>1?'s':''):'',nr.length?nr.length+' écart'+(nr.length>1?'s':'')+' à la norme':''].filter(Boolean).join(' · ')||'aucune alerte':rj.length+' motif'+(rj.length>1?'s':'')}${rj.length||al.length||nr.length?' · détail':''}</span></summary>
+${rj.length?`<ul>${rj.map(([k,a])=>`<li>${esc(k)}${ln(a)}</li>`).join('')}</ul>`:''}${nr.length?`<p>Écarts à l’arrêté que le testeur ne contrôle pas :</p><ul>${nr.map(([k,a])=>`<li>${esc(k)}${ln(a)}</li>`).join('')}</ul>`:''}${al.length?`<p>Alertes (non bloquantes) :</p><ul>${al.map(([k,a])=>`<li>${esc(k)}${ln(a)}</li>`).join('')}</ul>`:''}
+<p>Contrôles de forme de l’arrêté du 29 juillet 2013 (art. A47 A-1 du LPF), repris du logiciel Test Compta Démat de la DGFiP. ${ok?'Le testeur ne vérifie ni l’équilibre des écritures ni la cohérence comptable : voir le détail ci-dessous.':'Un FEC refusé par ce testeur expose à l’amende de l’art. 1729 D du CGI en cas de contrôle : c’est au logiciel du client de produire un FEC conforme. Le fichier de reprise ne corrige pas le FEC légal.'}</p></details>`;}
 function ctrlTable(R){
   const rows=R.jt.map(t=>`<tr><td>${esc(t.code)}</td><td>${esc(t.lib)}</td><td>${t.ecritures.toLocaleString('fr-FR')}</td><td>${t.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(t.d)}</td><td>${fmtE(t.c)}</td></tr>`).join('');
   return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : Comptabilité → Analyse des écritures, regrouper par journal, mesures Débit, Crédit et Nombre. Comparer ligne à ligne, par code de journal. Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
@@ -934,6 +1025,7 @@ function render(reports){
     html+=`<div class="report">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(S.periode)}</small></h2>`:''}
 <section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${esc(P.sub)}</p></div>
 <div class="vtime"><span>${useAlt?'Avec la balance d’ouverture':'Temps estimé'}</span><b>≈ ${fmtMin(vTime)}</b>${useAlt?`<small>Corriger le FEC : ≈ ${fmtMin(total)}${P.delay?' + délai du client':''}</small>`:P.delay?'<small>+ délai du client</small>':''}</div></section>
+${fiscHTML(R)}
 ${summaryHTML(R,P,useAlt)}
 <details class="block detail"><summary>Voir le détail : plan d’action, explication de chaque point, contrôles</summary><div class="detailin">
 ${useAlt?altHTML(R,P):''}
@@ -956,7 +1048,7 @@ ${!R.issues.length?'<p class="note">Aucune anomalie détectée.</p>':''}
 ${P.level==='ok'?altHTML(R,P).replace('<section class="alt"','<details class="block"><summary>Autre méthode : balance d’ouverture</summary><section class="alt"').replace(/<\/section>$/,'</section></details>'):''}
 ${R.jt&&R.jt.length?ctrlTable(R):''}
 <details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div></details></div>`;
-    txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
+    txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
   $('reports').innerHTML=html;lastReport=txt.trim();
 }
