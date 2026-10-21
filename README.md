@@ -23,7 +23,7 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 ## Captures d'Odoo au survol
 
-Chaque chemin de menu Odoo cité par la page (« Comptabilité › Configuration › Plan comptable », « Action › Désarchiver »…) est affiché comme une étiquette. Si la capture correspondante est présente dans `captures/`, elle s'affiche au survol (au toucher sur mobile). Liste des captures, noms de fichiers et règles (base de test uniquement, aucune donnée client) : `captures/LISEZMOI.md`. Pour garder les captures hors ligne, télécharger le dépôt complet plutôt que `index.html` seul.
+Chaque chemin de menu Odoo cité par la page (« Comptabilité › Configuration › Plan comptable », « Action › Désarchiver »…) est affiché comme une étiquette. Si la capture correspondante est présente dans `captures/`, elle s'affiche au survol (au toucher sur mobile). Onze captures sont fournies (Odoo 20, société de test), avec un encadré rouge sur l'endroit où cliquer ; détail et règles pour les remplacer : `captures/LISEZMOI.md`. Pour garder les captures hors ligne, télécharger le dépôt complet plutôt que `index.html` seul.
 
 ## Hébergement (GitHub Pages)
 
