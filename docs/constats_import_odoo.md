@@ -233,3 +233,37 @@ Jeu fourni : 400 FEC corrects imitant 17 styles d'export (Sage 100, Sage 50 / Ci
   - Point décimal (12.50) : accepté par Odoo, montant correct (écart DGFiP seulement).
   - Lettre de lettrage sur un compte de charge : gardée par Odoo, rien n'est lettré.
 - Lecteur de fichiers de l'assistant (code JavaScript d'Odoo 20 lu dans la base) : encodage UTF-8 sinon ISO-8859-15 pour tout le fichier ; espaces et guillemets englobants retirés de chaque champ ; une ligne avec moins de champs que l'en-tête est refusée, une ligne avec plus de champs est acceptée (colonnes décalées si le champ en trop n'est pas vide) ; lignes vides ignorées par le lecteur ; écritures déséquilibrées regroupées par mois en fin d'import.
+
+## Imports réels massifs et verdict fiscal (21/10/2026)
+Société vierge créée pour l'occasion dans la base de test : « Banc FEC (test) » (société 3, plan comptable français chargé automatiquement), vidée entre chaque fichier. Les sociétés existantes n'ont pas été touchées. Import par le lecteur JavaScript d'Odoo 20 puis `process_chunk` côté serveur, comme le bouton Importer. Module `l10n_fr_fec_import` désinstallé à la fin.
+
+**165 FEC importés** (26 corrects, 139 erronés, 3 par type d'erreur environ), comparés au verdict de la page :
+- 43 / 43 fichiers annoncés bloquants ont échoué dans Odoo ; aucun fichier annoncé importable n'a échoué ; les 26 corrects importés avec des totaux identiques au centime.
+- 2 / 2 corruptions silencieuses annoncées confirmées : Idevise = EUR avec un Montantdevise différent du débit/crédit → Odoo importe le montant de Montantdevise (écart de 9,40 € sur les deux fichiers).
+- 29 fichiers annoncés « fausse les données » importés sans erreur : ce sont des défauts comptables de la source (doublons, à-nouveaux mal datés, comptes non numériques, encodage mixte des libellés…), qu'Odoo importe tels quels. Le verdict est juste : l'import passe, mais les données sont fausses.
+
+**Fichiers de reprise générés par la page, réimportés** (43 fichiers refusés à l'origine) : les 15 jugés « importables avec le fichier de reprise » sont tous passés, totaux identiques ; tous ceux jugés « à corriger à la source » ont de nouveau échoué.
+
+Messages d'Odoo observés et cause :
+- « account non trouvé » : colonne CompteNum absente ou mal nommée, ou ligne vide au milieu du fichier ;
+- « journal non trouvé » : colonne JournalCode mal nommée ou JournalCode vide ;
+- « could not convert string to float: 'REF' » : séparateur dans un libellé (colonnes décalées) ; « '2\xa0962.59' » : séparateur de milliers ;
+- « time data 'PieceDate' does not match » : en-tête répété au milieu du fichier ; « '17/02/2022' » : date JJ/MM/AAAA ; « '20250000' » : mois 00 ; « day 30 must be in range » : 30 février ; « unconverted data remains » : mois 13 ;
+- « Soldes incorrects de rapports de mouvements » : écriture déséquilibrée (montant modifié, ligne supprimée, débit et crédit sur une ligne, montant négatif, montant sans décimales) ;
+- « La ligne N n'a pas de nom de pièce valide » : ligne écrite avec un autre séparateur ;
+- import **non atomique** : en cas d'erreur, les paquets déjà traités restent dans Odoo (jusqu'à 724 pièces) → tout supprimer avant de relancer.
+- Passent dans Odoo alors que le testeur DGFiP refuse : colonne ValidDate, DateLet, CompAuxLib ou Idevise absente ou mal nommée ; colonnes dans le désordre ; point décimal.
+
+**Testeur officiel DGFiP** (Test Compta Démat 1.00.10b, code Perl lu) : ses contrôles sont repris fidèlement dans la page (verdict « Exigences fiscales ») :
+- refus : en-tête sans un des 18 champs (nom reconnu sans casse ni accents), nombre de champs ≠ en-tête, champ obligatoire vide (JournalCode, EcritureNum, EcritureDate, CompteNum, CompteLib, EcritureLib, ValidDate), point dans un montant, séparateur de milliers, montant non numérique, date hors des formats AAAAMMJJ / JJMMAAAA (séparateurs / - . et heure tolérés), mois > 12 ou jour > 31, fichier Excel ;
+- alertes : compte ne commençant pas par 3 chiffres, débit et crédit sur une même ligne ou tous deux nuls, année hors 1900-2099 ;
+- non contrôlé par le testeur : équilibre des écritures, séparateur (tabulation, |, ; et , acceptés), dates impossibles (30 février, mois 00), espaces autour des séparateurs (retirés), signe des montants, ligne vide (signalée sans blocage) → la page les signale comme « écarts à l'arrêté ».
+- Les 26 FEC corrects sont acceptés.
+
+Corrections de la page issues de ces tests :
+- colonnes lues par leur nom comme Odoo (un en-tête à 17 colonnes faisait lire les montants au mauvais endroit et annonçait à tort un blocage) ;
+- colonne absente sans effet sur Odoo classée « norme DGFiP seulement » ;
+- séparateur dans un libellé : la page retrouve le seul libellé possible et le fichier de reprise remplace ce séparateur par une espace (avant : 5 fausses erreurs en cascade et verdict « déconseillé ») ;
+- lignes écrites avec un autre séparateur : redécoupées dans le fichier de reprise ;
+- en-tête répété au milieu du fichier : signalé une seule fois, retiré du fichier de reprise (3 fichiers vérifiés dans Odoo après coup) ;
+- banc des 400 paires relancé : 400 / 400 corrects « Importable tel quel », 1 546 / 1 567 erreurs détectées, aucun plantage.
