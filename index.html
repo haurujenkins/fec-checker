@@ -251,6 +251,19 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 .slot .drop{padding:18px 14px}
 @media (max-width:760px){.inputs{grid-template-columns:1fr}}
 @media (max-width:600px){.files li{grid-template-columns:1fr}.files li>.btn{justify-self:start}.todo li{grid-template-columns:1fr auto}.todo li .wtag{grid-column:1/-1;justify-self:start}.verdict,.fixbox{grid-template-columns:1fr}.vtime{text-align:left;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.route li{grid-template-columns:2rem 1fr}.route em{grid-column:2}.passed{columns:1}}
+.nav{white-space:normal;font-weight:500;color:var(--fg)}
+.nav.path{display:inline;background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:0 6px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.nav i{font-style:normal;color:var(--muted)}
+.nav.has-shot{cursor:zoom-in;border-bottom:1px dashed var(--accent)}
+.nav.path.has-shot{border:1px solid var(--accent)}
+.nav .navend{white-space:nowrap}
+.nav.has-shot .navend::after{content:"";display:inline-block;width:.85em;height:.85em;margin-left:.35em;vertical-align:-.08em;background:var(--accent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 7.2 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 7.2 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z'/%3E%3C/svg%3E") center/contain no-repeat}
+.nav.has-shot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shot{position:fixed;z-index:50;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.shotimg{position:relative;line-height:0}
+.shot img{width:100%;height:auto;border-radius:6px;display:block}
+.shotbox{position:absolute;border:3px solid #e0352b;border-radius:6px;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+.shot figcaption{font-size:.8rem;color:var(--muted);padding:6px 4px 2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -291,7 +304,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
     <details class="howexp" id="howexp"><summary>Comment exporter ces fichiers depuis Odoo</summary>
       <ol>
         <li><b>Comptes actifs</b> : Comptabilité → Configuration → Plan comptable, tout sélectionner, Action → Exporter avec <em>Code, Nom du compte, Type, Actif</em>.</li>
-        <li><b>Comptes inactifs</b> : même export avec le filtre <em>Comptes inactifs</em>. Odoo masque les comptes archivés par défaut : sans cet export, la page ne les voit pas.</li>
+        <li><b>Comptes inactifs</b> : même export avec le filtre « Comptes inactifs ». Odoo masque les comptes archivés par défaut : sans cet export, la page ne les voit pas.</li>
         <li><b>Journaux</b> : Comptabilité → Configuration → Journaux, tout sélectionner, Action → Exporter (code court, nom, type).</li>
       </ol>
     </details>
@@ -340,7 +353,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <div class="mstep"><h2><span class="num" aria-hidden="true">3</span>Après l’import</h2>
 <ul class="check">
 <li><label><input type="checkbox"><span><b>Désarchiver les comptes créés archivés</b> s’il y en a. Le faire après l’import : désarchiver le parent avant ne sert à rien.</span></label></li>
-<li><label><input type="checkbox"><span><b>Contrôler les totaux par journal avant de comptabiliser</b> : regrouper les écritures importées par journal (Débit, Crédit, Nombre) et comparer avec le tableau « Contrôle après import » du résultat. Un écart signale des pièces fusionnées, ignorées ou doublées.</span></label></li>
+<li><label><input type="checkbox"><span><b>Contrôler les totaux par journal avant de comptabiliser</b> : dans Comptabilité → Révision → Écritures comptables, retirer le filtre « Comptabilisé » s’il est actif, vue tableau croisé, regrouper par journal (mesures Débit, Crédit, Nombre) et comparer avec le tableau « Contrôle après import » du résultat. Un écart signale des pièces fusionnées, ignorées ou doublées.</span></label></li>
 <li><label><input type="checkbox"><span><b>Comptabiliser</b> les pièces, qui arrivent en brouillon. Le lettrage est alors reconstitué.</span></label></li>
 <li><label><input type="checkbox"><span><b>Comparer la balance Odoo</b> avec la balance du logiciel d’origine, puis reprendre les points « Dans Odoo, après » du résultat.</span></label></li>
 <li><label><input type="checkbox"><span><b>Verrouiller les périodes reprises</b> (Comptabilité → Comptabilité → Dates de verrouillage). Les écritures validées ne se modifient plus : elles se contre-passent.</span></label></li>
@@ -753,7 +766,7 @@ function analyse({name,rows:rows0,meta,isSample}){
   // Règles Odoo observées sur une base de test (Odoo 20) — voir journal de constats
   const sixDigit=[...new Set([...accounts.keys()].filter(c=>/^\d+$/.test(c)).map(odooCode))].filter(c=>c.length===6);
   const inArch=sixDigit.filter(c=>PCG_ARCHIVED.has(c));
-  if(inArch.length)add('odoo','Compte existant mais archivé dans '+(BASE_SRC?'la base cible':'le plan comptable Odoo par défaut'),'Vérifié deux fois avec deux issues : selon l’état de la base, l’import échoue sur « Account codes must be unique », ou il passe et range les lignes sur le compte archivé ; la comptabilisation échoue alors (« Le compte … est archivé »). Dans les deux cas, désarchiver ces comptes dans Comptabilité → Configuration → Plan comptable (filtre Archivé) avant d’importer.',inArch,'Compte');
+  if(inArch.length)add('odoo','Compte existant mais archivé dans '+(BASE_SRC?'la base cible':'le plan comptable Odoo par défaut'),'Vérifié deux fois avec deux issues : selon l’état de la base, l’import échoue sur « Account codes must be unique », ou il passe et range les lignes sur le compte archivé ; la comptabilisation échoue alors (« Le compte … est archivé »). Dans les deux cas, désarchiver ces comptes dans Comptabilité → Configuration → Plan comptable (filtre « Comptes inactifs ») avant d’importer.',inArch,'Compte');
   const toCreate=sixDigit.filter(c=>!PCG_ACTIVE.has(c)&&!PCG_ARCHIVED.has(c));
   const archParent=toCreate.map(c=>[c,nearestPcg(c)]).filter(([c,p])=>p&&PCG_ARCHIVED.has(p)).map(([c,p])=>`${c} (copié depuis ${p})`);
   if(archParent.length)add('odoo','Comptes qui seront créés archivés par Odoo','Vérifié : pour un code inconnu, Odoo copie le compte du PCG le plus proche par préfixe ; si celui-ci est archivé, le compte créé l’est aussi et la comptabilisation échoue (« Le compte … est archivé »). Vérifié le 15/10 : désarchiver le compte source avant l’import ne suffit pas ; désarchiver les comptes créés juste après l’import, puis comptabiliser.',archParent,'Compte');
@@ -1052,10 +1065,10 @@ const CAT=[
  C(/^Code journal déjà utilisé/,{t:'Un code journal du FEC est déjà pris dans Odoo par un journal d’un autre type',why:'Les écritures iraient dans le journal Odoo existant (par exemple l’inventaire « INV » dans les factures clients « INV »).',how:['Le fichier de reprise renomme ces journaux (code suivi de F).'],where:'auto',effect:'fausse'}),
  C(/^Codes de compte courts créés tels quels/,{t:'Codes de compte trop courts',why:'Un code comme 5120 serait créé tel quel au lieu de 512000 : le plan comptable deviendrait incohérent.',how:['Le fichier de reprise complète ces codes à 6 chiffres.'],where:'auto',effect:'fausse'}),
  C(/^Codes de compte à plus de 6 chiffres/,{t:'Codes de compte trop longs',why:'Odoo garde ces codes tels quels : le plan mélangerait des comptes à 6 et à 8 chiffres.',how:['Décider avec le client d’un compte à 6 chiffres pour chacun (table de correspondance), puis remplacer dans le fichier ou créer ces comptes dans Odoo.'],where:'source',effect:'fausse',min:n=>10+3*n}),
- C(/^Compte existant mais archivé/,{t:'Comptes archivés dans Odoo',why:'Odoo ne voit pas les comptes archivés : l’import échoue (« Account codes must be unique ») ou la comptabilisation est refusée.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Archivé », sélectionner ces comptes, Action → Désarchiver.'],where:'odoo',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
+ C(/^Compte existant mais archivé/,{t:'Comptes archivés dans Odoo',why:'Odoo ne voit pas les comptes archivés : l’import échoue (« Account codes must be unique ») ou la comptabilisation est refusée.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Action → Désarchiver.'],where:'odoo',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
  C(/^Compte à créer sans libellé/,{t:'Comptes à créer sans libellé',why:'Odoo refuse de créer un compte sans nom.',how:['Le fichier de reprise reprend le libellé d’une autre ligne du même compte, sinon écrit « Compte 512000 ». Le renommer ensuite dans Odoo si besoin.'],where:'auto',effect:'bloque'}),
- C(/^Comptes qui seront créés archivés/,{t:'Comptes qui seront créés archivés',why:'Odoo copie un compte voisin archivé : le nouveau compte est archivé aussi, et les pièces qui l’utilisent seront refusées à la comptabilisation (« Le compte … est archivé »).',how:['Juste après l’import, avant de comptabiliser : Plan comptable, filtre « Archivé », sélectionner ces comptes, Action → Désarchiver.','Désarchiver le compte voisin avant l’import ne suffit pas (vérifié).'],where:'after',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
- C(/^Export des comptes inactifs manquant/,{t:'Il manque l’export des comptes inactifs',why:'Odoo cache les comptes archivés dans son export par défaut, et ce sont eux qui bloquent.',how:['Dans Odoo : Plan comptable, filtre « Comptes inactifs », tout sélectionner, Exporter. Déposer ce fichier avec les autres.'],where:'odoo',effect:'aucun',min:()=>3}),
+ C(/^Comptes qui seront créés archivés/,{t:'Comptes qui seront créés archivés',why:'Odoo copie un compte voisin archivé : le nouveau compte est archivé aussi, et les pièces qui l’utilisent seront refusées à la comptabilisation (« Le compte … est archivé »).',how:['Juste après l’import, avant de comptabiliser : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », sélectionner ces comptes, Action → Désarchiver.','Désarchiver le compte voisin avant l’import ne suffit pas (vérifié).'],where:'after',effect:'bloque',min:n=>3+Math.ceil(n/5)}),
+ C(/^Export des comptes inactifs manquant/,{t:'Il manque l’export des comptes inactifs',why:'Odoo cache les comptes archivés dans son export par défaut, et ce sont eux qui bloquent.',how:['Dans Odoo : Comptabilité → Configuration → Plan comptable, filtre « Comptes inactifs », tout sélectionner, Action → Exporter. Déposer ce fichier avec les autres.'],where:'odoo',effect:'aucun',min:()=>3}),
  C(/^Pièces déséquilibrées une fois regroupées/,{t:'Numéros d’écriture absents et pièces impossibles à reconstituer',why:'Sans numéro d’écriture, Odoo regroupe les lignes par référence de pièce. Ici ces regroupements ne sont pas équilibrés : l’import s’arrêtera.',how:['Redemander un export avec le numéro d’écriture (EcritureNum) rempli. Pas de correction possible à la main.'],where:'source',effect:'bloque',min:()=>30,delay:true}),
  C(/^Regroupement par PieceRef équilibré/,{t:'Numéros d’écriture absents',why:'Odoo regroupera les lignes par référence de pièce : des écritures distinctes de même référence seraient fusionnées.',how:['Le fichier de reprise numérote les écritures (une par journal, référence et date).'],where:'auto',effect:'fausse'}),
  C(/^Source Excel/,{t:'FEC fourni en Excel',why:'L’import FEC d’Odoo n’accepte que le fichier texte. Excel peut aussi avoir abîmé dates et codes.',how:['Le fichier de reprise est un .txt. Mieux encore : redemander le .txt d’origine.'],where:'auto',effect:'bloque'}),
@@ -1207,9 +1220,9 @@ function altHTML(R,P){
 <dl class="kv"><div><dt>Lignes</dt><dd>${o.lines}</dd></div><div><dt>Tiers</dt><dd>${o.partners}</dd></div><div><dt>Résultat de l’exercice</dt><dd>${fmtE(-o.res)} €</dd></div><div><dt>Temps estimé</dt><dd>≈ ${fmtMin(15+Math.ceil(o.missing.length/5))}</dd></div></dl>
 ${ok?'':`<p class="warnline">La balance n’est pas équilibrée (écart ${fmtE(o.tot)} €) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
 <ol class="howto">
-<li>Importer d’abord les tiers : Contacts → Importer, fichier <b>tiers.xlsx</b> (nom, référence).</li>
+<li>Importer d’abord les tiers : Comptabilité → Clients → Clients, ⚙ → Importer des enregistrements, fichier <b>tiers.xlsx</b> (nom, référence).</li>
 ${o.missing.length?`<li>Créer les comptes absents de la base : ${o.missing.slice(0,12).map(esc).join(', ')}${o.missing.length>12?` … (+${o.missing.length-12})`:''}.</li>`:''}
-<li>Comptabilité → Pièces comptables → Importer, fichier <b>balance_ouverture.xlsx</b>. Les colonnes sont reconnues automatiquement. Tester, puis Importer, puis comptabiliser la pièce.</li>
+<li>Comptabilité → Comptabilité → Pièces comptables, ⚙ → Importer des enregistrements, fichier <b>balance_ouverture.xlsx</b>. Les colonnes sont reconnues automatiquement. Tester, puis Importer, puis comptabiliser la pièce.</li>
 <li>Contrôler la balance Odoo au ${o.date.split('-').reverse().join('/')} contre la balance de clôture du logiciel d’origine.</li>
 </ol>
 <div class="btns"><button class="btn" type="button" data-dl="open" data-r="${R._id}">Télécharger balance_ouverture.xlsx</button><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger tiers.xlsx</button></div>
@@ -1231,7 +1244,7 @@ ${ok?'':`<p class="fnote">C’est au logiciel du client de produire un FEC confo
 </div></details>`;}
 function ctrlTable(R){
   const rows=R.jt.map(t=>`<tr><td>${esc(t.code)}</td><td>${esc(t.lib)}</td><td>${t.ecritures.toLocaleString('fr-FR')}</td><td>${t.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(t.d)}</td><td>${fmtE(t.c)}</td></tr>`).join('');
-  return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : comparer ces totaux avec ceux des écritures importées, journal par journal (<button class="linkbtn" type="button" data-tab="tabMethod">méthode</button>). Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
+  return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : comparer ces totaux avec ceux des écritures importées, journal par journal : Comptabilité → Révision → Écritures comptables, retirer le filtre « Comptabilisé » s’il est actif, vue tableau croisé, regrouper par journal, mesures Débit, Crédit et Nombre (<button class="linkbtn" type="button" data-tab="tabMethod">méthode</button>). Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
 <div class="tablewrap"><table class="ctrl"><thead><tr><th>Journal</th><th>Libellé</th><th>Écritures</th><th>Lignes</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total</td><td>${R.stats.ecritures.toLocaleString('fr-FR')}</td><td>${R.stats.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(R.totD)}</td><td>${fmtE(R.totC)}</td></tr></tfoot></table></div></details>`;
 }
 let REPORTS=[];
@@ -1299,7 +1312,7 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
 <details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div></details></div>`;
     txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
-  $('reports').innerHTML=html;lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
+  $('reports').innerHTML=navify(html);lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
   $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;$('empty').hidden=true;
   if(SCROLL_NEXT){SCROLL_NEXT=false;const r=$('results');if(r.getBoundingClientRect&&r.getBoundingClientRect().top>innerHeight*.5)r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
 }
@@ -1314,6 +1327,60 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl
   setTimeout(()=>{b.textContent=old;b.disabled=false;},2200);});
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+/* ---------- Chemins de menu Odoo et captures au survol ----------
+   Chaque chemin cité dans la page devient une étiquette. Si la capture existe dans captures/ (à côté de index.html),
+   l’étiquette l’affiche au survol, au focus ou au toucher. Sans le dossier (page enregistrée seule), le chemin reste lisible.
+   Menus relevés sur Odoo 20 (ir.ui.menu) le 21/10/2026. box : zone à encadrer, en % de l’image [gauche, haut, largeur, hauteur]. */
+const NAV=[
+ {txt:'Comptabilité → Configuration → Plan comptable',shot:'menu-configuration.png'},
+ {txt:'Comptabilité → Configuration → Journaux',shot:'menu-configuration.png'},
+ {txt:'Comptabilité → Configuration → Devises',shot:'menu-configuration.png'},
+ {txt:'Comptabilité → Comptabilité → Pièces comptables',shot:'menu-comptabilite.png'},
+ {txt:'Comptabilité → Comptabilité → Dates de verrouillage',shot:'menu-comptabilite.png'},
+ {txt:'Comptabilité → Révision → Écritures comptables',shot:'menu-revision.png'},
+ {txt:'Comptabilité → Clients → Clients'},
+ {txt:'filtre « Comptes inactifs »',shot:'filtre-comptes-inactifs.png'},
+ {txt:'Action → Désarchiver',shot:'action-desarchiver.png'},
+ {txt:'Action → Exporter',shot:'action-exporter.png'},
+ {txt:'⚙ → Importer des enregistrements',shot:'importer-enregistrements.png'},
+ {txt:'« Import FEC »',shot:'assistant-import-fec.png'},
+ {txt:'vue tableau croisé, regrouper par journal',shot:'ecritures-par-journal.png'},
+ {txt:'activer chaque devise citée',shot:'devise-activer.png'},
+ {txt:'corriger le type de chaque journal cité',shot:'journal-type.png'},
+ {txt:'archiver le journal BNK vide',shot:'journal-archiver.png'}
+].sort((a,b)=>b.txt.length-a.txt.length);
+const SHOT_OK=new Set();
+const navChip=(n,ix)=>{const ok=n.shot&&SHOT_OK.has(n.shot);const parts=n.txt.split(' → ').map(esc);
+  return `<span class="nav${parts.length>1?' path':''}${ok?' has-shot':''}" data-nav="${ix}"${ok?` tabindex="0" role="button" aria-label="Voir la capture : ${esc(n.txt)}"`:''}>${parts.slice(0,-1).map(x=>x+'<i aria-hidden="true"> ›</i> ').join('')}<span class="navend">${parts[parts.length-1]}</span></span>`;};
+function navify(html){
+  const re=new RegExp(NAV.map(n=>esc(n.txt).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
+  return html.replace(re,m=>{const ix=NAV.findIndex(n=>esc(n.txt)===m);return ix<0?m:navChip(NAV[ix],ix);});
+}
+let SHOT_EL=null,SHOT_FOR=null;
+function shotShow(el){
+  const n=NAV[+el.dataset.nav];if(!n||!SHOT_OK.has(n.shot))return;
+  if(!SHOT_EL){SHOT_EL=document.createElement('figure');SHOT_EL.className='shot';SHOT_EL.setAttribute('role','tooltip');document.body.appendChild(SHOT_EL);}
+  SHOT_FOR=el;
+  SHOT_EL.innerHTML=`<div class="shotimg"><img src="captures/${esc(n.shot)}" alt="Capture d’Odoo : ${esc(n.txt)}">${(n.box||[]).map(b=>`<span class="shotbox" style="left:${b[0]}%;top:${b[1]}%;width:${b[2]}%;height:${b[3]}%"></span>`).join('')}</div><figcaption>${esc(n.txt)}</figcaption>`;
+  SHOT_EL.hidden=false;
+  const r=el.getBoundingClientRect(),w=Math.min(560,innerWidth-32);SHOT_EL.style.width=w+'px';
+  SHOT_EL.style.left=Math.max(16,Math.min(r.left,innerWidth-w-16))+'px';
+  const h=SHOT_EL.offsetHeight||w*.7;SHOT_EL.style.top=(r.bottom+8+h<innerHeight||r.top<h+8?r.bottom+8:r.top-h-8)+'px';
+}
+function shotHide(){if(SHOT_EL)SHOT_EL.hidden=true;SHOT_FOR=null;}
+try{
+  ['guide','howexp'].forEach(id=>{const e=$(id);if(e&&e.innerHTML)e.innerHTML=navify(e.innerHTML);});
+  if(typeof Image!=='undefined'){
+    const fine=matchMedia('(hover: hover)').matches;
+    for(const f of new Set(NAV.map(n=>n.shot).filter(Boolean))){const im=new Image();im.onload=()=>{SHOT_OK.add(f);
+      document.querySelectorAll('[data-nav]').forEach(el=>{const n=NAV[+el.dataset.nav];if(n.shot===f&&!el.classList.contains('has-shot'))el.outerHTML=navChip(n,+el.dataset.nav);});};im.src='captures/'+f;}
+    document.addEventListener('mouseover',ev=>{if(!fine)return;const el=ev.target.closest&&ev.target.closest('.nav.has-shot');if(el&&el!==SHOT_FOR)shotShow(el);else if(!el&&SHOT_FOR)shotHide();});
+    document.addEventListener('focusin',ev=>{const el=ev.target.closest&&ev.target.closest('.nav.has-shot');if(el)shotShow(el);else shotHide();});
+    document.addEventListener('click',ev=>{const el=ev.target.closest&&ev.target.closest('.nav.has-shot');if(el)shotShow(el);else if(!(ev.target.closest&&ev.target.closest('.shot')))shotHide();});
+    document.addEventListener('keydown',ev=>{if(ev.key==='Escape')shotHide();});
+    addEventListener('scroll',()=>{if(SHOT_FOR&&!fine)shotHide();else if(SHOT_FOR)shotShow(SHOT_FOR);},{passive:true});
+  }
+}catch(e){}
 showRef();
 </script>
 

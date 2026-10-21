@@ -19,7 +19,11 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
    La page reconnaît ces exports toute seule (.xlsx ou .csv, en-têtes français ou techniques), en un ou plusieurs dépôts, avant ou après le FEC : le contrôle est relancé à chaque ajout. Un fichier déposé dans le mauvais encart est rangé automatiquement. Sans ces exports, elle contrôle contre le plan comptable par défaut d'Odoo 20 France.
 4. Plusieurs exercices : déposer tous les FEC ensemble pour le contrôle croisé (à-nouveaux en double, numéros de pièces communs, chevauchement de périodes).
-5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Analyse des écritures.
+5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Révision → Écritures comptables, en tableau croisé par journal.
+
+## Captures d'Odoo au survol
+
+Chaque chemin de menu Odoo cité par la page (« Comptabilité › Configuration › Plan comptable », « Action › Désarchiver »…) est affiché comme une étiquette. Si la capture correspondante est présente dans `captures/`, elle s'affiche au survol (au toucher sur mobile). Liste des captures, noms de fichiers et règles (base de test uniquement, aucune donnée client) : `captures/LISEZMOI.md`. Pour garder les captures hors ligne, télécharger le dépôt complet plutôt que `index.html` seul.
 
 ## Hébergement (GitHub Pages)
 
