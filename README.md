@@ -6,18 +6,36 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 **Aucune donnée ne sort du poste** : le fichier est lu et analysé dans le navigateur.
 
+**En ligne : https://haurujenkins.github.io/fec-checker/**
+
 ## Utilisation
 
-1. Ouvrir `index.html` (en local ou via GitHub Pages).
+1. Ouvrir la page en ligne, ou `index.html` en local (téléchargé depuis le dépôt).
 2. Déposer le FEC (`.txt` à tabulation ou `|`, ou l'Excel dans lequel il a été collé).
-3. Recommandé : déposer avec lui trois exports de la base Odoo cible, pour contrôler contre le plan comptable et les journaux réels du client :
+3. Recommandé : dans l'encart 2 « Plan comptable de la base Odoo cible », déposer trois exports de la base, pour contrôler contre le plan comptable et les journaux réels du client :
    - Comptabilité → Configuration → Plan comptable → tout sélectionner → Actions → Exporter, avec les champs **Code, Nom du compte, Type, Actif** ;
    - le même export avec le filtre **Comptes inactifs** (Odoo masque les comptes archivés, et ce sont eux qui bloquent ; le champ Actif n'est pas mémorisé d'un export à l'autre) ;
    - Configuration → Journaux → tout sélectionner → Exporter (les champs par défaut suffisent).
 
-   La page reconnaît ces exports toute seule (.xlsx ou .csv, en-têtes français ou techniques). Sans eux, elle contrôle contre le plan comptable par défaut d'Odoo 20 France.
+   La page reconnaît ces exports toute seule (.xlsx ou .csv, en-têtes français ou techniques), en un ou plusieurs dépôts, avant ou après le FEC : le contrôle est relancé à chaque ajout. Un fichier déposé dans le mauvais encart est rangé automatiquement. Sans ces exports, elle contrôle contre le plan comptable par défaut d'Odoo 20 France.
 4. Plusieurs exercices : déposer tous les FEC ensemble pour le contrôle croisé (à-nouveaux en double, numéros de pièces communs, chevauchement de périodes).
-5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Analyse des écritures.
+5. Après l'import : comparer le tableau « Contrôle après import » (par code de journal) avec Comptabilité → Révision → Écritures comptables, en tableau croisé par journal.
+
+## Captures d'Odoo au survol
+
+Chaque chemin de menu Odoo cité par la page (« Comptabilité › Configuration › Plan comptable », « Action › Désarchiver »…) est affiché comme une étiquette. Si la capture correspondante est présente dans `captures/`, elle s'affiche au survol (au toucher sur mobile). Onze captures sont fournies (Odoo 20, société de test), avec un encadré rouge sur l'endroit où cliquer ; détail et règles pour les remplacer : `captures/LISEZMOI.md`. Pour garder les captures hors ligne, télécharger le dépôt complet plutôt que `index.html` seul.
+
+## Hébergement (GitHub Pages)
+
+La page est servie gratuitement par GitHub Pages, directement depuis la branche `main` : aucun build ni workflow. Pour l'activer (une seule fois) :
+
+1. Dans le dépôt GitHub : **Settings → Pages**.
+2. *Build and deployment* → *Source* : **Deploy from a branch**.
+3. *Branch* : **main**, dossier **/ (root)**, puis **Save**.
+
+Après une minute environ, la page est en ligne sur https://haurujenkins.github.io/fec-checker/. Chaque push sur `main` la met à jour.
+
+Le serveur ne fait que livrer la page : le FEC et les exports Odoo restent dans le navigateur et ne sont jamais envoyés. La page charge seulement la bibliothèque de lecture Excel (cdnjs) et les polices (Google Fonts). Le dépôt étant public, tout ce qui y est versé est aussi publié : n'y mettre aucun fichier client.
 
 ## Ce que la page rend
 
@@ -46,6 +64,8 @@ npm i xlsx@0.18.5
 node tests/run.js tests/fixtures/dc.txt
 node tests/run.js tests/fixtures/neg.txt tests/fixtures/odoo20_fr_export_comptes_actifs.xlsx tests/fixtures/odoo20_fr_export_comptes_inactifs.xlsx tests/fixtures/odoo20_fr_export_journaux.xlsx
 ```
+
+Non-régression : `node tests/regression.js` rejoue la page sur toutes les fixtures et compare le verdict et les points relevés à `tests/expected.json`. GitHub Actions le lance à chaque PR et à chaque push sur `main`. Après une modification voulue des résultats, refiger avec `node tests/regression.js --update` et relire le diff de `tests/expected.json` dans la PR.
 
 ## Banc d'essai
 
