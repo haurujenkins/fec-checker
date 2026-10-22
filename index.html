@@ -531,6 +531,7 @@ function decode(buf){
 }
 function runText(name,buf,isSample){
   const {text,enc,bom}=decode(buf);
+  if(/^\s*<(\?xml|comptabilite\b)/i.test(text.slice(0,500))){showError('Ce FEC est au format XML (schéma DGFiP). L’assistant d’import FEC d’Odoo attend un fichier texte séparé par tabulation ou |. Demander au logiciel d’origine l’export du FEC au format texte.',name,'FEC au format XML');return;}
   const euroLost=!enc.startsWith('UTF-8')&&text.includes('\u0080');
   let mixedLines=[];if(!enc.startsWith('UTF-8')){const moj=[],single=[];text.split(/\r\n|\n|\r/).forEach((l,i)=>{if(/[ÃÂ][\u0080-\u00BF\u0152\u0153\u0160\u0161\u0178\u017D\u017E\u20AC]/.test(l))moj.push(i+1);else if(/[\u00A0-\u00FF]/.test(l))single.push(i+1);});if(moj.length&&single.length)mixedLines=moj.length>single.length?single:moj;else if(moj.length)mixedLines=moj;}
   const crlf=(text.match(/\r\n/g)||[]).length, lf=(text.match(/(^|[^\r])\n/g)||[]).length;
@@ -561,7 +562,7 @@ function runXlsx(name,buf){
   while(rows.length&&rows[rows.length-1].every(c=>c.trim()==='')){rows.pop();}
   analyse({name,rows,meta:{source:'Excel',enc:'n/a (classeur Excel)',eol:'n/a',sep:'n/a',trailingBlank:false,rawLines:rows.length},isSample:false});
 }
-function showError(msg,name){collect({name:name||'fichier',isSample:false,meta:{source:'texte',enc:'',sep:''},issues:[{sev:'err',title:'Fichier illisible',desc:msg,lines:[],label:'Ligne'}],passed:[],stats:{lignes:0,ecritures:0,journaux:0,comptes:0,tiers:0,periode:'—',total:'—'},ecrKeys:new Set(),hasAN:false,periodStart:'',periodEnd:'',siren:''});}
+function showError(msg,name,title){collect({name:name||'fichier',isSample:false,meta:{source:'texte',enc:'',sep:''},issues:[{sev:'err',title:title||'Fichier illisible',desc:msg,lines:[],label:'Ligne'}],passed:[],stats:{lignes:0,ecritures:0,journaux:0,comptes:0,tiers:0,periode:'—',total:'—'},ecrKeys:new Set(),hasAN:false,periodStart:'',periodEnd:'',siren:''});}
 
 /* ---------- Analyse ---------- */
 function cents(s){ // retourne [valeurEnCentimes, anomalieFormat] — règles du testeur DGFiP : virgule décimale, point interdit, espaces autour tolérés
@@ -850,7 +851,7 @@ function analyse({name,rows:rows0,meta,isSample}){
    out('Écriture de vente au sens inversé','warn','Client au crédit et vente au débit : normal pour un avoir, anormal pour une facture. À vérifier.',[...E.values()].filter(e=>isS(e.jc)&&e.L.some(x=>/^41/.test(x.cn)&&x.c>0)&&e.L.some(x=>/^70/.test(x.cn)&&x.d>0)).map(e=>`${e.jc}/${e.en} (ligne ${e.first})`),'Écriture');
    // TVA collectée cohérente avec la base HT
    const RATES=[20,10,5.5,2.1,8.5,13,1.75,1.05,0.9];const badV=[];
-   for(const e of E.values()){const tva=e.L.filter(x=>/^4457/.test(x.cn)).reduce((t,x)=>t+x.c-x.d,0),ht=e.L.filter(x=>/^70/.test(x.cn)).reduce((t,x)=>t+x.c-x.d,0);if(!tva||!ht)continue;const rt=tva/ht*100;if(!RATES.some(t=>Math.abs(rt-t)<=0.06)&&!(rt>0.9&&rt<20&&e.L.filter(x=>/^70/.test(x.cn)).length>1))badV.push(`${e.jc}/${e.en} (${rt.toFixed(2).replace('.',',')} %, ligne ${e.first})`);}
+   for(const e of E.values()){if(!isS(e.jc))continue;const tva=e.L.filter(x=>/^4457/.test(x.cn)).reduce((t,x)=>t+x.c-x.d,0),ht=e.L.filter(x=>/^70/.test(x.cn)).reduce((t,x)=>t+x.c-x.d,0);if(!tva||!ht)continue;const rt=tva/ht*100;if(!RATES.some(t=>Math.abs(rt-t)<=0.06)&&!(rt>0.9&&rt<20&&e.L.filter(x=>/^70/.test(x.cn)).length>1))badV.push(`${e.jc}/${e.en} (${rt.toFixed(2).replace('.',',')} %, ligne ${e.first})`);}
    out('Taux de TVA inhabituel','warn','Sur ces factures de vente, TVA collectée ÷ base HT ne donne aucun taux français en vigueur (20 ; 10 ; 5,5 ; 2,1 % ; DOM : 8,5 ; 2,1 %). Erreur de saisie probable ; Odoo importe tel quel.',badV,'Écriture');
    // codes journaux incohérents sur quelques lignes
    const jcount=new Map();for(const x of rowsInfo)jcount.set(x.jc,(jcount.get(x.jc)||0)+1);const codes=[...jcount.keys()];
