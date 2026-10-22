@@ -264,6 +264,72 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 .shot img{width:100%;height:auto;border-radius:6px;display:block}
 .shotbox{position:absolute;border:3px solid #e0352b;border-radius:6px;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
 .shot figcaption{font-size:.8rem;color:var(--muted);padding:6px 4px 2px}
+/* Lecture du FEC : tableau virtualisé (lignes de hauteur fixe), lignes et cellules reliées aux constats */
+#tabView{width:min(1400px,calc(100vw - 40px));margin-left:calc((100% - min(1400px,calc(100vw - 40px)))/2);gap:14px}
+#tabView>*{min-width:0}
+.vbar{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.vfile{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.vfile b{font-weight:600;overflow-wrap:anywhere}
+.vsum{color:var(--muted);font-size:.9rem}
+.vctl{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end}
+.vctl label{display:grid;gap:2px;font-size:.8rem;color:var(--muted)}
+.vctl select,.vctl input[type=search]{font:inherit;font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 8px;max-width:min(360px,calc(100vw - 72px))}
+.vctl input[type=search]{width:240px}
+.vctl select:focus-visible,.vctl input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.vctl .chk{display:flex;gap:6px;align-items:center;color:var(--fg);font-size:.9rem;padding-bottom:6px;cursor:pointer}
+.vctl .chk input{accent-color:var(--accent)}
+.vlegend{margin:0;font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.vlegend .lg::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.l3{--c:var(--err);--hb:var(--err-bg)}.l2{--c:var(--warn);--hb:var(--warn-bg)}.l1{--c:var(--info);--hb:var(--info-bg)}
+.vnote{margin:0;font-size:.88rem;color:var(--muted)}
+.vfilt{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;background:var(--hb,var(--info-bg));border-left:4px solid var(--c,var(--info));border-radius:6px;padding:8px 12px;font-size:.9rem}
+.vfilt b{font-weight:600}
+.vscroll{--vcols:30px 58px 66px 98px 92px 86px minmax(150px,1fr) 150px 104px minmax(200px,2fr) 108px 108px 100px;--vw:1348px;max-height:min(70vh,760px);overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);position:relative;overscroll-behavior:contain}
+.vscroll.vall{--vcols:30px 58px 66px 98px 92px 86px minmax(150px,1fr) 150px 104px 98px minmax(200px,2fr) 108px 108px 100px 120px 98px;--vw:1660px}
+.vscroll:not(.vall) .vx{display:none}
+.vscroll:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vin{position:relative;min-width:var(--vw)}
+.vrow{display:grid;grid-template-columns:var(--vcols);height:30px;align-items:stretch;font-size:.84rem;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.vrow>span{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:29px;min-width:0}
+.vrow small{color:var(--muted);font-size:.92em}
+.vhead{position:sticky;top:0;z-index:2;height:34px;background:var(--sunk);font-weight:600;color:var(--muted);font-size:.78rem}
+.vhead>span{line-height:33px}
+.vrows{position:absolute;left:0;right:0;top:34px}
+.vrow .amt{text-align:right;font-family:var(--mono);font-size:.95em}
+.vrow .mono{font-family:var(--mono);font-size:.95em}
+.vrow .nn{color:var(--muted);font-family:var(--mono);font-size:.9em;text-align:right}
+.vline{cursor:pointer}
+.vline:hover{background:var(--sunk)}
+.vline.l2,.vline.l3{background:color-mix(in srgb,var(--hb) 55%,var(--surface))}
+.vline.l2:hover,.vline.l3:hover{background:var(--hb)}
+.vrow>.hl{background:var(--hb);box-shadow:inset 0 0 0 2px var(--c);font-weight:500}
+.vrow .bad{color:var(--err);font-weight:500}
+.vmk{display:flex;align-items:center;justify-content:center}
+.vmk button{font:inherit;font-size:.72rem;font-weight:600;min-width:20px;height:20px;border-radius:10px;border:0;padding:0 5px;background:var(--c);color:var(--surface);cursor:pointer;line-height:20px}
+.vmk button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vgrp{background:var(--sunk);font-weight:500;border-top:1px solid var(--line)}
+.vgrp .vg-s{color:var(--ok);font-size:.82rem}
+.vgrp.unbal .vg-s{color:var(--err);font-weight:600}
+.vgrp .vg-t{color:var(--fg)}
+.vempty{padding:28px 16px;text-align:center;color:var(--muted);position:sticky;left:0;width:min(100%,calc(100vw - 72px))}
+.vpager{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:flex-end;font-size:.88rem;color:var(--muted)}
+dialog.vdlg{width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 48px);border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);padding:0}
+dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
+.vdlg header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
+.vdlg h3{margin:0;font-size:1.1rem;font-weight:600}
+.vdb{padding:14px 18px 18px;display:grid;gap:14px}
+.vdb h4{margin:0;font-size:.95rem;font-weight:600}
+.vci{border-left:4px solid var(--c);background:var(--sunk);border-radius:6px;padding:10px 12px;display:grid;gap:4px}
+.vci p{margin:0;font-size:.9rem;color:var(--muted)}
+.vci .eff{justify-self:start}
+.vci .btns{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.9rem}
+.vfields{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;margin:0;font-size:.88rem}
+.vfields dt{color:var(--muted)}
+.vfields dd{margin:0;font-family:var(--mono);overflow-wrap:anywhere;white-space:pre-wrap}
+.vfields .hl{background:var(--hb);box-shadow:inset 0 0 0 2px var(--c);border-radius:3px;padding:0 4px}
+.seefec{margin:0;font-size:.9rem}
+.item.flash{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:600px){.vctl label,.vctl select,.vctl input[type=search]{width:100%;max-width:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -278,6 +344,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 
 <nav class="tabs" id="tabsNav" role="tablist" aria-label="Sections">
   <button class="tab" id="tabBtnCheck" role="tab" type="button" aria-selected="true" aria-controls="tabCheck" data-tab="tabCheck">Contrôle du FEC</button>
+  <button class="tab" id="tabBtnView" role="tab" type="button" aria-selected="false" aria-controls="tabView" data-tab="tabView" tabindex="-1">Lecture du FEC</button>
   <button class="tab" id="tabBtnMethod" role="tab" type="button" aria-selected="false" aria-controls="tabMethod" data-tab="tabMethod" tabindex="-1">Méthodologie avant import</button>
 </nav>
 
@@ -315,7 +382,7 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
 <section class="results" id="results" aria-label="Résultat">
   <div class="resbar" id="resbar" hidden>
     <div class="resinfo"><p class="eyebrow">Résultat du contrôle</p><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p><p class="refline">Précautions communes à tous les FEC : <button class="linkbtn" type="button" data-tab="tabMethod">méthodologie avant import</button>.</p></div>
-    <div class="actions"><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Nouveau contrôle</button></div>
+    <div class="actions"><button class="btn" type="button" data-tab="tabView">Lire le FEC</button><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Nouveau contrôle</button></div>
   </div>
   <div class="empty" id="empty">
     <p class="eyebrow">Ce que vous obtiendrez</p>
@@ -328,6 +395,11 @@ table.ctrl tfoot td{font-weight:600;border-bottom:0}
   </div>
   <div id="reports"></div>
 </section>
+</div>
+
+<div class="tabpanel" id="tabView" role="tabpanel" aria-labelledby="tabBtnView" hidden>
+<div id="viewer"></div>
+<dialog class="vdlg" id="vDlg" closedby="any" aria-labelledby="vDlgT"><header><h3 id="vDlgT">Ligne</h3><button class="btn" type="button" id="vDlgX">Fermer</button></header><div class="vdb" id="vDlgB"></div></dialog>
 </div>
 
 <div class="tabpanel" id="tabMethod" role="tabpanel" aria-labelledby="tabBtnMethod" hidden>
@@ -424,10 +496,10 @@ document.addEventListener('dragover',ev=>ev.preventDefault());
 document.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer&&ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files);});
 $('sample').addEventListener('click',()=>{FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
 $('refClear').addEventListener('click',()=>{REF_FILES=[];REF_NOTE='';applyBase();showRef();if(FEC_FILES.length)runAll(false);});
-$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';$('resbar').hidden=true;$('empty').hidden=false;window.scrollTo({top:0,behavior:'smooth'});});
+$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';$('resbar').hidden=true;$('empty').hidden=false;viewReset();window.scrollTo({top:0,behavior:'smooth'});});
 // Onglets : « Contrôle du FEC » et « Méthodologie avant import »
 function showTab(id,focus){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.dataset.tab===id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus();});
-  document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=p.id!==id);}
+  document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=p.id!==id);if(id==='tabView')viewOpen();}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tab]');if(!b)return;showTab(b.dataset.tab);if(b.getAttribute('role')!=='tab')$('tabsNav').scrollIntoView({behavior:'smooth',block:'start'});});
 document.addEventListener('keydown',ev=>{const b=ev.target.closest&&ev.target.closest('[role=tab]');if(!b||!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;ev.preventDefault();const t=[...document.querySelectorAll('[role=tab]')];const i=t.indexOf(b);const n=ev.key==='Home'?0:ev.key==='End'?t.length-1:(i+(ev.key==='ArrowRight'?1:-1)+t.length)%t.length;showTab(t[n].dataset.tab,true);});
 document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;const pn=t.closest('.tabpanel');if(pn&&pn.hidden)showTab(pn.id);t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
@@ -1165,10 +1237,12 @@ const chips=(a,max)=>a.slice(0,max).map(x=>`<li>${esc(x)}</li>`).join('')+(a.len
 function issueHTML(i){
   const k=i._k||classify(i);
   const tech=i.desc&&i.desc!==k.why;
-  return `<article class="item ${k.where}">
+  const see=i._vr!=null&&i.lines.length&&!i.cross&&!GENERIC.test(i.title);
+  return `<article class="item ${k.where}"${i._vr!=null?` id="iss-${i._vr}-${i._vx}"`:''}>
 <div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}</h4>${EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
 ${k.why?`<p class="why">${esc(k.why)}</p>`:''}
 ${k.how&&k.how.length?`<div class="howbox"><span class="hl">Que faire</span><ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>`:''}
+${see?`<p class="seefec"><button class="linkbtn" type="button" data-vsee="${i._vr}:${i._vx}">Voir ${i.label==='Ligne'?(i.lines.length>1?'ces lignes':'cette ligne'):'les lignes concernées'} dans le FEC</button></p>`:''}
 ${i.lines.length||tech?`<details class="more"><summary>${i.lines.length?`${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})${tech?' et constat technique':''}`:'Constat technique'}</summary>${i.lines.length?`<ul class="chips">${chips(i.lines,40)}</ul>`:''}${tech?`<div class="techd"><span class="hl">Constat technique</span><p><b>${esc(i.title)}.</b> ${esc(i.desc)}</p></div>`:''}</details>`:''}
 </article>`;
 }
@@ -1271,6 +1345,7 @@ function render(reports){
   rs.forEach((R,ix)=>{R._id=ix;const drop=cross.some(i=>i.title.startsWith(R.name+' : journal d’à-nouveaux'));prepare(R,drop?{dropAN:true}:null);
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
   REPORTS=rs;
+  for(const R of rs)if(R.rows)R.issues.forEach((i,ix)=>{i._vr=R._id;i._vx=ix;});
   $('fname').innerHTML=rs.map(R=>esc(R.name)+(R.isSample?'<span class="tag-ex">Exemple fictif</span>':'')).join(' · ');
   if(rs.some(R=>R.isSample))html+=`<p class="sampleban">Rapport d’exemple, sur un petit FEC fictif. Déposez le FEC de votre client dans <button class="linkbtn" type="button" data-goto="slotFec">l’encart 1</button> pour lancer le vrai contrôle.</p>`;
   if(multi)html+=`<div class="cross"><h2>${rs.length} exercices déposés</h2><p>Ordre d’import conseillé, du plus ancien au plus récent. ${cross.length?`${cross.length} point${cross.length>1?'s':''} entre fichiers, repris dans chaque rapport.`:'Aucun conflit entre les fichiers.'}</p><ol class="multi">${rs.map((r,ix)=>{const P=planOf(r);return `<li><a href="#rep-${ix}">${esc(r.name)}</a><small>${esc(fmtP(r.stats.periode))}</small><span class="vpill ${P.level}">${esc(P.title)}</span></li>`;}).join('')}</ol></div>`;
@@ -1316,7 +1391,7 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
     txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
   $('reports').innerHTML=navify(html);lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
-  $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;$('empty').hidden=true;
+  $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;$('empty').hidden=true;viewReset();
   if(SCROLL_NEXT){SCROLL_NEXT=false;const r=$('results');if(r.getBoundingClientRect&&r.getBoundingClientRect().top>innerHeight*.5)r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
 }
 document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const r=c.dataset.confirm;if(!REPORTS[+r]?._fix.integrity.ok)return;document.querySelectorAll(`[data-confirm="${r}"]`).forEach(x=>x.checked=c.checked);document.querySelectorAll(`[data-dl="fix"][data-r="${r}"]`).forEach(b=>b.disabled=!c.checked);});
@@ -1384,6 +1459,211 @@ try{
     addEventListener('scroll',()=>{if(SHOT_FOR&&!fine)shotHide();else if(SHOT_FOR)shotShow(SHOT_FOR);},{passive:true});
   }
 }catch(e){}
+/* ---------- Lecture du FEC ----------
+   Tableau lisible du FEC chargé, sans rien recalculer du contrôle : chaque constat est relié à ses lignes à partir de ce qu’il cite
+   (numéros de ligne, écritures, comptes, journaux, tiers, lettres). Virtualisation à hauteur de ligne fixe, pagination au-delà de VPAGE. */
+const VRH=30,VHH=34,VPAGE=200000;
+const VCOLS=[ // clé, titre, champs FEC reliés, classe, colonne visible seulement avec « Toutes les colonnes »
+ ['n','Ligne',[],'nn'],['jc','Journal',['JournalCode','JournalLib'],'mono'],['ed','Date',['EcritureDate'],'mono'],['en','N° écriture',['EcritureNum'],'mono'],
+ ['cn','Compte',['CompteNum'],'mono'],['cl','Libellé du compte',['CompteLib']],['aux','Tiers',['CompAuxNum','CompAuxLib']],['pr','Pièce',['PieceRef']],
+ ['pd','Date pièce',['PieceDate'],'mono',1],['el','Libellé',['EcritureLib']],['d','Débit',['Debit'],'amt'],['c','Crédit',['Credit'],'amt'],
+ ['let','Lettrage',['EcritureLet','DateLet'],'mono'],['dev','Devise',['Montantdevise','Idevise'],'amt',1],['vd','Validation',['ValidDate'],'mono',1]];
+const VLVL={3:'Bloque l’import',2:'Fausse les données ou à vérifier',1:'Norme DGFiP ou information'};
+let V={rid:0,mode:'all',iss:-1,j:'',q:'',group:true,all:false,page:0,items:[],shown:0,built:null};
+function viewReset(){V={...V,rid:0,mode:'all',iss:-1,j:'',q:'',page:0,items:[],shown:0,built:null};if($('tabView').hidden===false)viewOpen();}
+const vDate=s=>/^\d{8}$/.test(s)?s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4):s;
+function vAmt(raw){const s=String(raw??'').trim();if(!s)return '';const [v]=cents(s);return isNaN(v)?null:fmtE(v);}
+function viewIndex(R){
+  if(R._vx)return R._vx;
+  const rows=R.rows||[],lo=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim().toLowerCase());
+  const bnc=lo[11]==='montant'&&lo[12]==='sens';
+  const F={};EXPECTED.forEach((k,i)=>F[k]=i); // mêmes règles de lecture des colonnes que l’analyse
+  const pos=EXPECTED.map(k=>lo.indexOf(k.toLowerCase()));
+  if(pos.filter(i=>i>=0).length>=12&&!bnc)EXPECTED.forEach((k,i)=>F[k]=pos[i]);
+  const g=(r,k)=>F[k]>=0?String(r[F[k]]??'').trim():'';
+  const dc=r=>{const z=v=>{const [x]=cents(v);return isNaN(x)?0:x;};
+    if(bnc){const v=z(r[11]),s=String(r[12]??'').trim().toUpperCase();return s==='D'?[v,0]:s==='C'?[0,v]:[0,0];}
+    return [z(r[F.Debit]),z(r[F.Credit])];};
+  const hk=lo.join('|'),data=[],ekey=new Array(rows.length),tot=new Map(),jcodes=new Map();
+  const by={e:new Map(),a:new Map(),a0:new Map(),j:new Map(),x:new Map(),l:new Map()};
+  const put=(m,k,n)=>{let a=m.get(k);if(!a)m.set(k,a=[]);a.push(n);};
+  for(let i=1;i<rows.length;i++){const r=rows[i];
+    if(!r.some(c=>String(c).trim()!==''))continue;
+    if(String(r[0]??'').replace(/^﻿/,'').trim().toLowerCase()===lo[0]&&r.map(x=>String(x).replace(/^﻿/,'').trim().toLowerCase()).join('|')===hk)continue;
+    const n=i+1,jc=g(r,'JournalCode'),en=g(r,'EcritureNum'),pr=g(r,'PieceRef'),cn=g(r,'CompteNum');
+    data.push(n);
+    const k=en?jc+'/'+en:jc+' / '+pr;ekey[i]=k; // regroupement d’Odoo : journal + EcritureNum, sinon journal + PieceRef
+    const [d,c]=dc(r);let t=tot.get(k);if(!t)tot.set(k,t={jc,en,pr,ed:g(r,'EcritureDate'),d:0,c:0,n:0});t.d+=d;t.c+=c;t.n++;
+    put(by.e,k,n);put(by.a,cn,n);put(by.a0,cn.replace(/0+$/,'')||cn,n);put(by.j,jc.toUpperCase(),n);jcodes.set(jc,(jcodes.get(jc)||0)+1);
+    const can=g(r,'CompAuxNum');if(can)put(by.x,can,n);
+    const lt=g(r,'EcritureLet');if(lt)put(by.l,cn+'\u0001'+lt,n);
+  }
+  const iss=[],flags=new Map();
+  R.issues.forEach((i,ix)=>{
+    if(GENERIC.test(i.title)||!i.lines.length||i.cross)return;
+    const set=new Set(),cells=new Map();
+    for(const x0 of i.lines){const x=String(x0),hit=vResolve(i.label,x,by);for(const n of hit)set.add(n);
+      const fl=(x.match(/\(([^)]*)\)/)||[])[1];if(fl){const fs=fl.split(/,\s*/).filter(f=>EXPECTED.includes(f));if(fs.length)for(const n of hit)cells.set(n,fs);}}
+    if(!set.size)return;
+    const k=i._k||classify(i),lvl=k.effect==='bloque'?3:['fausse','verif','suivi'].includes(k.effect)?2:1;
+    const id=iss.push({ix,i,k,lvl,rows:[...set].sort((a,b)=>a-b),cols:vCols(i),cells})-1;
+    for(const n of iss[id].rows){let a=flags.get(n);if(!a)flags.set(n,a=[]);a.push(id);}
+  });
+  const lvlOf=n=>{const f=flags.get(n);return f?Math.max(...f.map(id=>iss[id].lvl)):0;};
+  let nErr=0,nBlk=0;for(const n of flags.keys()){const l=lvlOf(n);if(l>=2)nErr++;if(l===3)nBlk++;}
+  const located=new Set(iss.map(o=>o.i));
+  const whole=R.issues.filter(i=>!GENERIC.test(i.title)&&!located.has(i)).length;
+  return R._vx={F,g,bnc,data,ekey,tot,jcodes,iss,flags,lvlOf,nErr,nBlk,whole};
+}
+function vResolve(label,x,by){
+  const g=(m,k)=>m.get(k)||[];
+  const span=()=>{const m=x.match(/lignes? (\d+)(?: à (\d+))?/);if(!m)return [];const a=+m[1],b=Math.min(+(m[2]||m[1]),a+5000),o=[];for(let n=a;n<=b;n++)o.push(n);return o;};
+  if(label==='Ligne'){const o=[],m=x.match(/^\d+/),e=x.match(/ = (\d+)/);if(m)o.push(+m[0]);if(e)o.push(+e[1]);return o;}
+  if(label==='Écriture'){const o=x.split(' = ').flatMap(p=>g(by.e,p.replace(/ (\(|du ).*$/,'').trim()));return o.length?o:span();}
+  if(label==='Pièce')return g(by.e,x.replace(/ \(écart .*$/,''));
+  if(label==='Compte'){const codes=x.includes(' → ')?x.split(' → ')[0].split(' + '):[x.replace(/ (:|\().*$/,'')];
+    return codes.flatMap(c=>{c=c.trim();return by.a.has(c)?by.a.get(c):g(by.a0,c.replace(/0+$/,'')||c);});}
+  if(label==='Journal')return g(by.j,x.replace(/( « | : | \(| → | ↔ ).*$/,'').trim().toUpperCase());
+  if(label==='Tiers')return g(by.x,x.replace(/ : .*$/,'').trim());
+  if(label==='Lettre'){const m=x.match(/^(.*?) lettre (.*?) \((?:écart [^,]*, )?ligne \d+\)$/);return m?g(by.l,m[1]+'\u0001'+m[2]):span();}
+  return span();
+}
+function vCols(i){const t=i.title,s=new Set(EXPECTED.filter(f=>new RegExp('\\b'+f+'\\b').test(t))),add=(...a)=>a.forEach(f=>s.add(f));
+  if(/Débit|Crédit|[Mm]ontant(?!devise)|déséquilibr|décimale|TVA|sens inversé/.test(t))add('Debit','Credit');
+  if(/^Écritures? (datée|postérieure|antérieure|avec plusieurs dates)|chronologique|exercice|À-nouveaux non datés/.test(t))add('EcritureDate');
+  if(/Même numéro|en double|chronologique/.test(t))add('EcritureNum');
+  if(i.label==='Compte'||/[Cc]ompte (hors|auxiliaire|de charge|de résultat|de banque)|[Cc]omptes de charge|401\/411/.test(t))add('CompteNum');
+  if(/[Ll]ibellé de compte|sans libellé/.test(t))add('CompteLib');
+  if(i.label==='Journal'||/[Cc]ode journal/.test(t))add('JournalCode');
+  if(/[Ll]ibellé de journal/.test(t))add('JournalLib');
+  if(i.label==='Tiers')add('CompAuxNum');
+  if(/[Ll]ibellé de tiers/.test(t))add('CompAuxLib');
+  if(i.label==='Lettre'||/[Ll]ettr/.test(t))add('EcritureLet');
+  if(i.label==='Pièce')add('PieceRef');
+  if(/[Dd]evise/.test(t))add('Montantdevise','Idevise');
+  return s;}
+function viewOpen(){
+  const box=$('viewer');
+  const rs=(REPORTS||[]).filter(R=>R.rows&&R.rows.length>1);
+  if(!rs.length){V.built=null;box.innerHTML=`<div class="empty"><p class="eyebrow">Lecture du FEC</p><ul><li><b>Le FEC en tableau</b> : colonnes nommées, dates au format JJ/MM/AAAA, montants alignés, écritures regroupées avec leur équilibre.</li><li><b>Les erreurs mises en évidence</b> : chaque ligne et chaque cellule concernée par un constat du contrôle, avec son explication.</li><li><b>Les filtres</b> : seulement les lignes en erreur, un constat, un journal, une recherche.</li></ul><button class="btn" type="button" data-goto="slotFec">Déposer un FEC dans l’onglet Contrôle</button></div>`;return;}
+  if(!rs.includes(REPORTS[V.rid]))V.rid=rs[0]._id;
+  const R=REPORTS[V.rid];
+  if(V.built!==R){V.built=R;vBuild(R,rs);}
+  vApply(true);
+}
+function vBuild(R,rs){
+  const X=viewIndex(R),S=R.stats;
+  const opt=(v,t,sel)=>`<option value="${esc(v)}"${sel?' selected':''}>${esc(t)}</option>`;
+  const grp=[3,2,1].map(l=>{const a=X.iss.map((o,id)=>[o,id]).filter(([o])=>o.lvl===l);return a.length?`<optgroup label="${VLVL[l]}">${a.map(([o,id])=>opt(id,`${o.k.t} (${o.rows.length.toLocaleString('fr-FR')} ligne${o.rows.length>1?'s':''})`,id===V.iss)).join('')}</optgroup>`:'';}).join('');
+  const js=[...X.jcodes].sort((a,b)=>a[0].localeCompare(b[0]));
+  $('viewer').innerHTML=`<section class="vbar" aria-label="Filtres de lecture">
+<div class="vfile">${rs.length>1?`<span class="vctl"><select id="vFile" aria-label="Fichier">${rs.map(r=>opt(r._id,r.name+' · '+fmtP(r.stats.periode),r===R)).join('')}</select></span>`:`<b>${esc(R.name)}</b>`}<span class="vsum">${S.lignes.toLocaleString('fr-FR')} lignes · ${S.ecritures.toLocaleString('fr-FR')} écritures · ${X.flags.size?`${X.flags.size.toLocaleString('fr-FR')} ligne${X.flags.size>1?'s':''} avec un constat, dont ${X.nErr.toLocaleString('fr-FR')} en erreur`:'aucune ligne en erreur'}</span></div>
+<div class="vctl">
+<label>Afficher<select id="vMode">${opt('all','Toutes les lignes',V.mode==='all')}${opt('err','Seulement les lignes en erreur',V.mode==='err')}${opt('flag','Les lignes avec un constat, même informatif',V.mode==='flag')}</select></label>
+<label>Constat<select id="vIss">${opt(-1,X.iss.length?'Tous les constats':'Aucun constat relié à des lignes',V.iss<0)}${grp}</select></label>
+<label>Journal<select id="vJ">${opt('','Tous les journaux',!V.j)}${js.map(([j,n])=>opt(j,`${j||'(vide)'} · ${n.toLocaleString('fr-FR')} lignes`,j===V.j)).join('')}</select></label>
+<label>Rechercher<input type="search" id="vQ" value="${esc(V.q)}" placeholder="Compte, libellé, pièce, montant…" autocomplete="off"></label>
+<label class="chk"><input type="checkbox" id="vGrp"${V.group?' checked':''}> Regrouper par écriture</label>
+<label class="chk"><input type="checkbox" id="vAll"${V.all?' checked':''}> Toutes les colonnes</label>
+</div>
+<p class="vlegend"><span class="lg l3">Bloque l’import</span><span class="lg l2">Fausse les données ou à vérifier</span><span class="lg l1">Norme DGFiP ou information</span><span>· Cliquer une ligne pour voir ses constats et tous ses champs</span></p>
+</section>
+<div id="vFilt"></div>
+<div class="vscroll${V.all?' vall':''}" id="vScroll" tabindex="0" role="table" aria-label="Lignes du FEC"><div class="vin" id="vIn"><div class="vrow vhead" role="row">${VCOLS.reduce((h,c)=>h+`<span role="columnheader" class="${c[3]==='amt'?'amt':''}${c[4]?' vx':''}">${c[1]}</span>`,'<span role="columnheader" aria-label="Constats"></span>')}</div><div class="vrows" id="vRows" role="rowgroup"></div></div></div>
+<div class="vpager" id="vPager"></div>
+${X.whole?`<p class="vnote">${X.whole} constat${X.whole>1?'s portent':' porte'} sur le fichier entier (en-tête, encodage, nom, plan comptable…) et ne se rattache${X.whole>1?'nt':''} pas à des lignes : voir le <button class="linkbtn" type="button" data-tab="tabCheck">rapport du contrôle</button>.</p>`:''}`;
+  $('vScroll').onscroll=vDraw;
+}
+function vApply(keepScroll){
+  const R=REPORTS[V.rid],X=viewIndex(R),rows=R.rows;
+  const q=V.q.trim().toLowerCase(),qq=q.replace(/\s/g,''),it=V.iss>=0?X.iss[V.iss]:null;
+  const out=[],G=[];let prev=null,shown=0;
+  for(const n of it?it.rows:X.data){
+    const r=rows[n-1];if(!r)continue;
+    if(V.mode!=='all'){const l=X.lvlOf(n);if(V.mode==='err'?l<2:!l)continue;}
+    if(V.j&&X.g(r,'JournalCode')!==V.j)continue;
+    if(q){const t=r.join(' ').toLowerCase();if(!t.includes(q)&&!(qq&&t.replace(/\s/g,'').includes(qq)))continue;}
+    if(V.group){const k=X.ekey[n-1];if(k!==prev){out.push(-(G.push(k)));prev=k;}}
+    out.push(n);shown++;}
+  V.items=out;V.groups=G;V.shown=shown;if(!keepScroll)V.page=0;
+  V.page=Math.min(V.page,Math.max(0,Math.ceil(out.length/VPAGE)-1));
+  const f=$('vFilt');
+  f.innerHTML=it?`<div class="vfilt l${it.lvl}"><b>${esc(it.k.t)}</b><span>${it.rows.length.toLocaleString('fr-FR')} ligne${it.rows.length>1?'s':''} concernée${it.rows.length>1?'s':''}</span><button class="linkbtn" type="button" data-vgo="${V.rid}:${it.ix}">Voir l’explication dans le rapport</button><button class="linkbtn" type="button" data-vclear>Retirer ce filtre</button></div>`:'';
+  const sc=$('vScroll');if(!keepScroll)sc.scrollTop=0;
+  vDraw();
+}
+function vDraw(){
+  const R=REPORTS[V.rid];if(!R||!R._vx)return;const X=R._vx,sc=$('vScroll');if(!sc)return;
+  const off=V.page*VPAGE,len=Math.max(0,Math.min(VPAGE,V.items.length-off));
+  $('vIn').style.height=(VHH+len*VRH)+'px';
+  const h=sc.clientHeight||600,a=Math.max(0,Math.floor((sc.scrollTop-VHH)/VRH)-10),b=Math.min(len,a+Math.ceil(h/VRH)+20);
+  const box=$('vRows');box.style.top=(VHH+a*VRH)+'px';
+  if(!len){box.innerHTML=`<div class="vempty">${V.mode!=='all'&&!X.flags.size?'Aucune ligne en erreur dans ce FEC.':'Aucune ligne ne correspond à ces filtres.'}</div>`;}
+  else{let html='';for(let i=a;i<b;i++){const v=V.items[off+i];html+=v<0?vGroupHTML(X,V.groups[-v-1]):vRowHTML(R,X,v);}box.innerHTML=html;}
+  sc.setAttribute('aria-rowcount',String(V.items.length+1));
+  const pg=Math.ceil(V.items.length/VPAGE);
+  $('vPager').innerHTML=`<span>${V.shown.toLocaleString('fr-FR')} ligne${V.shown>1?'s':''} affichée${V.shown>1?'s':''} sur ${X.data.length.toLocaleString('fr-FR')}</span>`+(pg>1?`<button class="btn" type="button" data-vpage="-1"${V.page?'':' disabled'}>Précédent</button><span>Page ${V.page+1} sur ${pg}</span><button class="btn" type="button" data-vpage="1"${V.page<pg-1?'':' disabled'}>Suivant</button>`:'');
+}
+function vGroupHTML(X,k){const t=X.tot.get(k);if(!t)return '';const bal=t.d===t.c;
+  return `<div class="vrow vgrp${bal?'':' unbal'}" role="row"><span class="vg-t" role="cell" style="grid-column:1/${V.all?12:11}">${esc(t.jc)} · ${t.en?'écriture '+esc(t.en):'pièce '+esc(t.pr)+' (sans EcritureNum)'} · ${esc(vDate(t.ed))} · ${t.n} ligne${t.n>1?'s':''}</span><span class="amt" role="cell">${fmtE(t.d)}</span><span class="amt" role="cell">${fmtE(t.c)}</span><span class="vg-s" role="cell" style="grid-column:${V.all?14:13}/-1">${bal?'✓ Équilibrée':'✕ Écart '+fmtE(t.d-t.c)}</span></div>`;}
+function vHits(X,n){const f=X.flags.get(n)||[],cs=new Set();
+  for(const id of f){if(V.iss>=0&&id!==V.iss)continue;const o=X.iss[id];(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
+  return {f,cs};}
+function vRowHTML(R,X,n){
+  const r=R.rows[n-1],g=k=>X.g(r,k),{f,cs}=vHits(X,n),lvl=X.lvlOf(n);
+  const D=X.bnc?(String(r[12]??'').trim().toUpperCase()==='D'?r[11]:''):r[X.F.Debit],C=X.bnc?(String(r[12]??'').trim().toUpperCase()==='C'?r[11]:''):r[X.F.Credit];
+  const amt=v=>{const s=vAmt(v);return s===null?`<b class="bad">${esc(String(v).trim())}</b>`:s==='0,00'?'':s;};
+  const date=k=>{const s=g(k);return s&&!isDate(s)?`<b class="bad">${esc(s)}</b>`:esc(vDate(s));};
+  const val={n:n,jc:esc(g('JournalCode')),ed:date('EcritureDate'),en:esc(g('EcritureNum')),cn:esc(g('CompteNum')),cl:esc(g('CompteLib')),
+    aux:g('CompAuxNum')?`${esc(g('CompAuxNum'))} <small>${esc(g('CompAuxLib'))}</small>`:esc(g('CompAuxLib')),pr:esc(g('PieceRef')),pd:date('PieceDate'),el:esc(g('EcritureLib')),
+    d:amt(D),c:amt(C),let:esc(g('EcritureLet')),dev:g('Montantdevise')||g('Idevise')?`${amt(g('Montantdevise'))} <small>${esc(g('Idevise'))}</small>`:'',vd:date('ValidDate')};
+  const tip={jc:g('JournalLib'),cl:g('CompteLib'),aux:g('CompAuxLib'),el:g('EcritureLib'),pr:g('PieceRef'),let:g('DateLet')?'Lettré le '+vDate(g('DateLet')):''};
+  const names=f.map(id=>X.iss[id].k.t);
+  return `<div class="vrow vline${lvl?' l'+lvl:''}" role="row" data-vrow="${n}"><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${f.length} constat${f.length>1?'s':''}, ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const hl=fs.some(c=>cs.has(c));return `<span role="cell" class="${cl||''}${x?' vx':''}${hl?' hl':''}"${tip[k]?` title="${esc(tip[k])}"`:''}>${val[k]}</span>`;}).join('')}</div>`;
+}
+function vDetail(n){
+  const R=REPORTS[V.rid],X=viewIndex(R),r=R.rows[n-1];if(!r)return;
+  const f=X.flags.get(n)||[],cs=new Set();for(const id of f){const o=X.iss[id];(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
+  const k=X.ekey[n-1],t=X.tot.get(k);
+  $('vDlgT').textContent=`Ligne ${n} du fichier`;
+  $('vDlgB').innerHTML=(f.length?`<h4>${f.length} constat${f.length>1?'s':''} sur cette ligne</h4>${f.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns"><button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}</div></div>`;}).join('')}`:'<p class="vnote">Aucun constat sur cette ligne.</p>')
+   +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':`, écart ${fmtE(t.d-t.c)}.`}</p>`:'')
+   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`;
+  const d=$('vDlg');if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute('open','');
+}
+function vClose(){const d=$('vDlg');if(d.open)d.close?d.close():d.removeAttribute('open');}
+function vSee(rid,ix){
+  V.rid=rid;const R=REPORTS[rid];if(!R)return;const X=viewIndex(R);const id=X.iss.findIndex(o=>o.ix===ix);
+  V.iss=id;V.mode='all';V.j='';V.q='';V.page=0;V.built=null;showTab('tabView');
+  if(id<0)$('vFilt').innerHTML=`<div class="vfilt l1"><span>Les lignes de ce constat n’ont pas pu être retrouvées dans le fichier : voir le détail dans le rapport.</span></div>`;
+  $('tabsNav').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function vGo(rid,ix){
+  vClose();showTab('tabCheck');const el=$('iss-'+rid+'-'+ix);if(!el)return;
+  for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;
+  el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2000);
+}
+document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;let e;
+  if((e=t.closest('[data-vsee]'))){const [r,i]=e.dataset.vsee.split(':').map(Number);vSee(r,i);return;}
+  if((e=t.closest('[data-vgo]'))){const [r,i]=e.dataset.vgo.split(':').map(Number);vGo(r,i);return;}
+  if((e=t.closest('[data-vfilter]'))){vClose();V.iss=+e.dataset.vfilter;V.mode='all';V.built=null;viewOpen();return;}
+  if(t.closest('[data-vclear]')){V.iss=-1;V.built=null;viewOpen();return;}
+  if((e=t.closest('[data-vpage]'))){V.page+=+e.dataset.vpage;$('vScroll').scrollTop=0;vDraw();return;}
+  if(t.closest('#vDlgX')){vClose();return;}
+  if((e=t.closest('[data-vrow]'))){vDetail(+e.dataset.vrow);return;}
+});
+document.addEventListener('change',ev=>{const t=ev.target,id=t&&t.id;
+  if(id==='vFile'){V.rid=+t.value;V.iss=-1;V.j='';V.built=null;viewOpen();}
+  else if(id==='vMode'){V.mode=t.value;vApply();}
+  else if(id==='vIss'){V.iss=+t.value;vApply();}
+  else if(id==='vJ'){V.j=t.value;vApply();}
+  else if(id==='vGrp'){V.group=t.checked;vApply();}
+  else if(id==='vAll'){V.all=t.checked;$('vScroll').classList.toggle('vall',V.all);vDraw();}
+});
+let vQT=null;
+document.addEventListener('input',ev=>{if(ev.target&&ev.target.id==='vQ'){clearTimeout(vQT);const v=ev.target.value;vQT=setTimeout(()=>{V.q=v;vApply();},200);}});
+if(typeof addEventListener==='function')addEventListener('resize',()=>{if($('tabView').hidden===false)vDraw();});
+{const d=$('vDlg');if(d&&typeof HTMLDialogElement!=='undefined'&&!('closedBy' in HTMLDialogElement.prototype))d.addEventListener('click',ev=>{if(ev.target!==d)return;const r=d.getBoundingClientRect();if(ev.clientX<r.left||ev.clientX>r.right||ev.clientY<r.top||ev.clientY>r.bottom)d.close();});}
 showRef();
 </script>
 
