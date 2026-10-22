@@ -147,6 +147,7 @@ Architecture : le parsing du fichier est fait par le JS du navigateur ; le serve
 | U02 BOM UTF-8 | accepté (en-tête propre) |
 | U03 séparateur « ; » / U04 « , » / U17 .xlsx | REFUS « Les zones doivent être séparées par une tabulation ou par le caractère '|' » |
 | U05 LF seul / U16 CR seul / U21 sans retour final | acceptés |
+| U23 fins de ligne CR CR LF (22/10/2026) | le lecteur JS d'Odoo 20 (`fec_parser_hook`) produit une ligne vide après chaque ligne → même effet qu'une ligne vide au milieu (lecteur vérifié ; import non rejoué) |
 | U06 lignes vides en fin / U07 ligne vide au milieu / U19 en-tête seul | **« Aucune donnée importée » sans erreur** : la ligne vide fait échouer tout le lot silencieusement |
 | U08 en-tête en minuscules / U18 UTF-16 | REFUS « La ligne 2 n'a pas de nom de pièce valide » (en-tête sensible à la casse) |
 | U09 17 colonnes (sans Idevise) | accepté |
