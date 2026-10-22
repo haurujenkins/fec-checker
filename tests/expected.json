@@ -380,6 +380,22 @@
    ]
   }
  ],
+ "tests/fixtures/U23_crcrlf.txt": [
+  {
+   "name": "U23_crcrlf.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[err] Lignes vides au milieu du fichier (fins de ligne CR CR LF) (2)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/cn_space.txt": [
   {
    "name": "cn_space.txt",
