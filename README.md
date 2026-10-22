@@ -69,7 +69,7 @@ Non-régression : `node tests/regression.js` rejoue la page sur toutes les fixtu
 
 ## Banc d'essai
 
-Sur un jeu de 400 paires de FEC fictifs (17 styles d'export, 1 567 erreurs connues) : 400 FEC corrects sur 400 jugés importables, 98,6 % des erreurs détectées, et un échantillon de 31 fichiers confirmé par import réel dans Odoo 20. `node tests/bench_dataset.js "chemin/fichiers FECS"` puis `python3 tests/bench_measure.py`.
+Sur un jeu de 400 paires de FEC fictifs (17 styles d'export, 1 567 erreurs connues) : 400 FEC corrects sur 400 jugés importables, 1 566 erreurs détectées sur 1 567 (99,9 % au 22/10 ; la seule manquante est une date déplacée qui reste dans l'ordre chronologique), et un échantillon de 31 fichiers confirmé par import réel dans Odoo 20. `node tests/bench_dataset.js "chemin/fichiers FECS"` puis `python3 tests/bench_measure.py`.
 
 ## Limites
 
