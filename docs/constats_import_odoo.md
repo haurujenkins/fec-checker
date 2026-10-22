@@ -224,7 +224,7 @@ Fichiers synthétiques uniquement (`tests/fixtures/editeurs`, `tests/fixtures/va
 Jeu fourni : 400 FEC corrects imitant 17 styles d'export (Sage 100, Sage 50 / Ciel, Cegid Quadra et Loop, EBP, Odoo, Pennylane, QuickBooks, Tiime, Dougs, Inqom, Axonaut, Isacompta, Agiris, ACD / Coala, variante Montant / Sens) et, pour chacun, une copie avec 1 à 4 erreurs connues (52 types, 1 567 erreurs). Script : `tests/bench_dataset.js` puis `tests/bench_measure.py`.
 - Avant : 110 FEC corrects jugés « déconseillés » (montant en devise non signé sur les lignes au crédit), 9 plantages (en-tête répété au milieu du fichier), règles comptables absentes.
 - Après : 400 / 400 FEC corrects « Importable tel quel », aucun plantage ; 1 545 / 1 567 erreurs détectées (98,6 %), les écarts restants étant surtout des différences de numéro de ligne dans la mesure.
-- Règles ajoutées : même numéro pour plusieurs écritures, écritures en double, numérotation non chronologique, écritures avant l'ouverture, charges / produits dans les à-nouveaux, 12x hors à-nouveaux, écriture sans banque dans un journal de banque, ventes au sens inversé, taux de TVA inhabituel, codes journal mal saisis, encodage mixte, lignes à plus de 18 champs, séparateur final, espaces sur tous les champs, PieceDate > 60 jours après l'écriture, DateLet avant l'écriture, auxiliaire sur compte non collectif, comptes de classe 0 / 8 / 9, lettrage sur charges / produits, montant à une décimale.
+- Règles ajoutées : même numéro pour plusieurs écritures, écritures en double, numérotation non chronologique, écritures avant l'ouverture, charges / produits dans les à-nouveaux, 12x hors à-nouveaux, écriture sans banque dans un journal de banque, ventes au sens inversé, taux de TVA inhabituel, codes journal mal saisis, encodage mixte, lignes à plus de 18 champs, séparateur final, espaces sur tous les champs, PieceDate > 30 jours après l'écriture (60 jours avant le 22/10), DateLet avant l'écriture, auxiliaire sur compte non collectif, comptes de classe 0 / 8 / 9, lettrage sur charges / produits, montant à une décimale.
 - Vérifié dans Odoo 20 (société magasin-mcp uniquement, la seconde société de la base n'a pas été touchée) :
   - 16 FEC corrects, un par style : import, comptabilisation, total débit = total crédit = total du fichier, aucune erreur ;
   - 9 FEC erronés jugés importables : importés, totaux identiques ;
@@ -267,3 +267,11 @@ Corrections de la page issues de ces tests :
 - lignes écrites avec un autre séparateur : redécoupées dans le fichier de reprise ;
 - en-tête répété au milieu du fichier : signalé une seule fois, retiré du fichier de reprise (3 fichiers vérifiés dans Odoo après coup) ;
 - banc des 400 paires relancé : 400 / 400 corrects « Importable tel quel », 1 546 / 1 567 erreurs détectées, aucun plantage.
+
+## Banc : non-détections restantes (22/10/2026)
+Banc relancé sur les 295 paires dont les FEC sont dans le dossier partagé (105 paires sans fichier) : 1 128 / 1 142 avant, **1 142 / 1 142 après**, 295 / 295 corrects toujours « Importable tel quel », aucun point nouveau sur les FEC corrects.
+- F16 encodage mixte : Odoo et la page lisent en ISO-8859-15, où l'octet A8 donne « š » et non « ¨ ». Une ligne UTF-8 avec « è » (« Règlement ») n'était pas reconnue comme du mojibake, et pouvait même faire classer ses voisines à tort. Les huit caractères propres à ISO-8859-15 (€ Š š Ž ž Œ œ Ÿ) sont ajoutés au motif. Une ligne sans aucun accent reste indétectable par nature.
+- C06 PieceDate très postérieure : seuil abaissé de 60 à 30 jours (cas manqué à 54 jours). Sur les 400 FEC corrects, l'écart maximal est sous 10 jours. Le seuil fait aussi ressortir les ruptures de chronologie C03.
+- C20 compte 12x mouvementé en cours d'exercice : la règle ne tournait que si le fichier avait un journal d'à-nouveaux. Elle tourne maintenant toujours (alerte « à vérifier » ; l'affectation du résultat en OD reste normale).
+- F30 et F14 : déjà détectés, la mesure ne les voyait pas. Une écriture déséquilibrée indique désormais « lignes X à Y » au lieu de la seule première ligne, et la mesure accepte le décalage de numérotation des lignes vides injectées.
+

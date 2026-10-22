@@ -127,7 +127,7 @@ Source : Test Compta Démat 1.00.10b, code Perl (`trt_txt.pl`, `trt_entete.pl`, 
 
 ## 9. Pistes pour la suite
 - **Points ouverts** :
-  - Les codes d'erreur C03 (rupture de chronologie), C06, C20, F14, F16 et F30 ont quelques non-détections au banc, à vérifier une par une.
+  - ~~Non-détections C03, C06, C20, F14, F16 et F30 au banc~~ : traitées le 22/10 (1 142 / 1 142 sur les 295 paires disponibles, voir `constats_import_odoo.md`). Rejouer le banc complet quand les 105 paires manquantes seront dans le dossier partagé.
   - Les F04 avec JournalCode mal nommée (exemple : en-tête « Journal ») ne peuvent pas avoir de fichier de reprise aujourd'hui. On pourrait proposer un renommage d'en-tête validé par l'utilisateur.
   - Le verdict « À corriger » est prudent quand Montantdevise est présent sans Idevise : Odoo a importé correctement le fichier E_P0037. Ce point est à confirmer sur plus de cas.
 - **Possible** : tester l'import du fichier de reprise directement depuis la page via le bouton Importer d'Odoo (UI), et pas seulement par RPC.
