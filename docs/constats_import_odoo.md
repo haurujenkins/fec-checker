@@ -269,7 +269,7 @@ Corrections de la page issues de ces tests :
 - banc des 400 paires relancé : 400 / 400 corrects « Importable tel quel », 1 546 / 1 567 erreurs détectées, aucun plantage.
 
 ## Banc : non-détections restantes (22/10/2026)
-Banc relancé sur les 295 paires dont les FEC sont dans le dossier partagé (105 paires sans fichier) : 1 128 / 1 142 avant, **1 142 / 1 142 après**, 295 / 295 corrects toujours « Importable tel quel », aucun point nouveau sur les FEC corrects.
+Banc relancé sur les 295 paires dont les FEC sont dans le dossier partagé (105 paires sans fichier) : 1 128 / 1 142 avant, **1 142 / 1 142 après**, 295 / 295 corrects toujours « Importable tel quel », aucun point nouveau sur les FEC corrects. Dix paires de plus (P0391 à P0400, FEC erronés fournis à part) : 45 / 45 erreurs détectées, 10 / 10 corrects « Importable tel quel ». Total : 1 187 / 1 187 sur 305 paires.
 - F16 encodage mixte : Odoo et la page lisent en ISO-8859-15, où l'octet A8 donne « š » et non « ¨ ». Une ligne UTF-8 avec « è » (« Règlement ») n'était pas reconnue comme du mojibake, et pouvait même faire classer ses voisines à tort. Les huit caractères propres à ISO-8859-15 (€ Š š Ž ž Œ œ Ÿ) sont ajoutés au motif. Une ligne sans aucun accent reste indétectable par nature.
 - C06 PieceDate très postérieure : seuil abaissé de 60 à 30 jours (cas manqué à 54 jours). Sur les 400 FEC corrects, l'écart maximal est sous 10 jours. Le seuil fait aussi ressortir les ruptures de chronologie C03.
 - C20 compte 12x mouvementé en cours d'exercice : la règle ne tournait que si le fichier avait un journal d'à-nouveaux. Elle tourne maintenant toujours (alerte « à vérifier » ; l'affectation du résultat en OD reste normale).
