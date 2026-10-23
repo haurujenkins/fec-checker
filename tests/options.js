@@ -10,7 +10,7 @@ const s=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1];
 const els={};global.document={getElementById:id=>els[id]||(els[id]={addEventListener(){},set innerHTML(v){this._h=v},get innerHTML(){return this._h||''},className:'',textContent:''}),createElement:()=>({}),body:{appendChild(){},removeChild(){}},addEventListener(){},querySelector:()=>null};global.window={};
 global.XLSX=require('xlsx');global.navigator={};
 global.FileReader=class{readAsArrayBuffer(f){setTimeout(()=>{this.result=f._buf;this.onload();},0);}};
-eval(s+';global.T_={handleFiles,render,planOf,reports:()=>REPORTS,opts:()=>OPTS};');
+eval(s+';global.T_={handleFiles,render,planOf,reports:()=>REPORTS,opts:()=>OPTS,combined};');
 const F=path.join(__dirname,'fixtures'),F24=path.join(F,'123456789FEC20241231.txt'),F25=path.join(F,'123456789FEC20251231.txt');
 // Exercice 2026 fictif, tiré de 2025 (mêmes numéros de pièce, à-nouveaux = clôture 2025)
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'fec-opt-'));
@@ -72,11 +72,21 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   set(T_.reports()[0],{prefixOn:false});
   ok('deux exercices : sans aucun préfixe, la collision redevient un point Odoo',()=>{const R0=T_.reports()[0];assert.ok(T_.planOf(R0).g.odoo.some(i=>/en commun entre/.test(i.title)));});
 
+  ok('deux exercices : un seul fichier de reprise combiné, dans l’ordre, sans collision',()=>{set(T_.reports()[0],{prefixOn:true});set(T_.reports()[1],{prefixOn:true,dropAN:true});const C=T_.combined(T_.reports());assert.ok(C.ok);assert.strictEqual(C.lines,9);assert.ok(C.map);assert.strictEqual(C.name,'123456789_reprise_odoo_2024-2025.txt');
+    const L=C.text.trim().split('\r\n').slice(1).map(l=>l.split('\t'));assert.deepStrictEqual(L.map(l=>l[3]),[...L.map(l=>l[3])].sort());const k=new Map();for(const l of L){const key=l[0]+'/'+l[2];k.set(key,(k.get(key)||new Set()).add(l[3].slice(0,4)));}assert.ok([...k.values()].every(v=>v.size===1));assert.deepStrictEqual(bal([{_fix:{text:C.text}}]),srcBal(F25));});
+  set(T_.reports()[0],{prefixOn:false});set(T_.reports()[1],{prefixOn:false});
+  ok('deux exercices sans préfixe : fichier combiné refusé, motif donné',()=>{const C=T_.combined(T_.reports());assert.strictEqual(C.ok,false);assert.ok(C.why.some(w=>/préfixe/.test(w)));});
+  set(T_.reports()[1],{prefixOn:true,dropAN:false});
+  ok('deux exercices, à-nouveaux gardés dans le second : fichier combiné refusé',()=>{const C=T_.combined(T_.reports());assert.strictEqual(C.ok,false);assert.ok(C.why.some(w=>/à-nouveaux/.test(w)));});
   Rs=await load([F26,F24,F25]);
   ok('trois exercices : à-nouveaux retirés des deux derniers seulement',()=>assert.deepStrictEqual(Rs.map(r=>lines(r).filter(l=>l[0]==='AN').length),[2,0,0]));
   ok('trois exercices : trois préfixes distincts, aucune pièce commune',()=>{assert.deepStrictEqual(Rs.map(r=>r._fix.opts.prefix),['2024-','2025-','2026-']);const all=Rs.map(nums);for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)assert.ok(![...all[j]].some(k=>all[i].has(k)));});
   ok('trois exercices : bilan importé = bilan de clôture 2026',()=>assert.deepStrictEqual(bal(Rs),srcBal(F26)));
   ok('trois exercices : intégrité réussie pour chaque fichier',()=>assert.ok(Rs.every(r=>r._fix.integrity.ok)));
+  ok('trois exercices : fichier combiné = bilan de clôture 2026',()=>{const C=T_.combined(Rs);assert.ok(C.ok);assert.strictEqual(C.lines,Rs.reduce((t,r)=>t+lines(r).length,0));assert.deepStrictEqual(bal([{_fix:{text:C.text}}]),srcBal(F26));
+    fs.writeFileSync(path.join(tmp,C.name),C.text);});
+  [R]=await load([path.join(tmp,'123456789_reprise_odoo_2024-2026.txt')]);
+  ok('fichier combiné réanalysé par la page : rien à corriger',()=>{assert.strictEqual(T_.planOf(R).title,'Importable tel quel');assert.ok(!R.issues.some(i=>/chronologique|Plusieurs exercices|en double/.test(i.title)));});
 
   // ---------- Tous les exercices dans un seul fichier ----------
   const body=p=>fs.readFileSync(p,'utf8').trim().split(/\r?\n/).slice(1);
