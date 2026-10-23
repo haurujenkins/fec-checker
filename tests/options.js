@@ -147,6 +147,33 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   R=set(R,{collect:false});
   ok('tiers : lettres sur des comptes distincts laissées telles quelles',()=>assert.deepStrictEqual(lines(R).filter(l=>/^411/.test(l[4])).map(l=>l[13]),['A','A','A','A']));
 
+  // Lettrage sur deux exercices : Odoo lettre par compte + lettre, tous exercices confondus
+  const LD=path.join(tmp,'let2');fs.mkdirSync(LD,{recursive:true});
+  const L24=path.join(LD,'123456789FEC20241231.txt'),L25=path.join(LD,'123456789FEC20251231.txt');
+  fs.writeFileSync(L24,[H,
+   'VT|Ventes|1|20240110|411000|Clients|C2|Client Deux|FA1|20240110|Facture|100,00|0,00|A|20240228|20240131||',
+   'VT|Ventes|1|20240110|706000|Prestations|||FA1|20240110|Facture|0,00|100,00|||20240131||',
+   'BQ|Banque|1|20240228|411000|Clients|C2|Client Deux|RG1|20240228|Reglement|0,00|100,00|A|20240228|20240228||',
+   'BQ|Banque|1|20240228|512000|Banque|||RG1|20240228|Reglement|100,00|0,00|||20240228||',
+   'VT|Ventes|2|20241215|411000|Clients|C2|Client Deux|FA2|20241215|Facture|80,00|0,00|B|20250115|20241231||',
+   'VT|Ventes|2|20241215|706000|Prestations|||FA2|20241215|Facture|0,00|80,00|||20241231||'].join('\r\n')+'\r\n');
+  fs.writeFileSync(L25,[H,
+   'AN|A-nouveaux|1|20250101|411000|Clients|C2|Client Deux|-|20250101|A nouveaux|80,00|0,00|B|20250115|20250101||',
+   'AN|A-nouveaux|1|20250101|120000|Resultat|||-|20250101|A nouveaux|0,00|80,00|||20250101||',
+   'BQ|Banque|1|20250115|411000|Clients|C2|Client Deux|RG2|20250115|Reglement|0,00|80,00|B|20250115|20250115||',
+   'BQ|Banque|1|20250115|512000|Banque|||RG2|20250115|Reglement|80,00|0,00|||20250115||',
+   'VT|Ventes|2|20250310|411000|Clients|C2|Client Deux|FA3|20250310|Facture|50,00|0,00|A|20250410|20250331||',
+   'VT|Ventes|2|20250310|706000|Prestations|||FA3|20250310|Facture|0,00|50,00|||20250331||',
+   'BQ|Banque|2|20250410|411000|Clients|C2|Client Deux|RG3|20250410|Reglement|0,00|50,00|A|20250410|20250410||',
+   'BQ|Banque|2|20250410|512000|Banque|||RG3|20250410|Reglement|50,00|0,00|||20250410||'].join('\r\n')+'\r\n');
+  let [A24,A25]=await load([L24,L25]);A24=set(A24,{prefixOn:true,prefix:'2024'});A25=set(A25,{prefixOn:true,prefix:'2025',dropAN:true});
+  const lets=R=>lines(R).filter(l=>l[13]).map(l=>l[13]);
+  ok('lettrage : lettre soldée dans son exercice préfixée par l’exercice',()=>{assert.deepStrictEqual(lets(A24),['2024-A','2024-A','B']);assert.deepStrictEqual(lets(A25),['B','2025-A','2025-A']);});
+  ok('lettrage : facture 2024 réglée en 2025, lettre commune gardée',()=>assert.ok(lets(A24).includes('B')&&lets(A25).includes('B')));
+  ok('lettrage : montants contrôlés au centime',()=>{assert.ok(A24._fix.integrity.ok);assert.ok(A25._fix.integrity.ok);});
+  A24=set(A24,{prefixOn:false});
+  ok('lettrage : sans préfixe d’exercice, lettres inchangées',()=>assert.deepStrictEqual(lets(A24),['A','A','B']));
+
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
 })().catch(e=>{console.error('✗ '+e.message);process.exit(1);});

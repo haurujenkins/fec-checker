@@ -1113,6 +1113,11 @@ function fixFEC(rows,hints){
     if(an.length&&d===cr){const A=new Set(an);kept=out.filter(o=>!A.has(o));drop={n:an.length,d,c:cr,j:[...AN].join(', ')};for(const o of an)corr.push([o._ln,'ligne retirée',`journal ${o.JournalCode} (à-nouveaux)`,'']);c(later?`Écritures d’à-nouveaux des exercices suivants retirées (journal ${drop.j}, ${[...new Set(an.map(o=>EX[o._exo].label))].join(', ')}) : ceux du premier exercice sont gardés`:`Écritures d’à-nouveaux retirées (journal ${drop.j}) : l’exercice précédent est importé dans la même base`,'map',an.length);}
     else if(an.length)left.push(`À-nouveaux non retirés : ${fmtE(d)} € au débit pour ${fmtE(cr)} € au crédit, le fichier serait déséquilibré`);}
   const pf=String(opts.prefix||'').replace(/["\t|]/g,'').trim().slice(0,12);let pfx=pf?pf+(/[-_/. ]$/.test(pf)?'':'-'):'';
+  // Odoo lettre par compte + lettre, tous exercices confondus : une lettre soldée dans son exercice reçoit le préfixe de l'exercice ; une lettre soldée seulement sur deux exercices (facture réglée l'année suivante) reste commune
+  if(pfx){const lab=o=>EX?EX[o._exo].label+'-':pfx,key=o=>o.CompteNum+'\u0001'+o.EcritureLet+'\u0001'+lab(o),s=new Map();
+    for(const o of kept)if(o.EcritureLet)s.set(key(o),(s.get(key(o))||0)+(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0));
+    let n=0;for(const o of kept)if(o.EcritureLet&&s.get(key(o))===0){const nw=lab(o)+o.EcritureLet;corr.push([o._ln,'EcritureLet',o.EcritureLet,nw]);o.EcritureLet=nw;n++;}
+    if(n)c(`Lettres soldées dans leur exercice préfixées par l’exercice : Odoo ne lettre pas ensemble les mêmes lettres de deux exercices (une lettre soldée seulement sur deux exercices reste commune)`,'opt',n);}
   if(pfx&&EX){let n=0;for(const o of kept)if(o.EcritureNum){o.EcritureNum=EX[o._exo].label+'-'+o.EcritureNum;n++;}pfx='exercice:'+EX.map(e=>e.label).join(',');if(n)c(`Préfixe de l’exercice (${EX.map(e=>e.label+'-').join(', ')}) ajouté aux numéros d’écriture : les pièces de deux exercices ne se mélangent pas`,'opt',n);}
   else if(pfx){let n=0;for(const o of kept)if(o.EcritureNum){o.EcritureNum=pfx+o.EcritureNum;n++;}if(n)c(`Préfixe « ${pfx} » ajouté aux numéros d’écriture : les pièces de deux exercices ne se mélangent pas`,'opt',n);}
   // Contrôle d'intégrité : mêmes lignes, mêmes montants, mêmes dates, dans le même ordre (hors à-nouveaux retirés à la demande)
