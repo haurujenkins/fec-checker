@@ -173,6 +173,22 @@ main>*,.results>*,#reports>*,.report>*,.detailin>*,.group>*{min-width:0}
 .fixbox .legal{color:var(--muted);font-size:.84rem}
 .confirm{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
 .confirm input{margin-top:4px;accent-color:var(--accent)}
+.acts{display:grid;gap:8px;margin:2px 0 6px}
+.act{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;background:var(--surface)}
+.act.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.act.lock{background:var(--sunk);box-shadow:none;border-color:var(--line)}
+.act.soon{opacity:.6;border-style:dashed}
+.act .opt b{font-weight:600}
+.act .opt>input:disabled{cursor:default}
+.atag{display:inline-block;font-size:.72rem;font-weight:600;background:var(--sunk);color:var(--muted);padding:1px 8px;border-radius:999px;margin-left:4px;vertical-align:1px}
+.act.lock .atag{background:var(--ok-bg);color:var(--ok)}
+.aw{display:block;color:var(--warn);margin-top:2px}
+.amore{margin-left:26px;font-size:.88rem}
+.amore summary{cursor:pointer;color:var(--accent)}
+.amore>div{display:grid;gap:6px;margin-top:6px}
+.amore ul{margin:0;padding-left:18px;display:grid;gap:2px}
+.files .fh3{margin-top:10px}
+.files>.note:first-of-type{margin:-4px 0 0}
 .opts{display:grid;gap:8px;padding:10px 0 12px;border-bottom:1px solid var(--line)}
 .opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
 .opt>input{margin-top:4px;accent-color:var(--accent)}
@@ -1327,27 +1343,41 @@ function summaryHTML(R,P,useAlt){
   const shown=key.slice(0,6);
   const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map');
   const files=[];
-  if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo</b><span>${I.ok?(I.dropped?(F.opts.later?'Même contenu sans les à-nouveaux des exercices suivants, au format':'Même contenu sans les à-nouveaux, au format')+' attendu par Odoo. Montants contrôlés au centime.':'Même contenu, au format attendu par Odoo. Montants contrôlés au centime.'):'Bloqué : le contrôle d’intégrité a échoué.'}</span>${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de reprise validées avec le client</label>`:''}</div><button class="btn${useAlt?'':' primary'}" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
+  if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo</b><span>${I.ok?(I.dropped?'Le FEC avec les actions cochées. Montants contrôlés au centime, à-nouveaux retirés.':'Le FEC avec les actions cochées. Montants contrôlés au centime.'):'Bloqué : le contrôle d’intégrité a échoué.'}</span>${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de reprise validées avec le client</label>`:''}</div><button class="btn${useAlt?'':' primary'}" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
   if(F&&F.corr.length)files.push(`<li><div><b>Table de correspondance</b><span>Chaque changement de code, ligne par ligne, pour l’expert-comptable.</span></div><button class="btn" type="button" data-dl="corr" data-r="${R._id}">Télécharger</button></li>`);
   if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
   const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
   return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${verT.slice(0,3).map(esc).join(', ')}${verT.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
-${files.length||F?`<section class="files"><h3>Fichiers à télécharger</h3>${F?optsHTML(R):''}${files.length?`<ul>${files.join('')}</ul>`:''}<p class="note">Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p></section>`:''}`;
+${files.length||F?`<section class="files">${F?`<h3>Préparer le fichier pour Odoo</h3><p class="note">Cochez ce que le fichier de reprise doit faire. Les montants ne changent jamais.</p>${optsHTML(R)}`:''}${files.length?`<h3 class="fh3">Fichiers à télécharger</h3><ul>${files.join('')}</ul>`:''}<p class="note">Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p></section>`:''}`;
 }
 function optsHTML(R){
-  const F=R._fix,O=R._opts||{},EX=R.hints&&R.hints.exos,later=EX&&!R._dropAll;
+  const F=R._fix,O=R._opts||{},EX=R.hints&&R.hints.exos,later=EX&&!R._dropAll,id=R._id;
   const nAN=F.out.filter(o=>o._an&&(!later||o._exo>0)).length,ex=F.out.find(o=>o._num&&!o._an)||F.out.find(o=>o._num);
   const pf=O.prefix?O.prefix+(/[-_/. ]$/.test(O.prefix)?'':'-'):'';
-  const demo=ex?`La pièce « ${esc(ex.JournalCode)} ${esc(ex._num)} » devient « ${esc(ex.JournalCode)} ${esc((EX?EX[ex._exo].label+'-':pf)+ex._num)} ». `:'';
-  const CA=F.collAcc,acc=CA.slice(0,6).map(esc).join(', ')+(CA.length>6?` … (+${CA.length-6})`:'');
-  const tiers=F.nQuadra||F.nColl?`<div class="opts"><p class="hl">Comptes de tiers <span>options du fichier de reprise</span></p>
-${F.nColl?`<label class="opt"><input type="checkbox" data-opt="collect" data-r="${R._id}"${F.opts.collect?' checked':''}><span>Regrouper tous les clients et fournisseurs sur le compte collectif d’Odoo (${acc} : ${F.nColl.toLocaleString('fr-FR')} ligne${F.nColl>1?'s':''})<small>Comptes propres à chaque tiers et comptes collectifs du FEC portant un tiers : le tiers devient un partenaire Odoo. Sinon l’historique reste sur ces comptes et les nouvelles factures du même tiers vont sur le compte par défaut : deux comptes pour un même client.</small></span></label>`:''}
-${F.nQuadra?`<p class="exos">Les tiers rangés dans les numéros de compte (0… / 9…) sont toujours remis sur ces comptes (${F.nQuadra.toLocaleString('fr-FR')} ligne${F.nQuadra>1?'s':''}) : sinon Odoo en ferait des comptes d’actif sans partenaire ni lettrage.</p>`:''}
-<label class="opt"><span>Compte clients <input class="pfx" type="text" data-opt="recv" data-r="${R._id}" value="${esc(F.opts.recv)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte clients"> fournisseurs <input class="pfx" type="text" data-opt="pay" data-r="${R._id}" value="${esc(F.opts.pay)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte fournisseurs"><small>Les comptes par défaut des partenaires dans Odoo : 411100 et 401100 dans le plan comptable français. Indiquer ceux de la base cible s’ils ont été changés.</small></span></label></div>`:'';
-  return tiers+`<div class="opts"><p class="hl">Import de plusieurs exercices <span>options du fichier de reprise</span></p>
-${EX?`<p class="exos">Ce fichier contient ${EX.length} exercices : ${EX.map(e=>esc(e.label)).join(', ')}.</p>`:''}
-<label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${R._id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice (${EX.map(e=>esc(e.label)+'-').join(', ')})`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${R._id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}<small>${demo}Sans préfixe, Odoo fusionne les pièces de même journal et même numéro d’un exercice à l’autre. Le préfixe de document de l’assistant reste alors vide.</small></span></label>
-${R.hasAN&&nAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${R._id}"${O.dropAN?' checked':''}><span>${later?`Retirer les à-nouveaux des exercices suivants (journal ${esc(R.anJournals.join(', '))}, ${nAN.toLocaleString('fr-FR')} ligne${nAN>1?'s':''})`:`Retirer les écritures d’à-nouveaux (journal ${esc(R.anJournals.join(', '))}, ${nAN.toLocaleString('fr-FR')} ligne${nAN>1?'s':''})`}<small>${later?'Ceux du premier exercice sont gardés : ils ouvrent les comptes. Les suivants reprennent des soldes déjà importés avec l’exercice précédent : gardés, les soldes de bilan et le résultat seraient comptés deux fois.':'Seulement si l’exercice précédent est importé dans la même base : sinon les soldes de bilan et le résultat sont comptés deux fois.'} Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>${O.dropAN&&!F.opts.dropAN&&F.left.length?`<p class="warnline">${esc(F.left.find(x=>/^À-nouveaux/.test(x))||'')}</p>`:''}`:''}</div>`;
+  const ch=Object.entries(F.changes),TIERS=/^(Écritures d’à-nouveaux|Comptes de tiers individuels regroupés|Comptes collectifs (clients|fournisseurs) reportés|Lettres de lettrage partagées)/;
+  const fmt=ch.filter(([k,v])=>v.kind==='fmt'),map=ch.filter(([k,v])=>v.kind==='map'&&!TIERS.test(k));
+  const nb=n=>n.toLocaleString('fr-FR'),cut=k=>esc(k.replace(/ \(.*\)$/,''));
+  const act=(on,lock,opt,title,body,more,tag)=>`<div class="act${on?' on':''}${lock?' lock':''}"><label class="opt"><input type="checkbox"${opt?` data-opt="${opt}" data-r="${id}"`:''}${on?' checked':''}${lock?' disabled':''}><span><b>${title}</b>${tag?` <span class="atag">${tag}</span>`:''}<small>${body}</small></span></label>${more?`<details class="amore"><summary>${more[0]}</summary><div>${more[1]}</div></details>`:''}</div>`;
+  // 1. Toujours appliqué : la mise au format, sans toucher aux écritures
+  const a1=act(true,true,'','1. Rendre le fichier importable',
+    (fmt.length?`${fmt.length} correction${fmt.length>1?'s':''} de format : ${fmt.slice(0,3).map(([k])=>cut(k).toLowerCase()).join(', ')}${fmt.length>3?'…':''}. Aucune écriture modifiée.`:'Le format est déjà celui qu’attend Odoo.')+(map.length?` <span class="aw">Et ${map.length} code${map.length>1?'s':''} à adapter pour Odoo, à faire valider : ${map.map(([k])=>cut(k).toLowerCase()).join(', ')}.</span>`:''),
+    fmt.length+map.length?['Voir le détail',`<ul>${[...fmt,...map].map(([k,v])=>`<li>${esc(k)} <span class="count">${nb(v.n)}</span></li>`).join('')}</ul>`]:null,'toujours appliqué');
+  // 2. Comptes de tiers
+  const accs=F.collAcc||[],accTxt=accs.slice(0,3).map(esc).join(', ')+(accs.length>3?'…':'');
+  const a2=F.nColl?act(F.opts.collect,false,'collect',`2. Rassembler les clients et fournisseurs sur ${esc(F.opts.recv)} / ${esc(F.opts.pay)}`,
+    `${nb(accs.length)} compte${accs.length>1?'s':''} de tiers (${accTxt}) : chaque tiers devient un partenaire Odoo, sur un seul compte clients et un seul compte fournisseurs.`,
+    ['Changer les comptes cibles',`<label class="opt"><span>Clients <input class="pfx" type="text" data-opt="recv" data-r="${id}" value="${esc(F.opts.recv)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte clients"> Fournisseurs <input class="pfx" type="text" data-opt="pay" data-r="${id}" value="${esc(F.opts.pay)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte fournisseurs"><small>Les comptes par défaut des partenaires dans Odoo (411100 et 401100 dans le plan français). À changer seulement si la base cible en utilise d’autres.</small></span></label>`]):'';
+  // 3. Plusieurs exercices : préfixe + retrait des à-nouveaux
+  const hasAN=R.hasAN&&nAN,on3=O.prefixOn&&(!hasAN||O.dropAN),part=!on3&&(O.prefixOn||(hasAN&&O.dropAN));
+  const demo=ex?`« ${esc(ex.JournalCode)} ${esc(ex._num)} » devient « ${esc(ex.JournalCode)} ${esc((EX?EX[ex._exo].label+'-':pf||(O.prefix||'2025')+'-')+ex._num)} »`:'';
+  const why3=EX?`Ce fichier contient ${EX.length} exercices (${EX.map(e=>esc(e.label)).join(', ')}). Chaque pièce est préfixée par son exercice (${demo})${hasAN?` et les à-nouveaux des exercices suivants sont retirés (${nb(nAN)} ligne${nAN>1?'s':''})`:''}.`
+    :`À cocher si l’exercice précédent est importé dans la même base. Les pièces sont préfixées par l’année (${demo})${hasAN?` et les à-nouveaux sont retirés (${nb(nAN)} ligne${nAN>1?'s':''}, journal ${esc(R.anJournals.join(', '))})`:''}. Sinon Odoo fusionne des pièces d’un exercice à l’autre${hasAN?' et compte deux fois les soldes':''}.`;
+  const tune=`<label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}</span></label>${hasAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${id}"${O.dropAN?' checked':''}><span>${later?'Retirer les à-nouveaux des exercices suivants':'Retirer les écritures d’à-nouveaux'}<small>Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>`:''}`;
+  const a3=act(on3,false,'multi','3. Préparer l’import de plusieurs exercices',why3,['Régler séparément',tune],part?'en partie':(EX||R._dropAll||on3)&&O.prefixOn?'coché d’office':'')
+    +(O.dropAN&&!F.opts.dropAN&&F.left.length?`<p class="warnline">${esc(F.left.find(x=>/^À-nouveaux/.test(x))||'')}</p>`:'');
+  // 4. Emplacement prévu
+  const a4=`<div class="act soon"><label class="opt"><input type="checkbox" disabled><span><b>4. Traiter la TVA sur encaissements</b> <span class="atag">bientôt</span><small>Retirer les factures non réglées à la clôture et produire le fichier pour les recréer dans Odoo.</small></span></label></div>`;
+  return `<div class="acts">${a1}${a2}${a3}${a4}</div>`;
 }
 function altHTML(R,P){
   const o=R._open;if(!o)return '';
@@ -1464,6 +1494,7 @@ document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm
 document.addEventListener('change',ev=>{const o=ev.target.closest('[data-opt]');if(!o)return;const R=REPORTS[+o.dataset.r];if(!R)return;
   const O=OPTS[R.name]={...R._opts},k=o.dataset.opt;
   if(k==='prefix'){O.prefix=o.value.replace(/["\t|]/g,'').trim().slice(0,12);O.prefixOn=!!O.prefix;}
+  else if(k==='multi'){O.prefixOn=o.checked;O.dropAN=o.checked;}
   else if(k==='recv'||k==='pay'){const v=o.value.trim();if((k==='recv'?/^41\d{1,10}$/:/^40\d{1,10}$/).test(v))O[k]=v;}else O[k]=o.checked;
   const y=window.scrollY;render(REPORTS);window.scrollTo(0,y);const f=document.querySelector(`.files [data-opt="${k}"][data-r="${R._id}"]`);if(f)f.focus();});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;const R=REPORTS[+b.dataset.r];if(!R)return;
