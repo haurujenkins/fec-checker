@@ -822,6 +822,35 @@
    ]
   }
  ],
+ "tests/fixtures/variantes/dates_meme_mois.txt": [
+  {
+   "name": "dates_meme_mois.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Écritures avec plusieurs dates (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/dates_mois_differents.txt": [
+  {
+   "name": "dates_mois_differents.txt",
+   "verdict": "À corriger avant import",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] ValidDate antérieure à EcritureDate (1)",
+    "[warn] Écritures avec plusieurs dates sur des mois différents (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/variantes/journal_libelles_differents.txt": [
   {
    "name": "journal_libelles_differents.txt",
