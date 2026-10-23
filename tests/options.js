@@ -32,16 +32,17 @@ const lines=R=>R._fix.text.trim().split('\r\n').slice(1).map(l=>l.split('\t'));
 const nums=R=>new Set(lines(R).map(l=>l[0]+'/'+l[2]));
 const bal=Rs=>{const b={};for(const R of Rs)for(const l of lines(R)){const a=l[4];if(!/^[1-5]/.test(a)||/^12/.test(a))continue;b[a]=(b[a]||0)+amt(l[11])-amt(l[12]);}for(const k in b)if(!b[k])delete b[k];return b;};
 const amt=x=>Math.round(parseFloat(String(x||'0').replace(',','.'))*100);
-const srcBal=p=>{const b={};for(const l of fs.readFileSync(p,'utf8').trim().split(/\r?\n/).slice(1).map(l=>l.split('|'))){const a=l[4];if(!/^[1-5]/.test(a)||/^12/.test(a))continue;b[a]=(b[a]||0)+amt(l[11])-amt(l[12]);}for(const k in b)if(!b[k])delete b[k];return b;};
+// Comptes collectifs avec tiers reportés sur le compte par défaut d’Odoo, comme le fait le fichier de reprise
+const srcBal=p=>{const b={};for(const l of fs.readFileSync(p,'utf8').trim().split(/\r?\n/).slice(1).map(l=>l.split('|'))){const a=/^4[01]10*$/.test(l[4])&&l[6]?(l[4][1]==='0'?'401100':'411100'):l[4];if(!/^[1-5]/.test(a)||/^12/.test(a))continue;b[a]=(b[a]||0)+amt(l[11])-amt(l[12]);}for(const k in b)if(!b[k])delete b[k];return b;};
 let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
 
 (async()=>{
   // ---------- Un seul exercice déposé ----------
   let [R]=await load([F25]);
-  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false,recv:'411100',pay:'401100'});});
+  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false,recv:'411100',pay:'401100',collect:true});});
   ok('un exercice : numéros bruts et à-nouveaux gardés',()=>{assert.deepStrictEqual(lines(R).map(l=>l[2]),['1','1','1','1','2','2']);assert.strictEqual(lines(R).filter(l=>l[0]==='AN').length,4);});
   ok('un exercice : préfixe proposé = année de clôture',()=>assert.strictEqual(R._opts.prefix,'2025'));
-  R=set(R,{prefixOn:true});
+  R=set(R,{prefixOn:true,collect:false});
   ok('un exercice : préfixe coché → « 2025-1 », PieceRef inchangé, aucune validation exigée',()=>{assert.deepStrictEqual([...new Set(lines(R).map(l=>l[2]))],['2025-1','2025-2']);assert.deepStrictEqual(lines(R).map(l=>l[8]),['-','-','-','-','AC1','AC1']);assert.ok(!Object.values(R._fix.changes).some(v=>v.kind==='map'));assert.ok(R._fix.integrity.ok);});
   R=set(R,{prefix:'EX25/'});
   ok('un exercice : préfixe saisi qui finit par un séparateur gardé tel quel',()=>assert.strictEqual(lines(R)[0][2],'EX25/1'));
@@ -112,6 +113,22 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   R=set(R,{recv:'411000',pay:'401000'});
   ok('tiers : compte cible modifiable',()=>assert.deepStrictEqual(tl(R),['411000 411CELINE','401000 FOURN']));
   ok('tiers : montants inchangés',()=>assert.deepStrictEqual(lines(R).map(l=>l[11]+'/'+l[12]),['120,00/0,00','0,00/120,00','0,00/60,00','60,00/0,00']));
+
+  // Compte individuel avec CompAuxNum déjà rempli, et compte collectif 411000 / 401000 du FEC
+  const FC=path.join(tmp,'coll','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FC),{recursive:true});fs.writeFileSync(FC,[H,
+   'VT|Ventes|1|20250105|411CELINE|Celine Dion|CD|Celine Dion|FA1|20250105|Facture|120,00|0,00|||20250131||',
+   'VT|Ventes|1|20250105|706000|Prestations|||FA1|20250105|Facture|0,00|120,00|||20250131||',
+   'VT|Ventes|2|20250107|411000|Clients|C2|Client Deux|FA2|20250107|Facture|50,00|0,00|||20250131||',
+   'VT|Ventes|2|20250107|706000|Prestations|||FA2|20250107|Facture|0,00|50,00|||20250131||',
+   'HA|Achats|1|20250106|401|Fournisseurs|F1|Fournisseur Un|FF1|20250106|Facture|0,00|60,00|||20250131||',
+   'HA|Achats|1|20250106|606400|Fournitures|||FF1|20250106|Facture|60,00|0,00|||20250131||',
+   'HA|Achats|2|20250108|401700|Retenues|F1|Fournisseur Un|FF2|20250108|Retenue|0,00|10,00|||20250131||',
+   'HA|Achats|2|20250108|606400|Fournitures|||FF2|20250108|Retenue|10,00|0,00|||20250131||'].join('\r\n')+'\r\n');
+  [R]=await load([FC]);
+  ok('tiers : compte individuel avec CompAuxNum déjà rempli regroupé, code tiers gardé',()=>assert.deepStrictEqual(tl(R)[0],'411100 CD'));
+  ok('tiers : 411000 / 401 avec tiers reportés sur le compte par défaut, 401700 intact',()=>{assert.deepStrictEqual(tl(R).slice(1),['411100 C2','401100 F1','401700 F1']);assert.deepStrictEqual(R._fix.collAcc,['411000','401']);});
+  R=set(R,{collect:false});
+  ok('tiers : report des comptes collectifs décochable',()=>assert.deepStrictEqual(tl(R),['411100 CD','411000 C2','401000 F1','401700 F1']));
 
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
