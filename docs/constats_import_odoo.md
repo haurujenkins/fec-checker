@@ -287,3 +287,11 @@ Banc relancé sur les 295 paires dont les FEC sont dans le dossier partagé (105
 - 411000 / 401000 + tiers, 411XXX lettres et tiers 0/9 regroupés par le fichier de reprise sur 411100 / 401100 : partenaires créés, compte par défaut des partenaires = 411100 / 401100. 4110023 (tout chiffres) créé en compte client lettrable sans partenaire.
 - Lettrage : Odoo groupe par compte + lettre, pas par partenaire. Deux tiers sur 411100 avec la même lettre « A » finissent dans un seul lettrage complet. Le fichier de reprise préfixe désormais la lettre par le code du tiers quand elle est partagée.
 - Un compte 512000 absent crée aussi un journal de banque (BNK2) que la désinstallation du module ne retire pas.
+
+## TVA sur encaissements (23/10/2026, société 3)
+
+- Une facture importée par le FEC n'a pas de taxe : sa TVA reste sur 445740 / 445640 et le paiement ne la bascule jamais.
+- Une facture recréée par l'import Excel d'account.move, avec name = numéro d'origine, garde ce nom à la comptabilisation, sans erreur de séquence. La bascule CABA au paiement est conforme (445740 → 445710, 445640 → 445660). Aucun envoi d'e-mail ni de facture électronique.
+- journal_id accepte le code du journal (recherche exacte). Le journal doit être de type Ventes / Achats : un VT créé par l'import FEC en « Divers » ne peut pas recevoir de facture.
+- « 20% S » existe en vente et en achat, et l'import par nom prend la taxe d'achat. Il faut passer par tax_ids/id = account.{société}_tva_normale_encaissement / account.{société}_tva_acq_encaissement (10 / 5,5 / 2,1 % archivées par défaut).
+- Le paiement ne crée d'écriture, donc de bascule CABA, que si le journal de banque a un compte de paiement.
