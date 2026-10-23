@@ -1141,12 +1141,60 @@ function fixFEC(rows,hints){
     if(n)c(`Lettres soldées dans leur exercice préfixées par l’exercice : Odoo ne lettre pas ensemble les mêmes lettres de deux exercices (une lettre soldée seulement sur deux exercices reste commune)`,'opt',n);}
   if(pfx&&EX){let n=0;for(const o of kept)if(o.EcritureNum){o.EcritureNum=EX[o._exo].label+'-'+o.EcritureNum;n++;}pfx='exercice:'+EX.map(e=>e.label).join(',');if(n)c(`Préfixe de l’exercice (${EX.map(e=>e.label+'-').join(', ')}) ajouté aux numéros d’écriture : les pièces de deux exercices ne se mélangent pas`,'opt',n);}
   else if(pfx){let n=0;for(const o of kept)if(o.EcritureNum){o.EcritureNum=pfx+o.EcritureNum;n++;}if(n)c(`Préfixe « ${pfx} » ajouté aux numéros d’écriture : les pièces de deux exercices ne se mélangent pas`,'opt',n);}
-  // Contrôle d'intégrité : mêmes lignes, mêmes montants, mêmes dates, dans le même ordre (hors à-nouveaux retirés à la demande)
-  let okN=kept.length+(drop?drop.n:0)===srcN,dD=drop?drop.d:0,dC=drop?drop.c:0;for(const o of kept){dD+=parseAmt(o.Debit)||0;dC+=parseAmt(o.Credit)||0;}
-  const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,ok:okN&&dD===srcD&&dC===srcC};
+  // TVA sur encaissements : factures non réglées à la clôture, retirées à la demande pour être recréées dans Odoo avec leur taxe
+  const cb=cashBasis(kept,opts);let dropCB=null;
+  if(opts.cashBasis&&cb.inv.length){const S=new Set(cb.inv.flatMap(f=>f.lines));let d=0,cr=0;for(const o of S){d+=parseAmt(o.Debit)||0;cr+=parseAmt(o.Credit)||0;}
+    kept=kept.filter(o=>!S.has(o));dropCB={n:S.size,d,c:cr};for(const o of S)corr.push([o._ln,'ligne retirée',`facture ${o.JournalCode} ${o.EcritureNum} à recréer dans Odoo (TVA sur encaissements)`,'']);
+    c(`Factures non réglées en TVA sur encaissements retirées (${cb.inv.length}), à recréer dans Odoo avec leur numéro d’origine (factures_a_recreer.xlsx)`,'map',S.size);cb.files=cbFiles(cb.inv,kept,opts.cid);}
+  // Contrôle d'intégrité : mêmes lignes, mêmes montants, mêmes dates, dans le même ordre (hors lignes retirées à la demande)
+  let okN=kept.length+(drop?drop.n:0)+(dropCB?dropCB.n:0)===srcN,dD=(drop?drop.d:0)+(dropCB?dropCB.d:0),dC=(drop?drop.c:0)+(dropCB?dropCB.c:0);for(const o of kept){dD+=parseAmt(o.Debit)||0;dC+=parseAmt(o.Credit)||0;}
+  const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,droppedCB:dropCB,ok:okN&&dD===srcD&&dC===srcC};
   const text=[EXPECTED.join('\t'),...kept.map(o=>EXPECTED.map(e=>o[e]).join('\t'))].join('\r\n')+'\r\n';
   const corrCsv=['ligne;champ;valeur d’origine;valeur dans le fichier de reprise',...corr.map(r=>r.map(x=>String(x).replace(/;/g,',')).join(';'))].join('\r\n')+'\r\n';
-  return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL},nQuadra,nColl,collAcc:[...collAcc]};
+  return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL,cashBasis:!!dropCB,cid:opts.cid||'1'},nQuadra,nColl,collAcc:[...collAcc],cb};
+}
+
+/* ---------- TVA sur encaissements ----------
+   Une facture importée par le FEC n'a pas de taxe : sa TVA reste sur le compte d'attente (445740 / 445640) et Odoo ne la rend
+   jamais exigible au paiement. Seules les factures non réglées à la clôture sont concernées : les autres ont déjà leur bascule dans le FEC.
+   Odoo 20 FR arrondit la TVA globalement (round_globally) : taux retenu si arrondi(HT × taux) = TVA au centime. */
+const CB_RATES=[[200,'20','tva_normale_encaissement','tva_acq_encaissement'],[100,'10','tva_intermediaire_encaissement','tva_acq_intermediaire_encaissement'],[55,'5,5','tva_reduite_encaissement','tva_acq_encaissement_reduite'],[21,'2,1','tva_super_reduite_encaissement','tva_acq_encaissement_super_reduite']];
+const isCBVat=o=>/^(44574|44564)/.test(o.CompteNum)||/^445/.test(o.CompteNum)&&/encaiss|non r[ée]gl|en attente/i.test(o.CompteLib||'');
+function cashBasis(rows){
+  const v=o=>(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0),E=new Map(),L=new Map();
+  for(const o of rows){const k=o.JournalCode+'\u0001'+o.EcritureNum;if(!E.has(k))E.set(k,[]);E.get(k).push(o);
+    if(o.EcritureLet&&/^4[01]/.test(o.CompteNum)){const g=o.CompteNum+'\u0001'+o.CompAuxNum+'\u0001'+o.EcritureLet;if(!L.has(g))L.set(g,[]);L.get(g).push(o);}}
+  const inv=[],excl=[];let vat=0;
+  for(const lines of E.values()){const vl=lines.filter(isCBVat);if(!vl.length)continue;
+    const tl=lines.filter(o=>/^4[01]/.test(o.CompteNum)&&o.CompAuxNum);if(!tl.length)continue; // bascule de TVA (OD) : pas une facture
+    const t=tl[0],id=`${t.JournalCode} ${t.EcritureNum}${t.PieceRef&&t.PieceRef!=='-'?' ('+t.PieceRef+')':''}`,X=why=>excl.push({id,why});
+    if(tl.length>1){X('plusieurs lignes de tiers');continue;}
+    if(t.EcritureLet){const g=L.get(t.CompteNum+'\u0001'+t.CompAuxNum+'\u0001'+t.EcritureLet),oth=g.filter(o=>!lines.includes(o));
+      if(!g.reduce((a,o)=>a+v(o),0))continue; // réglée
+      if(oth.length){X('paiement partiel');continue;}}
+    const cust=t.CompteNum[1]==='1',base=lines.filter(o=>/^[67]/.test(o.CompteNum)),other=lines.filter(o=>o!==t&&!vl.includes(o)&&!base.includes(o));
+    if(other.length){X('autres comptes ('+[...new Set(other.map(o=>o.CompteNum))].join(', ')+')');continue;}
+    const s=cust?(v(t)>0?1:-1):(v(t)<0?1:-1),amt=o=>cust?-v(o)*s:v(o)*s;
+    const ht=base.reduce((a,o)=>a+amt(o),0),tva=vl.reduce((a,o)=>a+amt(o),0),ttc=cust?v(t)*s:-v(t)*s;
+    if(!base.length||ht+tva!==ttc){X('montants HT + TVA ≠ TTC');continue;}
+    const r=CB_RATES.find(([t10])=>Math.sign(ht)*Math.round(Math.abs(ht)*t10/1000)===tva);
+    if(!r){X('taux de TVA non retrouvé au centime (plusieurs taux ?)');continue;}
+    vat+=Math.abs(tva);inv.push({t,lines,cust,type:cust?(s>0?'out_invoice':'out_refund'):(s>0?'in_invoice':'in_refund'),base:base.map(o=>({a:o.CompteNum,l:o.EcritureLib,p:amt(o)})),rate:r,ht,tva});}
+  return {inv,excl,vat};
+}
+function cbFiles(inv,kept,cid){
+  const C=String(cid||'1').replace(/\D/g,'')||'1',d=x=>x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8),nm=new Map(),all=new Map();
+  for(const o of kept)if(o.CompAuxNum&&!nm.has(o.CompAuxNum))nm.set(o.CompAuxNum,o.CompAuxLib||o.CompAuxNum);
+  for(const f of inv)for(const o of f.lines)if(o.CompAuxNum&&!all.has(o.CompAuxNum))all.set(o.CompAuxNum,o.CompAuxLib||o.CompAuxNum);
+  const name=k=>nm.get(k)||all.get(k);
+  const aoa=[['move_type','journal_id','name','partner_id','invoice_date','invoice_date_due','ref','invoice_line_ids/account_id','invoice_line_ids/name','invoice_line_ids/quantity','invoice_line_ids/price_unit','invoice_line_ids/tax_ids/id']];
+  for(const f of inv){const t=f.t,x=`account.${C}_${f.rate[f.cust?2:3]}`;
+    f.base.forEach((b,i)=>aoa.push(i?['','','','','','','',b.a,b.l||t.EcritureLib,1,b.p/100,x]:[f.type,t.JournalCode,t.EcritureNum,name(t.CompAuxNum),d(t.EcritureDate),d(t.EcritureDate),t.PieceRef&&t.PieceRef!=='-'?t.PieceRef:'',b.a,b.l||t.EcritureLib,1,b.p/100,x]));}
+  const miss=[...new Set(inv.map(f=>f.t.CompAuxNum))].filter(k=>!nm.has(k));
+  const journals=[...new Map(inv.map(f=>[f.t.JournalCode,f.cust?'Ventes':'Achats'])).entries()];
+  // Comptes présents seulement dans les factures retirées : ni l'import FEC ni le plan par défaut ne les créent
+  const ka=new Set(kept.map(o=>o.CompteNum)),accMiss=[...new Set(inv.flatMap(f=>f.base.map(b=>b.a)))].filter(a=>!ka.has(a)&&!PCG_DEF_ACTIVE.has(a));
+  return {aoa,pAoa:miss.length?[['name','ref'],...miss.map(k=>[all.get(k),k])]:null,journals,accMiss,rates:[...new Set(inv.map(f=>f.rate[1]))]};
 }
 
 /* ---------- Alternative : balance d'ouverture ---------- */
@@ -1355,6 +1403,7 @@ function summaryHTML(R,P,useAlt){
   const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map');
   const files=[];
   if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo</b><span>${I.ok?(I.dropped?'Le FEC avec les actions cochées. Montants contrôlés au centime, à-nouveaux retirés.':'Le FEC avec les actions cochées. Montants contrôlés au centime.'):'Bloqué : le contrôle d’intégrité a échoué.'}</span>${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de reprise validées avec le client</label>`:''}</div><button class="btn${useAlt?'':' primary'}" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
+  if(F&&F.cb.files){const fl=F.cb.files;files.push(`<li><div><b>Factures à recréer (TVA sur encaissements)</b><span>${F.cb.inv.length} facture${F.cb.inv.length>1?'s':''}, à importer après le fichier de reprise : Comptabilité → Pièces comptables, ⋮ → Importer. Avant : journaux ${fl.journals.map(([j,t])=>esc(j)+' en type '+t).join(', ')} créés avant l’import FEC ; taxes sur encaissements à ${fl.rates.join(' / ')} % actives ; envoi automatique des factures (e-mail, facturation électronique) désactivé${fl.accMiss.length?` ; compte${fl.accMiss.length>1?'s':''} ${fl.accMiss.map(esc).join(', ')} à créer (absent${fl.accMiss.length>1?'s':''} du fichier de reprise et du plan Odoo)`:''}. ${fl.pAoa?'Importer d’abord les tiers absents du fichier de reprise, dans la société cible.':''} La TVA bascule au paiement si le journal de banque a un compte de paiement.</span></div><div class="btns"><button class="btn" type="button" data-dl="cbinv" data-r="${R._id}" ${I.ok?'':'disabled'}>Télécharger</button>${fl.pAoa?`<button class="btn" type="button" data-dl="cbpart" data-r="${R._id}">Tiers à créer</button>`:''}</div></li>`);}
   if(F&&F.corr.length)files.push(`<li><div><b>Table de correspondance</b><span>Chaque changement de code, ligne par ligne, pour l’expert-comptable.</span></div><button class="btn" type="button" data-dl="corr" data-r="${R._id}">Télécharger</button></li>`);
   if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
   const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
@@ -1391,7 +1440,7 @@ function optsHTML(R){
   const F=R._fix,O=R._opts||{},EX=R.hints&&R.hints.exos,later=EX&&!R._dropAll,id=R._id;
   const nAN=F.out.filter(o=>o._an&&(!later||o._exo>0)).length,ex=F.out.find(o=>o._num&&!o._an)||F.out.find(o=>o._num);
   const pf=O.prefix?O.prefix+(/[-_/. ]$/.test(O.prefix)?'':'-'):'';
-  const ch=Object.entries(F.changes),TIERS=/^(Écritures d’à-nouveaux|Comptes de tiers individuels regroupés|Comptes collectifs (clients|fournisseurs) reportés|Lettres de lettrage partagées)/;
+  const ch=Object.entries(F.changes),TIERS=/^(Écritures d’à-nouveaux|Comptes de tiers individuels regroupés|Comptes collectifs (clients|fournisseurs) reportés|Lettres de lettrage partagées|Factures non réglées en TVA sur encaissements)/;
   const fmt=ch.filter(([k,v])=>v.kind==='fmt'),map=ch.filter(([k,v])=>v.kind==='map'&&!TIERS.test(k));
   const nb=n=>n.toLocaleString('fr-FR'),cut=k=>esc(k.replace(/ \(.*\)$/,''));
   const act=(on,lock,opt,title,body,more,tag)=>`<div class="act${on?' on':''}${lock?' lock':''}"><label class="opt"><input type="checkbox"${opt?` data-opt="${opt}" data-r="${id}"`:''}${on?' checked':''}${lock?' disabled':''}><span><b>${title}</b>${tag?` <span class="atag">${tag}</span>`:''}<small>${body}</small></span></label>${more?`<details class="amore"><summary>${more[0]}</summary><div>${more[1]}</div></details>`:''}</div>`;
@@ -1413,8 +1462,12 @@ function optsHTML(R){
   const tune=`<label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}</span></label>${hasAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${id}"${O.dropAN?' checked':''}><span>${later?'Retirer les à-nouveaux des exercices suivants':'Retirer les écritures d’à-nouveaux'}<small>Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>`:''}`;
   const a3=act(on3,false,'multi','3. Préparer l’import de plusieurs exercices',why3m,['Régler séparément',tune],part?'en partie':(EX||R._dropAll||on3)&&O.prefixOn?'coché d’office':'')
     +(O.dropAN&&!F.opts.dropAN&&F.left.length?`<p class="warnline">${esc(F.left.find(x=>/^À-nouveaux/.test(x))||'')}</p>`:'');
-  // 4. Emplacement prévu
-  const a4=`<div class="act soon"><label class="opt"><input type="checkbox" disabled><span><b>4. Traiter la TVA sur encaissements</b> <span class="atag">bientôt</span><small>Retirer les factures non réglées à la clôture et produire le fichier pour les recréer dans Odoo.</small></span></label></div>`;
+  // 4. TVA sur encaissements : factures non réglées à la clôture, recréées dans Odoo avec leur taxe
+  const B=F.cb,nI=B.inv.length,pl=nI>1?'s':'',xl=B.excl.length?` <span class="aw">À reprendre à la main, elle${B.excl.length>1?'s':''} reste${B.excl.length>1?'nt':''} dans le fichier de reprise : ${B.excl.slice(0,4).map(x=>esc(x.id+', '+x.why)).join(' ; ')}${B.excl.length>4?' …':''}.</span>`:'';
+  const a4=nI?act(F.opts.cashBasis,false,'cashBasis','4. Traiter la TVA sur encaissements',
+    `${nb(nI)} facture${pl} non réglée${pl} à la clôture ${nI>1?'portent':'porte'} ${fmtE(B.vat)} € de TVA en attente : importée${pl} par le FEC, Odoo ne la rendrait jamais exigible au paiement. Cochée, ${nI>1?'elles sortent':'elle sort'} du fichier de reprise et <b>factures_a_recreer.xlsx</b> ${nI>1?'les recrée':'la recrée'} avec journal, numéro, date et montants d’origine : pas de trou dans la numérotation, TVA recalculée par Odoo et contrôlée au centime. À valider avec l’expert-comptable.${xl}`,
+    ['Identifiant de la société dans Odoo',`<label class="opt"><span>Société <input class="pfx" type="text" data-opt="cid" data-r="${id}" value="${esc(F.opts.cid)}" maxlength="6" spellcheck="false" inputmode="numeric" aria-label="Identifiant de la société dans Odoo"><small>Le nombre après « cids= » dans l’adresse d’Odoo : il désigne les taxes sur encaissements de cette société.</small></span></label>`],'')
+    :`<div class="act soon"><label class="opt"><input type="checkbox" disabled><span><b>4. Traiter la TVA sur encaissements</b> <span class="atag">rien à traiter</span><small>${B.excl.length?'Des factures non réglées portent de la TVA en attente, mais aucune ne peut être recréée automatiquement.'+xl:'Aucune facture non réglée avec de la TVA en attente (445740 / 445640).'}</small></span></label></div>`;
   return `<div class="acts">${a1}${a2}${a3}${a4}</div>`;
 }
 function altHTML(R,P){
@@ -1475,8 +1528,8 @@ function render(reports){
     // Options du fichier de reprise : choix de l’utilisateur, sinon ce que demande le contrôle croisé
     const O=OPTS[R.name]||{},yr=(R.name.match(/FEC(\d{4})\d{4}/)||[])[1]||String(R.periodEnd||'').slice(0,4);
     const exo=!!(R.hints&&R.hints.exos),dropAll=R._dropAll=cross.some(i=>i.an&&i.title.startsWith(R.name+' : '));
-    R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true};
-    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect}});
+    R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true,cashBasis:O.cashBasis??false,cid:O.cid||'1'};
+    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}});
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
   REPORTS=rs;
   for(const R of rs)if(R.rows)R.issues.forEach((i,ix)=>{i._vr=R._id;i._vx=ix;});
@@ -1533,6 +1586,7 @@ document.addEventListener('change',ev=>{const o=ev.target.closest('[data-opt]');
   const O=OPTS[R.name]={...R._opts},k=o.dataset.opt;
   if(k==='prefix'){O.prefix=o.value.replace(/["\t|]/g,'').trim().slice(0,12);O.prefixOn=!!O.prefix;}
   else if(k==='multi'){O.prefixOn=o.checked;O.dropAN=o.checked;}
+  else if(k==='cid'){const v=o.value.trim();if(/^\d{1,6}$/.test(v))O.cid=v;}
   else if(k==='recv'||k==='pay'){const v=o.value.trim();if((k==='recv'?/^41\d{1,10}$/:/^40\d{1,10}$/).test(v))O[k]=v;}else O[k]=o.checked;
   const y=window.scrollY;render(REPORTS);window.scrollTo(0,y);const f=document.querySelector(`.files [data-opt="${k}"][data-r="${R._id}"]`);if(f)f.focus();});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;
@@ -1542,6 +1596,8 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl
   try{let st;if(kind==='fix')st=await saveFile(base+'_reprise_odoo.txt',R._fix.text);
     else if(kind==='corr')st=await saveFile(base+'_correspondances.csv','\ufeff'+R._fix.corrCsv);
     else if(kind==='open')st=await saveFile('balance_ouverture.xlsx',xlsxBlob(R._open.aoa,'Balance'));
+    else if(kind==='cbinv')st=await saveFile(base+'_factures_a_recreer.xlsx',xlsxBlob(R._fix.cb.files.aoa,'Factures'));
+    else if(kind==='cbpart')st=await saveFile(base+'_tiers_factures.xlsx',xlsxBlob(R._fix.cb.files.pAoa,'Tiers'));
     else st=await saveFile('tiers.xlsx',xlsxBlob(R._open.pAoa,'Tiers'));
     b.textContent=st==='declined'?'Téléchargement annulé':'Téléchargé';}catch(e){b.textContent='Téléchargement impossible ici';}
   setTimeout(()=>{b.textContent=old;b.disabled=false;},2200);});

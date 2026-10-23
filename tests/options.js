@@ -39,7 +39,7 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
 (async()=>{
   // ---------- Un seul exercice déposé ----------
   let [R]=await load([F25]);
-  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false,recv:'411100',pay:'401100',collect:true});});
+  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false,recv:'411100',pay:'401100',collect:true,cashBasis:false,cid:'1'});});
   ok('un exercice : numéros bruts et à-nouveaux gardés',()=>{assert.deepStrictEqual(lines(R).map(l=>l[2]),['1','1','1','1','2','2']);assert.strictEqual(lines(R).filter(l=>l[0]==='AN').length,4);});
   ok('un exercice : préfixe proposé = année de clôture',()=>assert.strictEqual(R._opts.prefix,'2025'));
   R=set(R,{prefixOn:true,collect:false});
@@ -183,6 +183,34 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   ok('lettrage : montants contrôlés au centime',()=>{assert.ok(A24._fix.integrity.ok);assert.ok(A25._fix.integrity.ok);});
   A24=set(A24,{prefixOn:false});
   ok('lettrage : sans préfixe d’exercice, lettres inchangées',()=>assert.deepStrictEqual(lets(A24),['A','A','B']));
+
+  // ---------- TVA sur encaissements ----------
+  const FV=path.join(tmp,'tva','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FV),{recursive:true});fs.writeFileSync(FV,[H,
+   // VT 1 réglée (lettre A soldée), VT 2 impayée, VT 3 réglée partiellement, VT 4 deux taux, VT 5 avoir impayé, HA 1 impayée
+   'VT|Ventes|1|20250110|411000|Clients|C1|Client Un|FA1|20250110|Facture FA1|120,00|0,00|A|20250210|20250131||','VT|Ventes|1|20250110|706000|Prestations|||FA1|20250110|Facture FA1|0,00|100,00|||20250131||','VT|Ventes|1|20250110|445740|TVA collectee sur encaissements|||FA1|20250110|Facture FA1|0,00|20,00|||20250131||',
+   'VT|Ventes|2|20250115|411000|Clients|C2|Client Deux|FA2|20250115|Facture FA2|240,00|0,00|||20250131||','VT|Ventes|2|20250115|706000|Prestations|||FA2|20250115|Facture FA2|0,00|150,00|||20250131||','VT|Ventes|2|20250115|706100|Prestations annexes|||FA2|20250115|Facture FA2|0,00|50,00|||20250131||','VT|Ventes|2|20250115|445740|TVA collectee sur encaissements|||FA2|20250115|Facture FA2|0,00|40,00|||20250131||',
+   'VT|Ventes|3|20250120|411000|Clients|C1|Client Un|FA3|20250120|Facture FA3|60,00|0,00|B|20250215|20250131||','VT|Ventes|3|20250120|706000|Prestations|||FA3|20250120|Facture FA3|0,00|50,00|||20250131||','VT|Ventes|3|20250120|445740|TVA collectee sur encaissements|||FA3|20250120|Facture FA3|0,00|10,00|||20250131||',
+   'VT|Ventes|4|20250125|411000|Clients|C3|Client Trois|FA4|20250125|Facture FA4|230,00|0,00|||20250131||','VT|Ventes|4|20250125|706000|Prestations|||FA4|20250125|Facture FA4|0,00|100,00|||20250131||','VT|Ventes|4|20250125|707000|Marchandises|||FA4|20250125|Facture FA4|0,00|100,00|||20250131||','VT|Ventes|4|20250125|445740|TVA collectee sur encaissements|||FA4|20250125|Facture FA4|0,00|30,00|||20250131||',
+   'VT|Ventes|5|20250128|411000|Clients|C2|Client Deux|AV1|20250128|Avoir AV1|0,00|12,00|||20250131||','VT|Ventes|5|20250128|706000|Prestations|||AV1|20250128|Avoir AV1|10,00|0,00|||20250131||','VT|Ventes|5|20250128|445740|TVA collectee sur encaissements|||AV1|20250128|Avoir AV1|2,00|0,00|||20250131||',
+   'HA|Achats|1|20250112|401000|Fournisseurs|F1|Fournisseur Un|FF1|20250112|Facture FF1|0,00|330,00|||20250131||','HA|Achats|1|20250112|606400|Fournitures|||FF1|20250112|Facture FF1|300,00|0,00|||20250131||','HA|Achats|1|20250112|445640|TVA deductible sur encaissements|||FF1|20250112|Facture FF1|30,00|0,00|||20250131||',
+   'BQ|Banque|1|20250210|512000|Banque|||RG1|20250210|Reglement FA1|120,00|0,00|||20250210||','BQ|Banque|1|20250210|411000|Clients|C1|Client Un|RG1|20250210|Reglement FA1|0,00|120,00|A|20250210|20250210||',
+   'BQ|Banque|2|20250215|512000|Banque|||RG3|20250215|Acompte FA3|30,00|0,00|||20250215||','BQ|Banque|2|20250215|411000|Clients|C1|Client Un|RG3|20250215|Acompte FA3|0,00|30,00|B|20250215|20250215||',
+   'OD|Operations diverses|1|20250210|445740|TVA collectee sur encaissements|||TVA1|20250210|TVA exigible FA1|20,00|0,00|||20250210||','OD|Operations diverses|1|20250210|445710|TVA collectee|||TVA1|20250210|TVA exigible FA1|0,00|20,00|||20250210||'].join('\r\n')+'\r\n');
+  [R]=await load([FV]);
+  ok('TVA encaissements : factures non réglées comptées, réglées ignorées',()=>{assert.deepStrictEqual(R._fix.cb.inv.map(f=>f.t.JournalCode+f.t.EcritureNum+' '+f.type+' '+f.rate[1]),['VT2 out_invoice 20','VT5 out_refund 20','HA1 in_invoice 10']);assert.strictEqual(R._fix.cb.vat,7200);});
+  ok('TVA encaissements : partiel et deux taux exclus, avec le motif',()=>assert.deepStrictEqual(R._fix.cb.excl.map(x=>x.id+' : '+x.why),['VT 3 (FA3) : paiement partiel','VT 4 (FA4) : taux de TVA non retrouvé au centime (plusieurs taux ?)']));
+  ok('TVA encaissements : rien retiré par défaut',()=>{assert.strictEqual(R._fix.opts.cashBasis,false);assert.strictEqual(lines(R).length,26);assert.strictEqual(R._fix.cb.files,undefined);});
+  R=set(R,{cashBasis:true,cid:'3'});
+  ok('TVA encaissements : factures retirées, intégrité réussie hors lignes retirées',()=>{const I=R._fix.integrity;assert.strictEqual(I.lines,16);assert.strictEqual(I.droppedCB.n,10);assert.ok(I.ok);assert.ok(!lines(R).some(l=>(l[0]==='VT'&&['2','5'].includes(l[2]))||l[0]==='HA'));});
+  ok('TVA encaissements : fichier de factures avec nom d’origine, taxe par identifiant externe',()=>assert.deepStrictEqual(R._fix.cb.files.aoa.slice(1),[
+   ['out_invoice','VT','2','Client Deux','2025-01-15','2025-01-15','FA2','706000','Facture FA2',1,150,'account.3_tva_normale_encaissement'],
+   ['','','','','','','','706100','Facture FA2',1,50,'account.3_tva_normale_encaissement'],
+   ['out_refund','VT','5','Client Deux','2025-01-28','2025-01-28','AV1','706000','Avoir AV1',1,10,'account.3_tva_normale_encaissement'],
+   ['in_invoice','HA','1','Fournisseur Un','2025-01-12','2025-01-12','FF1','606400','Facture FF1',1,300,'account.3_tva_acq_intermediaire_encaissement']]));
+  ok('TVA encaissements : tiers absents du fichier de reprise à importer avant',()=>assert.deepStrictEqual(R._fix.cb.files.pAoa,[['name','ref'],['Client Deux','C2'],['Fournisseur Un','F1']]));
+  ok('TVA encaissements : comptes à créer avant l’import des factures listés',()=>assert.deepStrictEqual(R._fix.cb.files.accMiss,['706100']));
+  R=set(R,{prefixOn:true,prefix:'2025'});
+  ok('TVA encaissements : le préfixe d’exercice s’applique aussi au nom des factures recréées',()=>assert.deepStrictEqual(R._fix.cb.files.aoa.slice(1).filter(r=>r[0]).map(r=>r[2]),['2025-2','2025-5','2025-1']));
 
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
