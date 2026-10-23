@@ -38,7 +38,7 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
 (async()=>{
   // ---------- Un seul exercice déposé ----------
   let [R]=await load([F25]);
-  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false});});
+  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false,recv:'411100',pay:'401100'});});
   ok('un exercice : numéros bruts et à-nouveaux gardés',()=>{assert.deepStrictEqual(lines(R).map(l=>l[2]),['1','1','1','1','2','2']);assert.strictEqual(lines(R).filter(l=>l[0]==='AN').length,4);});
   ok('un exercice : préfixe proposé = année de clôture',()=>assert.strictEqual(R._opts.prefix,'2025'));
   R=set(R,{prefixOn:true});
@@ -99,6 +99,19 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   const FAN2=path.join(tmp,'123456789FEC20250630.txt');fs.writeFileSync(FAN2,fs.readFileSync(F25,'utf8').replace('AN|A-nouveaux|1|20250101|445710|TVA collectee|||-|20250101','AN|A-nouveaux|1|20250115|445710|TVA collectee|||-|20250115'));
   [R]=await load([FAN2]);
   ok('un exercice, à-nouveaux à deux dates proches : un seul exercice',()=>{assert.strictEqual(R.hints.exos,null);assert.strictEqual(R._opts.dropAN,false);});
+
+  // ---------- Comptes de tiers individuels → compte collectif d’Odoo ----------
+  const FT=path.join(tmp,'tiers','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FT),{recursive:true});fs.writeFileSync(FT,[H,
+   'VT|Ventes|1|20250105|411CELINE|Celine Dion|||FA1|20250105|Facture|120,00|0,00|||20250131||',
+   'VT|Ventes|1|20250105|706000|Prestations|||FA1|20250105|Facture|0,00|120,00|||20250131||',
+   'HA|Achats|1|20250106|0FOURN|Fournisseur Un|||FF1|20250106|Facture|0,00|60,00|||20250131||',
+   'HA|Achats|1|20250106|606400|Fournitures|||FF1|20250106|Facture|60,00|0,00|||20250131||'].join('\r\n')+'\r\n');
+  [R]=await load([FT]);
+  const tl=R=>lines(R).filter(l=>/^4[01]/.test(l[4])).map(l=>l[4]+' '+l[6]);
+  ok('tiers : regroupés par défaut sur 411100 / 401100, tiers en compte auxiliaire',()=>{assert.deepStrictEqual(tl(R),['411100 411CELINE','401100 FOURN']);assert.strictEqual(R._fix.nTiers,2);});
+  R=set(R,{recv:'411000',pay:'401000'});
+  ok('tiers : compte cible modifiable',()=>assert.deepStrictEqual(tl(R),['411000 411CELINE','401000 FOURN']));
+  ok('tiers : montants inchangés',()=>assert.deepStrictEqual(lines(R).map(l=>l[11]+'/'+l[12]),['120,00/0,00','0,00/120,00','0,00/60,00','60,00/0,00']));
 
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
