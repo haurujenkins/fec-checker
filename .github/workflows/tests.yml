@@ -13,3 +13,4 @@ jobs:
           node-version: 22
       - run: npm i --no-save xlsx@0.18.5
       - run: node tests/regression.js
+      - run: node tests/options.js
