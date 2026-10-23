@@ -38,7 +38,7 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
 (async()=>{
   // ---------- Un seul exercice déposé ----------
   let [R]=await load([F25]);
-  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false});});
+  ok('un exercice : aucune option cochée d’office',()=>{assert.strictEqual(R._opts.prefixOn,false);assert.strictEqual(R._opts.dropAN,false);assert.deepStrictEqual(R._fix.opts,{prefix:'',dropAN:false,later:false});});
   ok('un exercice : numéros bruts et à-nouveaux gardés',()=>{assert.deepStrictEqual(lines(R).map(l=>l[2]),['1','1','1','1','2','2']);assert.strictEqual(lines(R).filter(l=>l[0]==='AN').length,4);});
   ok('un exercice : préfixe proposé = année de clôture',()=>assert.strictEqual(R._opts.prefix,'2025'));
   R=set(R,{prefixOn:true});
@@ -76,6 +76,30 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   ok('trois exercices : trois préfixes distincts, aucune pièce commune',()=>{assert.deepStrictEqual(Rs.map(r=>r._fix.opts.prefix),['2024-','2025-','2026-']);const all=Rs.map(nums);for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)assert.ok(![...all[j]].some(k=>all[i].has(k)));});
   ok('trois exercices : bilan importé = bilan de clôture 2026',()=>assert.deepStrictEqual(bal(Rs),srcBal(F26)));
   ok('trois exercices : intégrité réussie pour chaque fichier',()=>assert.ok(Rs.every(r=>r._fix.integrity.ok)));
+
+  // ---------- Tous les exercices dans un seul fichier ----------
+  const body=p=>fs.readFileSync(p,'utf8').trim().split(/\r?\n/).slice(1);
+  fs.mkdirSync(path.join(tmp,'all'));const FALL=path.join(tmp,'all','123456789FEC20261231.txt'),F26b=F26;
+  fs.writeFileSync(FALL,[H,...body(F24),...body(F25),...body(F26b)].join('\r\n')+'\r\n');
+  [R]=await load([FALL]);
+  ok('un fichier, trois exercices : exercices repérés par leurs à-nouveaux',()=>{assert.deepStrictEqual(R.hints.exos.map(e=>e.label),['2024','2025','2026']);assert.ok(R.issues.some(i=>i.title==='Plusieurs exercices dans le même fichier'));});
+  ok('un fichier, trois exercices : options cochées d’office',()=>{assert.strictEqual(R._opts.prefixOn,true);assert.strictEqual(R._opts.dropAN,true);});
+  ok('un fichier, trois exercices : à-nouveaux du premier exercice gardés, des suivants retirés',()=>{const an=lines(R).filter(l=>l[0]==='AN');assert.strictEqual(an.length,2);assert.ok(an.every(l=>l[3]==='20240101'));assert.strictEqual(R._fix.integrity.dropped.n,9);assert.ok(R._fix.integrity.ok);});
+  ok('un fichier, trois exercices : chaque pièce préfixée par son exercice, aucune fusion',()=>{const L=lines(R);assert.ok(L.every(l=>l[2].startsWith(l[3].slice(0,4)+'-')));const k=new Map();for(const l of L){const key=l[0]+'/'+l[2];k.set(key,(k.get(key)||new Set()).add(l[3].slice(0,4)));}assert.ok([...k.values()].every(v=>v.size===1));});
+  ok('un fichier, trois exercices : bilan importé = bilan de clôture 2026',()=>assert.deepStrictEqual(bal([R]),srcBal(F26)));
+  ok('un fichier, trois exercices : balance d’ouverture sans les à-nouveaux des exercices suivants',()=>{const b=R._open.aoa.find(r=>r[3]==='512100');assert.strictEqual(b[7],10700);assert.strictEqual(R._open.tot,0);});
+  ok('un fichier, trois exercices : verdict « Importable avec le fichier de reprise », plus de faux « à-nouveaux mal datés »',()=>{assert.strictEqual(T_.planOf(R).title,'Importable avec le fichier de reprise');assert.ok(!R.issues.some(i=>/^À-nouveaux non datés/.test(i.title)));});
+  R=set(R,{prefixOn:false,dropAN:false});
+  ok('un fichier, trois exercices : options décochées → point à corriger',()=>{assert.strictEqual(lines(R).filter(l=>l[0]==='AN').length,11);assert.notStrictEqual(T_.planOf(R).title,'Importable avec le fichier de reprise');});
+  // Sans journal d’à-nouveaux : découpage par la date de clôture du nom de fichier
+  const FNA=path.join(tmp,'all','123456789FEC20251231.txt');fs.writeFileSync(FNA,[H,...body(F24),...body(F25)].filter(l=>!/^AN\|/.test(l)).join('\r\n')+'\r\n');
+  [R]=await load([FNA]);
+  ok('un fichier sans à-nouveaux, deux exercices : découpage par la clôture du nom de fichier',()=>{assert.deepStrictEqual(R.hints.exos.map(e=>e.label),['2024','2025']);assert.deepStrictEqual([...new Set(lines(R).map(l=>l[2]))],['2024-2','2024-3','2025-2']);});
+  // Un seul exercice, à-nouveaux saisis en deux fois : pas plusieurs exercices
+  const FAN2=path.join(tmp,'123456789FEC20250630.txt');fs.writeFileSync(FAN2,fs.readFileSync(F25,'utf8').replace('AN|A-nouveaux|1|20250101|445710|TVA collectee|||-|20250101','AN|A-nouveaux|1|20250115|445710|TVA collectee|||-|20250115'));
+  [R]=await load([FAN2]);
+  ok('un exercice, à-nouveaux à deux dates proches : un seul exercice',()=>{assert.strictEqual(R.hints.exos,null);assert.strictEqual(R._opts.dropAN,false);});
+
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
 })().catch(e=>{console.error('✗ '+e.message);process.exit(1);});
