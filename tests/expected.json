@@ -607,7 +607,7 @@
  "multi-exercices": [
   {
    "name": "123456789FEC20241231.txt",
-   "verdict": "Importable tel quel",
+   "verdict": "Importable avec le fichier de reprise",
    "issues": [
     "[info] PieceRef = « - » (4)",
     "[warn] Journaux qui seront créés avec un type différent de leur libellé (2)",
@@ -620,7 +620,7 @@
   },
   {
    "name": "123456789FEC20251231.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable avec le fichier de reprise",
    "issues": [
     "[info] PieceRef = « - » (4)",
     "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
