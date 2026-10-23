@@ -208,6 +208,7 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
    ['out_refund','VT','5','Client Deux','2025-01-28','2025-01-28','AV1','706000','Avoir AV1',1,10,'account.3_tva_normale_encaissement'],
    ['in_invoice','HA','1','Fournisseur Un','2025-01-12','2025-01-12','FF1','606400','Facture FF1',1,300,'account.3_tva_acq_intermediaire_encaissement']]));
   ok('TVA encaissements : tiers absents du fichier de reprise à importer avant',()=>assert.deepStrictEqual(R._fix.cb.files.pAoa,[['name','ref'],['Client Deux','C2'],['Fournisseur Un','F1']]));
+  ok('TVA encaissements : comptes à créer avant l’import des factures listés',()=>assert.deepStrictEqual(R._fix.cb.files.accMiss,['706100']));
   R=set(R,{prefixOn:true,prefix:'2025'});
   ok('TVA encaissements : le préfixe d’exercice s’applique aussi au nom des factures recréées',()=>assert.deepStrictEqual(R._fix.cb.files.aoa.slice(1).filter(r=>r[0]).map(r=>r[2]),['2025-2','2025-5','2025-1']));
 
