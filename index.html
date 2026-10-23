@@ -840,9 +840,9 @@ function analyse({name,rows:rows0,meta,isSample}){
   const merged=[...normMap].filter(([k,v])=>v.length>1).map(([k,v])=>`${v.join(' + ')} → ${k}`);
   if(merged.length)add('warn','Codes de compte distincts fusionnés par Odoo',`Vérifié : après normalisation ces codes désignent le même compte Odoo.`,merged,'Compte');
   const tiers4=[...accounts.keys()].filter(c=>!/^\d+$/.test(c)&&/^4[01]\d?[A-Z]/i.test(c));
-  if(tiers4.length)add('warn','Comptes de tiers individuels (401XXX / 411XXX)','Vérifié : Odoo crée un compte fournisseur ou client par tiers (type Fournisseurs / Clients, lettrable), mais aucun partenaire : pas de fiche tiers, balances âgées par compte seulement. Préférer 401000 / 411000 avec le tiers dans CompAuxNum.',tiers4,'Compte');
+  if(tiers4.length)add('warn','Comptes de tiers individuels (401XXX / 411XXX)','Vérifié : Odoo crée un compte fournisseur ou client par tiers (type Fournisseurs / Clients, lettrable), mais aucun partenaire : pas de fiche tiers, balances âgées par compte seulement. Préférer le compte collectif d’Odoo (401100 / 411100 dans le plan FR) avec le tiers dans CompAuxNum.',tiers4,'Compte');
   const tiersQ=[...accounts.keys()].filter(c=>/^[09][A-Z]/i.test(c));
-  if(tiersQ.length)add('odoo','Tiers placés dans CompteNum (préfixe 0 / 9, export type Cegid Quadra)','Vérifié : Odoo crée ces comptes en « Actif circulant », ni clients ni fournisseurs, non lettrables, sans partenaire. Les totaux 401 / 411 sont vides et les journaux de ventes et d’achats sont créés en « Divers ». Avant import : remplacer par 401000 (préfixe 0) / 411000 (préfixe 9) et mettre le code du tiers dans CompAuxNum / CompAuxLib.',tiersQ,'Compte');
+  if(tiersQ.length)add('odoo','Tiers placés dans CompteNum (préfixe 0 / 9, export type Cegid Quadra)','Vérifié : Odoo crée ces comptes en « Actif circulant », ni clients ni fournisseurs, non lettrables, sans partenaire. Les totaux 401 / 411 sont vides et les journaux de ventes et d’achats sont créés en « Divers ». Avant import : remplacer par le compte collectif d’Odoo, 401100 (préfixe 0) / 411100 (préfixe 9) dans le plan FR, et mettre le code du tiers dans CompAuxNum / CompAuxLib.',tiersQ,'Compte');
   const nonNum=[...accounts.keys()].filter(c=>!/^\d+$/.test(c)&&!tiers4.includes(c)&&!tiersQ.includes(c));
   if(nonNum.length)add('warn','Codes de compte non numériques',`Vérifié : Odoo les crée tels quels (601A00, A12345) sans contrôle ; le testeur DGFiP alerte si les 3 premiers caractères ne sont pas des chiffres.`,nonNum,'Compte');
   if(accounts.size&&!longCodes.length&&!merged.length)ok('Codes de compte homogènes après normalisation Odoo');
@@ -1054,7 +1054,7 @@ function fixFEC(rows,hints){
   //  opt : option choisie par l'utilisateur pour l'import de plusieurs exercices (préfixe des numéros d'écriture).
   // Interdit : changer un montant, un sens, une date d'écriture, une devise ; ajouter ou retirer une ligne de données.
   // Seule exception, à la demande : retirer les écritures d'à-nouveaux, si elles sont équilibrées (map, ligne par ligne dans la table).
-  const opts=hints.opts||{},AN=new Set(hints.anJournals||[]),EX=hints.exos||null;
+  const opts=hints.opts||{},AN=new Set(hints.anJournals||[]),EX=hints.exos||null,RCV=opts.recv||'411100',PAY=opts.pay||'401100',COLL=opts.collect!==false;let nQuadra=0,nColl=0;const collAcc=new Set();
   const exoOf=d=>{let k=0;if(EX)for(let i=0;i<EX.length;i++)if(d>=EX[i].start)k=i;return k;};
   const ch={},c=(k,kind,n=1)=>{ch[k]=ch[k]||{n:0,kind};ch[k].n+=n;};const left=[],corr=[];
   const hdr=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim());
@@ -1086,8 +1086,9 @@ function fixFEC(rows,hints){
     for(const k of ['EcritureDate','PieceDate','DateLet','ValidDate']){const v=normDate(o[k]);if(v!==o[k]){if(isDate(v)){o[k]=v;c('Dates écrites au format AAAAMMJJ (même date)','fmt');}}}
     // Correspondances de reprise
     const cn=o.CompteNum;const M=(field,old,nw,label)=>{corr.push([ln,field,old,nw]);c(label,'map');};
-    if(/^[09][A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[0]==='0';const nw=f?'401000':'411000';M('CompteNum',cn,nw+' + CompAuxNum '+cn.slice(1),'Tiers sortis de CompteNum : 0… → 401000, 9… → 411000, code du tiers en compte auxiliaire');o.CompAuxNum=cn.slice(1);o.CompAuxLib=o.CompteLib||cn.slice(1);o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
-    else if(/^4[01]\d*[A-Za-z]/.test(cn)&&!o.CompAuxNum){const f=cn[1]==='0';const nw=f?'401000':'411000';M('CompteNum',cn,nw+' + CompAuxNum '+cn,'Comptes de tiers individuels regroupés sur 401000 / 411000, tiers en compte auxiliaire');o.CompAuxNum=cn;o.CompAuxLib=o.CompteLib||cn;o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
+    if(/^[09][A-Za-z]/.test(cn)){const f=cn[0]==='0';const nw=f?PAY:RCV;nQuadra++;if(o.CompAuxNum)M('CompteNum',cn,nw,`Tiers sortis de CompteNum : 0… → ${PAY}, 9… → ${RCV}, code du tiers en compte auxiliaire`);else{M('CompteNum',cn,nw+' + CompAuxNum '+cn.slice(1),`Tiers sortis de CompteNum : 0… → ${PAY}, 9… → ${RCV}, code du tiers en compte auxiliaire`);o.CompAuxNum=cn.slice(1);o.CompAuxLib=o.CompteLib||cn.slice(1);}o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
+    else if(/^4[01]\d*[A-Za-z]/.test(cn)){const f=cn[1]==='0';const nw=f?PAY:RCV;nColl++;collAcc.add(cn);if(COLL){if(o.CompAuxNum)M('CompteNum',cn,nw,`Comptes de tiers individuels regroupés sur ${PAY} / ${RCV}, tiers en compte auxiliaire`);else{M('CompteNum',cn,nw+' + CompAuxNum '+cn,`Comptes de tiers individuels regroupés sur ${PAY} / ${RCV}, tiers en compte auxiliaire`);o.CompAuxNum=cn;o.CompAuxLib=o.CompteLib||cn;}o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}}
+    else if(/^4[01]10*$/.test(cn)&&o.CompAuxNum&&cn.padEnd(6,'0')!==(cn[1]==='0'?PAY:RCV)){const nw=cn[1]==='0'?PAY:RCV;nColl++;collAcc.add(cn);if(COLL){M('CompteNum',cn,nw,`Comptes collectifs ${cn[1]==='0'?'fournisseurs':'clients'} reportés sur le compte par défaut d’Odoo (${nw}), comme les nouvelles factures`);o.CompteNum=nw;}else if(/^\d{1,5}$/.test(cn)){const nw=cn.padEnd(6,'0');M('CompteNum',cn,nw,'Codes de compte courts complétés à 6 chiffres');o.CompteNum=nw;}}
     else if(/^\d{1,5}$/.test(cn)){const nw=cn.padEnd(6,'0');M('CompteNum',cn,nw,'Codes de compte courts complétés à 6 chiffres');o.CompteNum=nw;}
     else if(/^\d{7,}$/.test(cn)&&/0$/.test(cn)){let k=cn;while(k.length>6&&k.endsWith('0'))k=k.slice(0,-1);if(k!==cn){M('CompteNum',cn,k,'Codes de compte longs ramenés à 6 chiffres (zéros finaux, comme le fait Odoo)');o.CompteNum=k;}}
     if(o.CompAuxNum&&!o.CompAuxLib){M('CompAuxLib','',o.CompAuxNum,'Nom de tiers vide remplacé par son code (ce que ferait Odoo)');o.CompAuxLib=o.CompAuxNum;}
@@ -1097,6 +1098,9 @@ function fixFEC(rows,hints){
   });
   const lib=new Map();for(const o of out)if(o.CompteLib&&!lib.has(o.CompteNum))lib.set(o.CompteNum,o.CompteLib);
   for(const o of out)if(!o.CompteLib){const nw=lib.get(o.CompteNum)||('Compte '+o.CompteNum);corr.push([o._ln,'CompteLib','',nw]);c('Libellés de compte vides complétés (repris d’une autre ligne du compte)','map');o.CompteLib=nw;}
+  // Odoo lettre par compte + lettre, sans regarder le partenaire : une même lettre portée par plusieurs tiers d'un même compte est rendue unique
+  const letT=new Map();for(const o of out)if(o.EcritureLet&&o.CompAuxNum){const k=o.CompteNum+'\u0001'+o.EcritureLet;if(!letT.has(k))letT.set(k,new Set());letT.get(k).add(o.CompAuxNum);}
+  for(const o of out)if(o.EcritureLet&&o.CompAuxNum&&letT.get(o.CompteNum+'\u0001'+o.EcritureLet).size>1){const nw=o.CompAuxNum+'-'+o.EcritureLet;corr.push([o._ln,'EcritureLet',o.EcritureLet,nw]);c('Lettres de lettrage partagées par plusieurs tiers d’un même compte préfixées par le code du tiers (sinon Odoo lettrerait les tiers ensemble)','map');o.EcritureLet=nw;}
   const empty=out.filter(o=>!o.EcritureNum);
   if(empty.length){const g=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;g.set(k,(g.get(k)||0)+(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0));}
     const bad=[...g.values()].filter(v=>v!==0).length;
@@ -1117,7 +1121,7 @@ function fixFEC(rows,hints){
   const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,ok:okN&&dD===srcD&&dC===srcC};
   const text=[EXPECTED.join('\t'),...kept.map(o=>EXPECTED.map(e=>o[e]).join('\t'))].join('\r\n')+'\r\n';
   const corrCsv=['ligne;champ;valeur d’origine;valeur dans le fichier de reprise',...corr.map(r=>r.map(x=>String(x).replace(/;/g,',')).join(';'))].join('\r\n')+'\r\n';
-  return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later}};
+  return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL},nQuadra,nColl,collAcc:[...collAcc]};
 }
 
 /* ---------- Alternative : balance d'ouverture ---------- */
@@ -1186,8 +1190,8 @@ const CAT=[
  C(/^Pièces déséquilibrées une fois regroupées/,{t:'Numéros d’écriture absents et pièces impossibles à reconstituer',why:'Sans numéro d’écriture, Odoo regroupe les lignes par référence de pièce. Ici ces regroupements ne sont pas équilibrés : l’import s’arrêtera.',how:['Redemander un export avec le numéro d’écriture (EcritureNum) rempli. Pas de correction possible à la main.'],where:'source',effect:'bloque',min:()=>30,delay:true}),
  C(/^Regroupement par PieceRef équilibré/,{t:'Numéros d’écriture absents',why:'Odoo regroupera les lignes par référence de pièce : des écritures distinctes de même référence seraient fusionnées.',how:['Le fichier de reprise numérote les écritures (une par journal, référence et date).'],where:'auto',effect:'fausse'}),
  C(/^Source Excel/,{t:'FEC fourni en Excel',why:'L’import FEC d’Odoo n’accepte que le fichier texte. Excel peut aussi avoir abîmé dates et codes.',how:['Le fichier de reprise est un .txt. Mieux encore : redemander le .txt d’origine.'],where:'auto',effect:'bloque'}),
- C(/^Tiers placés dans CompteNum/,{t:'Clients et fournisseurs rangés dans les numéros de compte',why:'Odoo créerait un compte d’actif par tiers, sans fiche client ni fournisseur, sans lettrage possible.',how:['Le fichier de reprise remet 401000 / 411000 et place le code du tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
- C(/^Comptes de tiers individuels/,{t:'Un compte comptable par client ou fournisseur',why:'Odoo crée un compte par tiers, mais aucune fiche partenaire : pas de relances ni de balance âgée par client.',how:['Le fichier de reprise regroupe sur 401000 / 411000 avec le tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
+ C(/^Tiers placés dans CompteNum/,{t:'Clients et fournisseurs rangés dans les numéros de compte',why:'Odoo créerait un compte d’actif par tiers, sans fiche client ni fournisseur, sans lettrage possible.',how:['Le fichier de reprise remet le compte collectif d’Odoo (401100 / 411100 par défaut) et place le code du tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
+ C(/^Comptes de tiers individuels/,{t:'Un compte comptable par client ou fournisseur',why:'Odoo crée un compte par tiers, mais aucune fiche partenaire : pas de relances ni de balance âgée par client.',how:['Le fichier de reprise regroupe sur le compte collectif d’Odoo (401100 / 411100 par défaut) avec le tiers en compte auxiliaire.'],where:'auto',effect:'fausse'}),
  C(/^Volume important/,{t:'Fichier très volumineux',why:'Sur Odoo Online, un import trop long peut être interrompu.',how:['Découper le FEC par période (un fichier par trimestre) et les importer dans l’ordre.'],where:'odoo',effect:'suivi',min:()=>15}),
  C(/^Codes de compte distincts fusionnés/,{t:'Plusieurs codes deviendront le même compte',why:'Après simplification des zéros, ces codes désignent le même compte Odoo : leurs soldes seront additionnés.',how:['Vérifier avec le client que c’est voulu.'],where:'after',effect:'suivi',min:()=>5}),
  C(/^Codes de compte non numériques/,{t:'Codes de compte avec des lettres',why:'Odoo les crée tels quels, avec un type deviné.',how:['Choisir avec le client un compte à 6 chiffres pour chacun.'],where:'source',effect:'fausse',min:n=>5+3*n}),
@@ -1337,7 +1341,12 @@ function optsHTML(R){
   const nAN=F.out.filter(o=>o._an&&(!later||o._exo>0)).length,ex=F.out.find(o=>o._num&&!o._an)||F.out.find(o=>o._num);
   const pf=O.prefix?O.prefix+(/[-_/. ]$/.test(O.prefix)?'':'-'):'';
   const demo=ex?`La pièce « ${esc(ex.JournalCode)} ${esc(ex._num)} » devient « ${esc(ex.JournalCode)} ${esc((EX?EX[ex._exo].label+'-':pf)+ex._num)} ». `:'';
-  return `<div class="opts"><p class="hl">Import de plusieurs exercices <span>options du fichier de reprise</span></p>
+  const CA=F.collAcc,acc=CA.slice(0,6).map(esc).join(', ')+(CA.length>6?` … (+${CA.length-6})`:'');
+  const tiers=F.nQuadra||F.nColl?`<div class="opts"><p class="hl">Comptes de tiers <span>options du fichier de reprise</span></p>
+${F.nColl?`<label class="opt"><input type="checkbox" data-opt="collect" data-r="${R._id}"${F.opts.collect?' checked':''}><span>Regrouper tous les clients et fournisseurs sur le compte collectif d’Odoo (${acc} : ${F.nColl.toLocaleString('fr-FR')} ligne${F.nColl>1?'s':''})<small>Comptes propres à chaque tiers et comptes collectifs du FEC portant un tiers : le tiers devient un partenaire Odoo. Sinon l’historique reste sur ces comptes et les nouvelles factures du même tiers vont sur le compte par défaut : deux comptes pour un même client.</small></span></label>`:''}
+${F.nQuadra?`<p class="exos">Les tiers rangés dans les numéros de compte (0… / 9…) sont toujours remis sur ces comptes (${F.nQuadra.toLocaleString('fr-FR')} ligne${F.nQuadra>1?'s':''}) : sinon Odoo en ferait des comptes d’actif sans partenaire ni lettrage.</p>`:''}
+<label class="opt"><span>Compte clients <input class="pfx" type="text" data-opt="recv" data-r="${R._id}" value="${esc(F.opts.recv)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte clients"> fournisseurs <input class="pfx" type="text" data-opt="pay" data-r="${R._id}" value="${esc(F.opts.pay)}" maxlength="12" spellcheck="false" inputmode="numeric" aria-label="Compte fournisseurs"><small>Les comptes par défaut des partenaires dans Odoo : 411100 et 401100 dans le plan comptable français. Indiquer ceux de la base cible s’ils ont été changés.</small></span></label></div>`:'';
+  return tiers+`<div class="opts"><p class="hl">Import de plusieurs exercices <span>options du fichier de reprise</span></p>
 ${EX?`<p class="exos">Ce fichier contient ${EX.length} exercices : ${EX.map(e=>esc(e.label)).join(', ')}.</p>`:''}
 <label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${R._id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice (${EX.map(e=>esc(e.label)+'-').join(', ')})`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${R._id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}<small>${demo}Sans préfixe, Odoo fusionne les pièces de même journal et même numéro d’un exercice à l’autre. Le préfixe de document de l’assistant reste alors vide.</small></span></label>
 ${R.hasAN&&nAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${R._id}"${O.dropAN?' checked':''}><span>${later?`Retirer les à-nouveaux des exercices suivants (journal ${esc(R.anJournals.join(', '))}, ${nAN.toLocaleString('fr-FR')} ligne${nAN>1?'s':''})`:`Retirer les écritures d’à-nouveaux (journal ${esc(R.anJournals.join(', '))}, ${nAN.toLocaleString('fr-FR')} ligne${nAN>1?'s':''})`}<small>${later?'Ceux du premier exercice sont gardés : ils ouvrent les comptes. Les suivants reprennent des soldes déjà importés avec l’exercice précédent : gardés, les soldes de bilan et le résultat seraient comptés deux fois.':'Seulement si l’exercice précédent est importé dans la même base : sinon les soldes de bilan et le résultat sont comptés deux fois.'} Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>${O.dropAN&&!F.opts.dropAN&&F.left.length?`<p class="warnline">${esc(F.left.find(x=>/^À-nouveaux/.test(x))||'')}</p>`:''}`:''}</div>`;
@@ -1400,8 +1409,8 @@ function render(reports){
     // Options du fichier de reprise : choix de l’utilisateur, sinon ce que demande le contrôle croisé
     const O=OPTS[R.name]||{},yr=(R.name.match(/FEC(\d{4})\d{4}/)||[])[1]||String(R.periodEnd||'').slice(0,4);
     const exo=!!(R.hints&&R.hints.exos),dropAll=R._dropAll=cross.some(i=>i.an&&i.title.startsWith(R.name+' : '));
-    R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll)};
-    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true)}});
+    R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true};
+    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect}});
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
   REPORTS=rs;
   for(const R of rs)if(R.rows)R.issues.forEach((i,ix)=>{i._vr=R._id;i._vx=ix;});
@@ -1456,7 +1465,8 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
 document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const r=c.dataset.confirm;if(!REPORTS[+r]?._fix.integrity.ok)return;document.querySelectorAll(`[data-confirm="${r}"]`).forEach(x=>x.checked=c.checked);document.querySelectorAll(`[data-dl="fix"][data-r="${r}"]`).forEach(b=>b.disabled=!c.checked);});
 document.addEventListener('change',ev=>{const o=ev.target.closest('[data-opt]');if(!o)return;const R=REPORTS[+o.dataset.r];if(!R)return;
   const O=OPTS[R.name]={...R._opts},k=o.dataset.opt;
-  if(k==='prefix'){O.prefix=o.value.replace(/["\t|]/g,'').trim().slice(0,12);O.prefixOn=!!O.prefix;}else O[k]=o.checked;
+  if(k==='prefix'){O.prefix=o.value.replace(/["\t|]/g,'').trim().slice(0,12);O.prefixOn=!!O.prefix;}
+  else if(k==='recv'||k==='pay'){const v=o.value.trim();if((k==='recv'?/^41\d{1,10}$/:/^40\d{1,10}$/).test(v))O[k]=v;}else O[k]=o.checked;
   const y=window.scrollY;render(REPORTS);window.scrollTo(0,y);const f=document.querySelector(`.files [data-opt="${k}"][data-r="${R._id}"]`);if(f)f.focus();});
 document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-dl]');if(!b)return;const R=REPORTS[+b.dataset.r];if(!R)return;
   const base=R.name.replace(/\.(xlsx?|csv|txt)$/i,'');const kind=b.dataset.dl;const old=b.textContent;b.disabled=true;
