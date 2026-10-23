@@ -109,10 +109,12 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
    'HA|Achats|1|20250106|606400|Fournitures|||FF1|20250106|Facture|60,00|0,00|||20250131||'].join('\r\n')+'\r\n');
   [R]=await load([FT]);
   const tl=R=>lines(R).filter(l=>/^4[01]/.test(l[4])).map(l=>l[4]+' '+l[6]);
-  ok('tiers : regroupés par défaut sur 411100 / 401100, tiers en compte auxiliaire',()=>{assert.deepStrictEqual(tl(R),['411100 411CELINE','401100 FOURN']);assert.strictEqual(R._fix.nTiers,2);});
+  ok('tiers : regroupés par défaut sur 411100 / 401100, tiers en compte auxiliaire',()=>{assert.deepStrictEqual(tl(R),['411100 411CELINE','401100 FOURN']);assert.strictEqual(R._fix.nColl,1);assert.strictEqual(R._fix.nQuadra,1);});
   R=set(R,{recv:'411000',pay:'401000'});
   ok('tiers : compte cible modifiable',()=>assert.deepStrictEqual(tl(R),['411000 411CELINE','401000 FOURN']));
   ok('tiers : montants inchangés',()=>assert.deepStrictEqual(lines(R).map(l=>l[11]+'/'+l[12]),['120,00/0,00','0,00/120,00','0,00/60,00','60,00/0,00']));
+  R=set(R,{collect:false});
+  ok('tiers : case décochée, tiers Quadra toujours remis sur le compte collectif',()=>assert.deepStrictEqual(tl(R),['411CELINE ','401000 FOURN']));
 
   // Compte individuel avec CompAuxNum déjà rempli, et compte collectif 411000 / 401000 du FEC
   const FC=path.join(tmp,'coll','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FC),{recursive:true});fs.writeFileSync(FC,[H,
@@ -126,9 +128,9 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
    'HA|Achats|2|20250108|606400|Fournitures|||FF2|20250108|Retenue|10,00|0,00|||20250131||'].join('\r\n')+'\r\n');
   [R]=await load([FC]);
   ok('tiers : compte individuel avec CompAuxNum déjà rempli regroupé, code tiers gardé',()=>assert.deepStrictEqual(tl(R)[0],'411100 CD'));
-  ok('tiers : 411000 / 401 avec tiers reportés sur le compte par défaut, 401700 intact',()=>{assert.deepStrictEqual(tl(R).slice(1),['411100 C2','401100 F1','401700 F1']);assert.deepStrictEqual(R._fix.collAcc,['411000','401']);});
+  ok('tiers : 411000 / 401 avec tiers reportés sur le compte par défaut, 401700 intact',()=>{assert.deepStrictEqual(tl(R).slice(1),['411100 C2','401100 F1','401700 F1']);assert.deepStrictEqual(R._fix.collAcc,['411CELINE','411000','401']);});
   R=set(R,{collect:false});
-  ok('tiers : report des comptes collectifs décochable',()=>assert.deepStrictEqual(tl(R),['411100 CD','411000 C2','401000 F1','401700 F1']));
+  ok('tiers : case décochée, comptes individuels et collectifs laissés tels quels',()=>assert.deepStrictEqual(tl(R),['411CELINE CD','411000 C2','401000 F1','401700 F1']));
 
   // Même lettre chez deux tiers regroupés sur le même compte : Odoo lettrerait les deux ensemble
   const FL=path.join(tmp,'let','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FL),{recursive:true});fs.writeFileSync(FL,[H,
