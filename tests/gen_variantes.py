@@ -70,6 +70,12 @@ V = {
         + entries('Z4', 7, '411000', '706000', 'C1') + [r[:2] + [str(int(r[2]) + 7)] + r[3:] for r in entries('Z4', 3, '606400', '512001')]
         + entries('Z6', 6, '411000', '706000', 'C1') + [r[:2] + [str(int(r[2]) + 6)] + r[3:] for r in entries('Z6', 4, '606400', '512001')]
         + entries('Y3', 10, '606400', '401000', 'F1') + entries('Y4', 10, '512001', '706000'),
+    # non réimporté : même écriture, deux dates du même mois -> Odoo garde la date de la première ligne
+    'dates_meme_mois': [L('VT', '1', '20250105', '411000', 'Clients', 'C1', 'Client Un', 'F1', 'Fact', '120,00', '0,00'),
+                        L('VT', '1', '20250107', '706000', 'Presta', '', '', 'F1', 'Fact', '0,00', '120,00')],
+    # non réimporté : même écriture à cheval sur deux mois -> la ligne du 02/02 passerait au 31/01
+    'dates_mois_differents': [L('VT', '1', '20250131', '411000', 'Clients', 'C1', 'Client Un', 'F1', 'Fact', '120,00', '0,00'),
+                              L('VT', '1', '20250202', '706000', 'Presta', '', '', 'F1', 'Fact', '0,00', '120,00')],
 }
 for k, rows in V.items():
     txt = '\r\n'.join(['\t'.join(HDR)] + ['\t'.join(r) for r in rows]) + '\r\n'
