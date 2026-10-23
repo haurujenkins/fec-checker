@@ -1097,6 +1097,9 @@ function fixFEC(rows,hints){
   });
   const lib=new Map();for(const o of out)if(o.CompteLib&&!lib.has(o.CompteNum))lib.set(o.CompteNum,o.CompteLib);
   for(const o of out)if(!o.CompteLib){const nw=lib.get(o.CompteNum)||('Compte '+o.CompteNum);corr.push([o._ln,'CompteLib','',nw]);c('Libellés de compte vides complétés (repris d’une autre ligne du compte)','map');o.CompteLib=nw;}
+  // Odoo lettre par compte + lettre, sans regarder le partenaire : une même lettre portée par plusieurs tiers d'un même compte est rendue unique
+  const letT=new Map();for(const o of out)if(o.EcritureLet&&o.CompAuxNum){const k=o.CompteNum+'\u0001'+o.EcritureLet;if(!letT.has(k))letT.set(k,new Set());letT.get(k).add(o.CompAuxNum);}
+  for(const o of out)if(o.EcritureLet&&o.CompAuxNum&&letT.get(o.CompteNum+'\u0001'+o.EcritureLet).size>1){const nw=o.CompAuxNum+'-'+o.EcritureLet;corr.push([o._ln,'EcritureLet',o.EcritureLet,nw]);c('Lettres de lettrage partagées par plusieurs tiers d’un même compte préfixées par le code du tiers (sinon Odoo lettrerait les tiers ensemble)','map');o.EcritureLet=nw;}
   const empty=out.filter(o=>!o.EcritureNum);
   if(empty.length){const g=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;g.set(k,(g.get(k)||0)+(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0));}
     const bad=[...g.values()].filter(v=>v!==0).length;

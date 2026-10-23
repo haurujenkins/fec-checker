@@ -130,6 +130,21 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   R=set(R,{collect:false});
   ok('tiers : report des comptes collectifs décochable',()=>assert.deepStrictEqual(tl(R),['411100 CD','411000 C2','401000 F1','401700 F1']));
 
+  // Même lettre chez deux tiers regroupés sur le même compte : Odoo lettrerait les deux ensemble
+  const FL=path.join(tmp,'let','123456789FEC20251231.txt');fs.mkdirSync(path.dirname(FL),{recursive:true});fs.writeFileSync(FL,[H,
+   'VT|Ventes|1|20250110|411000|Clients|C2|Client Deux|FA1|20250110|Facture|100,00|0,00|A|20250228|20250131||',
+   'VT|Ventes|1|20250110|706000|Prestations|||FA1|20250110|Facture|0,00|100,00|||20250131||',
+   'VT|Ventes|2|20250111|411CELINE|Celine Dion|||FA2|20250111|Facture|120,00|0,00|A|20250228|20250131||',
+   'VT|Ventes|2|20250111|706000|Prestations|||FA2|20250111|Facture|0,00|120,00|||20250131||',
+   'BQ|Banque|1|20250228|411000|Clients|C2|Client Deux|RG1|20250228|Reglement|0,00|100,00|A|20250228|20250228||',
+   'BQ|Banque|1|20250228|512000|Banque|||RG1|20250228|Reglement|100,00|0,00|||20250228||',
+   'BQ|Banque|2|20250228|411CELINE|Celine Dion|||RG2|20250228|Reglement|0,00|120,00|A|20250228|20250228||',
+   'BQ|Banque|2|20250228|512000|Banque|||RG2|20250228|Reglement|120,00|0,00|||20250228||'].join('\r\n')+'\r\n');
+  [R]=await load([FL]);
+  ok('tiers : lettre commune à deux tiers regroupés rendue unique par tiers',()=>assert.deepStrictEqual(lines(R).filter(l=>l[4]==='411100').map(l=>l[6]+' '+l[13]),['C2 C2-A','411CELINE 411CELINE-A','C2 C2-A','411CELINE 411CELINE-A']));
+  R=set(R,{collect:false});
+  ok('tiers : lettres sur des comptes distincts laissées telles quelles',()=>assert.deepStrictEqual(lines(R).filter(l=>/^411/.test(l[4])).map(l=>l[13]),['A','A','A','A']));
+
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);
 })().catch(e=>{console.error('✗ '+e.message);process.exit(1);});
