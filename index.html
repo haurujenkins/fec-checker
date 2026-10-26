@@ -66,6 +66,31 @@ code{font-family:var(--mono);font-size:.88em}
 .check b,.plain b{font-weight:600}
 .plain li{padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}.plain li:first-child{border-top:0}
 /* Encarts de dépôt */
+.inputs.min{display:none!important}
+#resbar{align-items:center;padding-bottom:10px}#resbar .resinfo{display:grid;gap:2px;flex:1 1 320px}
+.lvl{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;display:grid;gap:10px}
+.lvl>h3{margin:0;font-size:1.02rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.report{counter-reset:lvl}.ln::before{counter-increment:lvl;content:counter(lvl)}
+.ln{flex:none;width:1.55rem;height:1.55rem;border-radius:50%;display:inline-grid;place-items:center;font-size:.8rem;font-weight:600;background:var(--sunk);color:var(--muted)}
+.l1{border-color:var(--err);box-shadow:inset 4px 0 0 var(--err)}.l1 .ln{background:var(--err);color:#fff}
+.l1.clear{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}.l1.clear .ln{background:var(--ok)}
+.okline{margin:0;color:var(--ok);font-weight:600}
+.blist{display:grid}
+.bitem{border-top:1px solid var(--line)}.bitem:first-child{border-top:0}
+.bitem>summary{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:baseline;padding:10px 0;cursor:pointer;list-style:none}
+.bitem>summary::-webkit-details-marker{display:none}
+.bitem .tt{font-weight:600}.bitem .tt small{font-weight:400;color:var(--muted);margin-left:6px}
+.bitem>summary::after{content:"▸";color:var(--accent)}.bitem[open]>summary::after{content:"▾"}
+.bitem em{font-style:normal;font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
+.bbody{display:grid;gap:8px;padding:0 0 12px}.bbody .item{border:0;padding:0 0 0 2px;background:none}.bbody .ihead{display:none}
+@media (max-width:760px){.bitem>summary{grid-template-columns:1fr auto auto}.bitem>summary .eff{grid-column:1/-1;justify-self:start}}
+.plan-b{border-top:1px dashed var(--line);padding-top:10px;font-size:.93rem}.plan-b>summary{cursor:pointer;color:var(--accent)}.plan-b>summary b{color:var(--fg)}
+.plan-b[open] .alt{margin-top:10px}
+.aline{margin:0;font-size:.95rem}.aline>summary{cursor:pointer}.aline .items{margin-top:10px}
+.okm{color:var(--ok);font-weight:700;margin-right:4px}.okm.i{color:var(--info)}
+.l2 .files{border:0;padding:0;background:none}
+.eff.ok{background:var(--ok-bg);color:var(--ok)}
+.lvl3>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.lvl3>summary b{font-weight:600}.l3c{color:var(--muted);font-size:.9rem}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
 .slot{align-content:start}
 .slot{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:12px;min-width:0}
@@ -408,8 +433,8 @@ dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
 
 <section class="results" id="results" aria-label="Résultat">
   <div class="resbar" id="resbar" hidden>
-    <div class="resinfo"><p class="eyebrow">Résultat du contrôle</p><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p><p class="refline">Précautions communes à tous les FEC : <button class="linkbtn" type="button" data-tab="tabMethod">méthodologie avant import</button>.</p></div>
-    <div class="actions"><button class="btn" type="button" data-tab="tabView">Lire le FEC</button><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Nouveau contrôle</button></div>
+    <div class="resinfo"><div class="file" id="fname" aria-live="polite"></div><p class="refline" id="refLine"></p></div>
+    <div class="actions"><button class="btn" type="button" data-tab="tabView">Lire le FEC</button><button class="btn" id="copy" type="button">Copier le rapport</button><button class="btn" id="reset" type="button">Changer de FEC</button></div>
   </div>
   <div class="empty" id="empty">
     <p class="eyebrow">Ce que vous obtiendrez</p>
@@ -526,13 +551,13 @@ document.addEventListener('dragover',ev=>ev.preventDefault());
 document.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer&&ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files);});
 $('sample').addEventListener('click',()=>{FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
 $('refClear').addEventListener('click',()=>{REF_FILES=[];REF_NOTE='';applyBase();showRef();if(FEC_FILES.length)runAll(false);});
-$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';$('resbar').hidden=true;$('empty').hidden=false;viewReset();window.scrollTo({top:0,behavior:'smooth'});});
+$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';document.querySelector('.inputs')?.classList.remove('min');$('resbar').hidden=true;$('empty').hidden=false;viewReset();window.scrollTo({top:0,behavior:'smooth'});});
 // Onglets : « Contrôle du FEC » et « Méthodologie avant import »
 function showTab(id,focus){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.dataset.tab===id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus();});
   document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=p.id!==id);if(id==='tabView')viewOpen();}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tab]');if(!b)return;showTab(b.dataset.tab);if(b.getAttribute('role')!=='tab')$('tabsNav').scrollIntoView({behavior:'smooth',block:'start'});});
 document.addEventListener('keydown',ev=>{const b=ev.target.closest&&ev.target.closest('[role=tab]');if(!b||!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;ev.preventDefault();const t=[...document.querySelectorAll('[role=tab]')];const i=t.indexOf(b);const n=ev.key==='Home'?0:ev.key==='End'?t.length-1:(i+(ev.key==='ArrowRight'?1:-1)+t.length)%t.length;showTab(t[n].dataset.tab,true);});
-document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;const pn=t.closest('.tabpanel');if(pn&&pn.hidden)showTab(pn.id);t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
+document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.closest('[data-goto]');if(!g)return;const t=$(g.dataset.goto);if(!t)return;document.querySelector('.inputs')?.classList.remove('min');const pn=t.closest('.tabpanel');if(pn&&pn.hidden)showTab(pn.id);t.scrollIntoView({behavior:'smooth',block:'center'});const d=t.querySelector('.drop');if(d)d.focus({preventScroll:true});});
 
 let lastReport='';
 $('copy').addEventListener('click',async()=>{
@@ -617,7 +642,7 @@ function showRef(){
   $('refDropT').textContent=REF_FILES.length?'Ajouter ou remplacer un export':'Glissez les exports Odoo ici';
 }
 function refLineHTML(){
-  if(!BASE_SRC)return `Contrôlé contre le <b>plan comptable Odoo 20 FR par défaut</b>. <button class="linkbtn" type="button" data-goto="slotRef">Ajouter le plan de la base cible</button> pour un résultat exact.`;
+  if(!BASE_SRC)return `Plan comptable Odoo 20 FR par défaut · <button class="linkbtn" type="button" data-goto="slotRef">Ajouter le plan de la base cible</button>`;
   const A=REF_STAT.acc,ok=A.some(a=>a.nA),okX=A.some(a=>a.nX),okJ=REF_STAT.jr.length;
   return `Contrôlé contre la <b>base Odoo cible</b> : comptes actifs ${ok?'✓':'par défaut'} · comptes inactifs ${okX?'✓':'manquants'} · journaux ${okJ?'✓':'par défaut'}.`;
 }
@@ -1367,7 +1392,7 @@ function issueHTML(i){
   const tech=i.desc&&i.desc!==k.why;
   const see=i._vr!=null&&i.lines.length&&!i.cross&&!GENERIC.test(i.title);
   return `<article class="item ${k.where}"${i._vr!=null?` id="iss-${i._vr}-${i._vx}"`:''}>
-<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}</h4>${EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
+<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}</h4>${k.where==='auto'?'<span class="eff ok">Réglé par le fichier de reprise</span>':EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
 ${k.why?`<p class="why">${esc(k.why)}</p>`:''}
 ${k.how&&k.how.length?`<div class="howbox"><span class="hl">Que faire</span><ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>`:''}
 ${see?`<p class="seefec"><button class="linkbtn" type="button" data-vsee="${i._vr}:${i._vx}">Voir ${i.label==='Ligne'?(i.lines.length>1?'ces lignes':'cette ligne'):'les lignes concernées'} dans le FEC</button></p>`:''}
@@ -1397,7 +1422,7 @@ function planOf(R){
   else if(!blockSrc.length){level='ok';title='Importable avec le fichier de reprise';sub='La page met le fichier au format attendu par Odoo, sans toucher aux montants ; il reste les réglages Odoo listés.';}
   else if(!delay&&srcBlockMin<=60){level='warn';title='À corriger avant import';sub='Quelques corrections à faire à la source, réalisables sans attendre un nouvel export.';}
   else{level='err';title='FEC déconseillé en l’état';sub=delay?'Il faut un nouvel export ou des corrections dans le logiciel d’origine : cela dépend du client et prend souvent plusieurs jours.':'Les corrections à la main seraient longues et risquées.';}
-  const nv=R.issues.filter(i=>i._k.effect==='verif').length;if(level==='ok'&&nv)sub+=` ${nv} point${nv>1?'s':''} de cohérence comptable à vérifier avec le client.`;
+  const nv=R.issues.filter(i=>i._k.effect==='verif'&&i._k.where!=='auto').length;if(level==='ok'&&nv)sub+=` ${nv} point${nv>1?'s':''} de cohérence comptable à vérifier avec le client.`;
   return {g,m,total,autoMin,level,title,sub,delay,blockSrc};
 }
 // Points communs à tous les FEC : ils restent dans l’analyse, mais l’affichage les renvoie à l’onglet Méthodologie (ou au bandeau du référentiel)
@@ -1418,8 +1443,39 @@ function summaryHTML(R,P,useAlt){
   if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${rec?' <span class="tag">recommandé</span>':''}</b><span>Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.</span></div><button class="btn${rec?' primary':''}" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers</b><span>Clients et fournisseurs à importer avant la balance.</span></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
   const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
   return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${verT.slice(0,3).map(esc).join(', ')}${verT.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
-${files.length||F?`<section class="files">${F?`<h3>Préparer le fichier pour Odoo</h3><p class="note">Cochez ce que le fichier de reprise doit faire. Les montants ne changent jamais.</p>${optsHTML(R)}`:''}${files.length?`<h3 class="fh3">Fichiers à télécharger</h3><ul>${files.join('')}</ul>`:''}<p class="note">Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p></section>`:''}`;
+${files.length||F?`<section class="files">${F?`<p class="note">Options du fichier de reprise (les montants ne changent jamais) :</p>${optsHTML(R)}`:''}${files.length?`<h3 class="fh3">Fichiers à télécharger</h3><ul>${files.join('')}</ul>`:''}<p class="note">Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p></section>`:''}`;
 }
+// Trois niveaux : 1. ce qui bloque l’import (à corriger à la source), 2. ce que la page règle et prépare, 3. après l’import et pour information
+const pl2=(n,w,ws)=>`${n.toLocaleString('fr-FR')} ${n>1?(ws||w+'s'):w}`;
+const blockers=P=>{const by={};for(const i of P.g.source.filter(i=>['bloque','fausse'].includes(i._k.effect)))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
+function vSub(R,P){
+  const B=blockers(P),nA=P.g.auto.length;
+  if(!B.length)return esc(nA?`Rien ne bloque l’import : le fichier de reprise règle les ${pl2(nA,'point')} relevé${nA>1?'s':''}.`:'Rien ne bloque l’import.');
+  return esc(`${pl2(B.length,'point bloque','points bloquent')} l’import et ${B.length>1?'doivent':'doit'} être corrigé${B.length>1?'s':''} à la source${nA?`. Le fichier de reprise règle les ${pl2(nA,'autre')}`:''}.`)+(P.delay?' Il faut un nouvel export du logiciel du client : compter souvent plusieurs jours.':'');
+}
+function levelsHTML(R,P,useAlt){
+  const B=blockers(P),F=R._fix;
+  const row=g=>{const i=g[0],k=i._k,n=g.reduce((t,x)=>t+x._k.n,0),min=g.reduce((t,x)=>t+x._k.min,0);
+    return `<details class="bitem"><summary><span class="eff ${k.effect}">${EFFECT[k.effect]}</span><span class="tt">${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span><em>${min?'≈ '+fmtMin(min):''}</em></summary><div class="bbody">${g.map(issueHTML).join('')}</div></details>`;};
+  const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>Ce qui bloque l’import${B.length?` <span class="count">${B.length}</span>`:''}</h3>
+${B.length?`<p class="note">À corriger dans le logiciel du client ou avec son expert-comptable : le fichier de reprise ne le fait pas. Cliquer sur un point pour savoir quoi faire.</p><div class="blist">${B.map(row).join('')}</div>`:`<p class="okline">✓ Rien ne bloque l’import dans Odoo.</p>`}
+${useAlt?`<details class="plan-b"><summary><b>Plus rapide :</b> repartir d’une balance d’ouverture (≈ ${fmtMin(15+Math.ceil(R._open.missing.length/5))}), sans l’historique détaillé</summary>${altHTML(R,P)}</details>`:''}</section>`;
+  // Niveau 2
+  const ch=F?Object.entries(F.changes):[],fmt=ch.filter(([k,v])=>v.kind==='fmt');
+  const auto=P.g.auto,odoo=P.g.odoo;
+  const fl=fmt.map(([k])=>(x=>x[0].toLowerCase()+x.slice(1))(k.replace(/ \(.*\)$/,'')));
+  const autoLine=auto.length?`<details class="aline"><summary><span class="okm">✓</span> Le fichier de reprise règle ${pl2(auto.length,'point')}${fl.length?` (${esc(fl.slice(0,3).join(', '))}${fl.length>3?'…':''})`:''}. Montants identiques au centime.</summary><div class="items">${auto.map(issueHTML).join('')}</div></details>`
+    :F&&fmt.length?`<p class="aline"><span class="okm">✓</span> Le fichier de reprise met le fichier au format Odoo (${esc(fmt.map(([k])=>k.toLowerCase()).join(', '))}). Montants identiques au centime.</p>`:'';
+  const odooLine=odoo.length?`<details class="aline"><summary><span class="okm i">⚙</span> Dans Odoo, avant l’import : ${pl2(odoo.length,'réglage')} (${esc(odoo.map(i=>i._k.t.toLowerCase()).join(', '))}${P.m.odoo?`, ≈ ${fmtMin(P.m.odoo)}`:''})</summary><div class="items">${odoo.map(issueHTML).join('')}</div></details>`:'';
+  return l1+`<section class="lvl l2"><h3><span class="ln"></span>Préparer l’import</h3>${autoLine}${odooLine}${summaryHTML(R,P,useAlt).replace(/^[\s\S]*?(<section class="files">)/,'$1')}</section>`;
+}
+function l3List(R,P){return [...P.g.source.filter(i=>!['bloque','fausse'].includes(i._k.effect)),...P.g.after];}
+function l3Sum(R,P){
+  const a=l3List(R,P).length,n=P.g.note.length,D=R.dgfip;
+  const bits=[a?pl2(a,'point à vérifier','points à vérifier'):'',D?(D.rej.size?'refusé par le testeur DGFiP':'DGFiP ✓'):'',n?pl2(n,'information'):''].filter(Boolean);
+  return `<span class="ln"></span><b>Après l’import et pour information</b>${bits.length?` <span class="l3c">${bits.join(' · ')}</span>`:''}`;
+}
+function l3Items(R,P){const L=l3List(R,P);return L.length?`<section class="group after"><header><h3>À vérifier, avec le client ou après l’import <span class="count">${L.length}</span></h3><p>L’import passe, mais ces points demandent une vérification.${P.m.after?` Temps estimé : ≈ ${fmtMin(P.m.after)}.`:''}</p></header><div class="items">${L.map(issueHTML).join('')}</div></section>`:'';}
 // Un seul fichier de reprise pour tous les exercices déposés : fichiers de reprise mis bout à bout, du plus ancien au plus récent.
 // Proposé seulement si chaque fichier passe son contrôle d’intégrité et que rien ne mélangerait les exercices dans Odoo.
 function combined(rs){
@@ -1478,7 +1534,7 @@ function optsHTML(R){
     `${nb(nI)} facture${pl} non réglée${pl} à la clôture ${nI>1?'portent':'porte'} ${fmtE(B.vat)} € de TVA en attente : importée${pl} par le FEC, Odoo ne la rendrait jamais exigible au paiement. Cochée, ${nI>1?'elles sortent':'elle sort'} du fichier de reprise et <b>factures_a_recreer.xlsx</b> ${nI>1?'les recrée':'la recrée'} avec journal, numéro, date et montants d’origine : pas de trou dans la numérotation, TVA recalculée par Odoo et contrôlée au centime. À valider avec l’expert-comptable.${xl}`,
     ['Identifiant de la société dans Odoo',`<label class="opt"><span>Société <input class="pfx" type="text" data-opt="cid" data-r="${id}" value="${esc(F.opts.cid)}" maxlength="6" spellcheck="false" inputmode="numeric" aria-label="Identifiant de la société dans Odoo"><small>Le nombre après « cids= » dans l’adresse d’Odoo : il désigne les taxes sur encaissements de cette société.</small></span></label>`],'')
     :`<div class="act soon"><label class="opt"><input type="checkbox" disabled><span><b>4. Traiter la TVA sur encaissements</b> <span class="atag">rien à traiter</span><small>${B.excl.length?'Des factures non réglées portent de la TVA en attente, mais aucune ne peut être recréée automatiquement.'+xl:'Aucune facture non réglée avec de la TVA en attente (445740 / 445640).'}</small></span></label></div>`;
-  return `<div class="acts">${a1}${a2}${a3}${a4}</div>`;
+  let no=0;return `<div class="acts">${[a2,a3,nI?a4:''].filter(Boolean).map(h=>h.replace(/<b>\d\. /,()=>`<b>${++no}. `)).join('')}</div>`;
 }
 function altHTML(R,P){
   const o=R._open;if(!o)return '';
@@ -1561,13 +1617,12 @@ function render(reports){
     const shownSteps=useAlt?[['auto','Importer les tiers (tiers.xlsx)',5],['odoo','Créer les comptes absents de la base'+(R._open.missing.length?` (${R._open.missing.length})`:''),Math.ceil(R._open.missing.length/5)],['import','Importer la balance d’ouverture et la comptabiliser',5],['after','Contrôler la balance Odoo contre celle du logiciel d’origine',5]].filter(s=>s[2]):steps;
     const vTime=useAlt?altMin:total;
     html+=`<div class="report" id="rep-${R._id}">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(fmtP(S.periode))}</small></h2>`:''}
-<section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${esc(P.sub)}</p></div>
-<div class="vtime"><span>${useAlt?'Avec la balance d’ouverture':'Temps estimé'}</span><b>≈ ${fmtMin(vTime)}</b>${useAlt?`<small>Corriger le FEC : ≈ ${fmtMin(total)}${P.delay?' + délai du client':''}</small>`:P.delay?'<small>+ délai du client</small>':''}</div></section>
-${fiscHTML(R)}
-${summaryHTML(R,P,useAlt)}
-<details class="block detail"><summary>Voir le détail : plan d’action, explication de chaque point, contrôles</summary><div class="detailin">
-${useAlt?altHTML(R,P):''}
-${useAlt?'<p class="eyebrow">Si l’historique complet est indispensable dans Odoo</p>':''}
+<section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${vSub(R,P)}</p></div>
+<div class="vtime"><span>Temps estimé</span><b>≈ ${fmtMin(total)}</b>${P.delay?'<small>+ délai du client</small>':''}</div></section>
+${levelsHTML(R,P,useAlt)}
+<details class="block detail lvl3"><summary>${l3Sum(R,P)}</summary><div class="detailin">
+${R.dgfip&&!R.dgfip.rej.size?fiscHTML(R):''}
+${l3Items(R,P)}
 <ol class="route">${(useAlt?steps:shownSteps).map(([w,t,m])=>`<li class="${w}"><span>${esc(t)}</span><em>${m?'≈ '+fmtMin(m):''}</em></li>`).join('')}</ol>
 ${useAlt?'':''}${changes.length?(()=>{const F=R._fix,I=F.integrity,fm=changes.filter(([k,v])=>v.kind==='fmt'),mp=changes.filter(([k,v])=>v.kind==='map'),op=changes.filter(([k,v])=>v.kind==='opt'),Dr=I.dropped;const li=a=>a.map(([k,v])=>`<li>${esc(k)} <span class="count">${v.n.toLocaleString('fr-FR')}</span></li>`).join('');
 return `<section class="fixbox"><div class="fixmain"><h3>Fichier de reprise pour Odoo</h3>
@@ -1579,7 +1634,7 @@ ${F.left.length?`<p class="warnline">Laissé tel quel : ${F.left.slice(0,4).map(
 ${mp.length&&I.ok?`<label class="confirm"><input type="checkbox" id="ok-${R._id}" data-confirm="${R._id}"> Les correspondances ci-dessus ont été validées avec le client ou son expert-comptable.</label>`:''}</div>
 <div class="fixbtns"><button class="btn primary" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp.length?'':'disabled'}>Télécharger le fichier de reprise</button>${F.corr.length?`<button class="btn" type="button" data-dl="corr" data-r="${R._id}">Table de correspondance</button>`:''}</div></section>`;})():R._fixErr?`<p class="warnline">${esc(R._fixErr)}</p>`:''}
 ${P.level==='warn'||(P.level==='err'&&!R._open)?altHTML(R,P):''}
-${['source','odoo','after','auto','note'].filter(w=>P.g[w].length).map(w=>`<section class="group ${w}"><header><h3>${WHERE[w].t} <span class="count">${P.g[w].length}</span></h3><p>${WHERE[w].s}${P.m[w]?` Temps estimé : ≈ ${fmtMin(P.m[w])}.`:''}</p></header>${w==='note'||w==='auto'?`<details class="block"><summary>Voir les ${P.g[w].length} point${P.g[w].length>1?'s':''}</summary><div class="items">${P.g[w].map(issueHTML).join('')}</div></details>`:`<div class="items">${P.g[w].map(issueHTML).join('')}</div>`}</section>`).join('')}
+${['note'].filter(w=>P.g[w].length).map(w=>`<section class="group ${w}"><header><h3>${WHERE[w].t} <span class="count">${P.g[w].length}</span></h3><p>${WHERE[w].s}${P.m[w]?` Temps estimé : ≈ ${fmtMin(P.m[w])}.`:''}</p></header>${w==='note'||w==='auto'?`<details class="block"><summary>Voir les ${P.g[w].length} point${P.g[w].length>1?'s':''}</summary><div class="items">${P.g[w].map(issueHTML).join('')}</div></details>`:`<div class="items">${P.g[w].map(issueHTML).join('')}</div>`}</section>`).join('')}
 ${!R.issues.length?'<p class="note">Aucune anomalie détectée.</p>':''}
 <dl class="stats">${[['Lignes',S.lignes.toLocaleString('fr-FR')],['Écritures',S.ecritures.toLocaleString('fr-FR')],['Journaux',S.journaux],['Comptes',S.comptes],['Tiers',S.tiers],['Période',fmtP(S.periode)],['Total débit',S.total]].map(([k,v])=>`<div><dt>${k}</dt><dd${/Période|Total/.test(k)?' class="wide"':''}>${esc(String(v))}</dd></div>`).join('')}</dl>
 ${P.level==='ok'?altHTML(R,P).replace('<section class="alt"','<details class="block"><summary>Autre méthode : balance d’ouverture</summary><section class="alt"').replace(/<\/section>$/,'</section></details>'):''}
@@ -1588,7 +1643,7 @@ ${R.jt&&R.jt.length?ctrlTable(R):''}
     txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.delay?' + délai client':''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
   $('reports').innerHTML=navify(html);lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
-  $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;$('empty').hidden=true;viewReset();
+  $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;document.querySelector('.inputs')?.classList.add('min');$('empty').hidden=true;viewReset();
   if(SCROLL_NEXT){SCROLL_NEXT=false;const r=$('results');if(r.getBoundingClientRect&&r.getBoundingClientRect().top>innerHeight*.5)r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
 }
 document.addEventListener('change',ev=>{const c=ev.target.closest('[data-confirm]');if(!c)return;const r=c.dataset.confirm;if(r==='all'){document.querySelectorAll('[data-dl="all"]').forEach(b=>b.disabled=!c.checked||!combined(REPORTS).ok);return;}if(!REPORTS[+r]?._fix.integrity.ok)return;document.querySelectorAll(`[data-confirm="${r}"]`).forEach(x=>x.checked=c.checked);document.querySelectorAll(`[data-dl="fix"][data-r="${r}"]`).forEach(b=>b.disabled=!c.checked);});
