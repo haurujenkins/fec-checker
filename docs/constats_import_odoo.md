@@ -173,7 +173,7 @@ Base remise à neuf (677 comptes PCG, 8 journaux, 0 écriture). Exports réels v
 - Comptabilisation : toutes les pièces sans compte signalé validées ; les 180 pièces prévues refusées (environ 120×608200, 50×608100, 7×649500, 3×609100). Après désarchivage des 4 comptes : 5 300 pièces validées.
 - Balance : 220 comptes identiques au centime ; contrôle par journal (15 journaux) identique au tableau de la page.
 - Nouveau : création de comptes 512500 / 519500 → Odoo crée automatiquement 2 journaux de banque BNK2 / BNK3 (règle ajoutée). Deux journaux FEC peuvent porter le même nom (OD/OD2) : comparer par code.
-- Corrigé : l'affirmation « le compte créé prend le libellé du compte source » était fausse (observation faite dans une autre langue).
+- Corrigé : l'affirmation « le compte créé prend le libellé du compte source » était fausse (observation faite dans une autre langue). Revu le 26/10 : elle est vraie pour un utilisateur en français, voir « FEC réel d'un client » plus bas.
 
 ## FEC provisoire CLIENT-A 2026 (jugé mauvais par un collègue) — 15/10 12:40
 Base nettoyée (677 comptes, 28 inactifs, 8 journaux). 8 000 lignes environ, 20260101→20260731.
@@ -295,3 +295,16 @@ Banc relancé sur les 295 paires dont les FEC sont dans le dossier partagé (105
 - journal_id accepte le code du journal (recherche exacte). Le journal doit être de type Ventes / Achats : un VT créé par l'import FEC en « Divers » ne peut pas recevoir de facture.
 - « 20% S » existe en vente et en achat, et l'import par nom prend la taxe d'achat. Il faut passer par tax_ids/id = account.{société}_tva_normale_encaissement / account.{société}_tva_acq_encaissement (10 / 5,5 / 2,1 % archivées par défaut).
 - Le paiement ne crée d'écriture, donc de bascule CABA, que si le journal de banque a un compte de paiement.
+
+## FEC réel d'un client (26/10/2026, société 3)
+
+FEC d'un exercice 2025 fourni par Loïc : 36 600 lignes, 7 455 écritures, 8 journaux, séparateur « ; », 25 colonnes (dont un identifiant de ligne), à-nouveaux détaillés facture par facture en 105 pièces équilibrées chacune par un compte 99999999. Le fichier n'est pas dans le repo.
+- FEC d'origine refusé (séparateur). Avec la tabulation pour seule correction : refusé sur les 21 lignes à guillemets relevées par la page.
+- Fichier de reprise refusé tant que 649000 et 280810 sont archivés (« Account codes must be unique… 649000 »). Après désarchivage : importé en 2 min 50, totaux identiques au centime par journal et sur les 201 comptes, 939 partenaires, 7 455 pièces comptabilisées sans erreur, 3 222 lettrages complets = lettres soldées du fichier, aucun lettrage entre deux tiers.
+- Lignes identiques sur les 18 colonnes (1 769, surtout le détail des à-nouveaux) : toutes importées, totaux justes. Elles se distinguent par la colonne en trop : la page compare désormais la ligne entière.
+- Écritures « en double » : la signature ignorait le tiers et le libellé (337 groupes, des factures différentes de même montant). Avec tiers et libellé : 9 groupes.
+- **Type des journaux créés : fixé sur le premier paquet où le journal apparaît, pas sur tout le journal.** L'assistant (fec_parser_hook) groupe les lignes par EcritureNum (sinon PieceRef), empile les pièces équilibrées par paquets de 1 000 lignes au plus et met les pièces déséquilibrées en fin, par mois. Test dédié : deux journaux à 75 % d'écritures de banque ; celui qui commence par 1 000 lignes sans banque est créé en Divers, l'autre en Banque. Ici ANO (82 % de pièces sur un 512, mais aucune dans son premier paquet) est créé en Divers. 2/3 d'écritures sur 41x → Divers. À égalité banque / client (3 sur 3) → Banque. La page simule maintenant ce découpage : ses prédictions correspondent aux 8 journaux créés.
+- **Tout compte créé de type « Banque et caisse » ouvre un journal BNK** : vérifié avec 50800001, 502500, 511500, 521000, 581000 et le code court 5120. Odoo prend le type du compte voisin du plan, et la plupart des 50x, 511, 52, 53 et 58 du plan FR sont en « Banque et caisse ». Un journal du FEC qui touche surtout ces comptes est aussi créé en Banque.
+- Codes à 8 chiffres : Odoo retire les zéros finaux jusqu'à 7 chiffres (62260430 → 6226043, comme le fichier de reprise) et crée 50800001 tel quel ; les soldes sont justes. Point cosmétique, à traiter après l'import.
+- **Libellé des comptes créés** : Odoo enregistre le libellé du FEC en anglais seulement. En français, on voit le nom du compte voisin du plan, parfois de sens opposé (448600 « Charges à payer » affiché « État - Produits à recevoir »).
+- Nettoyage : après désinstallation du module, les comptes de banque créés et leurs journaux BNK restent ; supprimés à la main.

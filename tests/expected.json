@@ -480,7 +480,7 @@
  "tests/fixtures/long.txt": [
   {
    "name": "long.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[odoo] Codes de compte à plus de 6 chiffres non réductibles (1)",
@@ -781,6 +781,7 @@
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[odoo] Codes de compte courts créés tels quels (1)",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
@@ -798,6 +799,21 @@
     "[odoo] Compte à créer sans libellé (1)",
     "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
     "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/comptes_caisse_50x.txt": [
+  {
+   "name": "comptes_caisse_50x.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (4)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (5)",
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
@@ -864,6 +880,22 @@
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
     "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/journal_premier_paquet.txt": [
+  {
+   "name": "journal_premier_paquet.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
+    "[warn] Écriture sans compte de banque dans un journal de banque (510)"
    ]
   }
  ],
