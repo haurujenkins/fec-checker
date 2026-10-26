@@ -1340,7 +1340,7 @@ const CAT=[
  C(/période qui chevauche/,{t:'Deux fichiers couvrent la même période',why:'Les écritures communes seraient importées deux fois.',how:['Vérifier les fichiers avec le client.'],where:'source',effect:'fausse',min:()=>15}),
 ];
 const WHERE={auto:{t:'Corrigé automatiquement',s:'Le fichier de reprise règle ces points. Rien à faire à la main.'},odoo:{t:'À faire dans Odoo, avant l’import',s:'Des réglages rapides dans la base du client.'},source:{t:'À corriger à la source',s:'Seul le client, son expert-comptable ou son logiciel peut corriger ces points.'},after:{t:'À reprendre dans Odoo, après l’import',s:'L’import passe, mais ces points demandent une vérification ensuite.'},note:{t:'Pour information',s:'Aucune action nécessaire.'}};
-const EFFECT={bloque:'Bloque l’import',fausse:'Fausse les données',suivi:'À vérifier ensuite',verif:'À vérifier avec le client',dgfip:'Norme DGFiP seulement',aucun:''};
+const EFFECT={bloque:'Bloque l’import',fausse:'Importé, mais faussé',suivi:'À vérifier ensuite',verif:'À vérifier avec le client',dgfip:'Norme DGFiP seulement',aucun:''};
 function classify(i){const c=CAT.find(x=>x.re.test(i.title));const n=i.lines.length;
   if(!c){const where=i.sev==='err'?'source':i.sev==='odoo'?'odoo':i.sev==='warn'?'after':'note';return {t:i.title,why:i.desc,how:[],where,effect:i.sev==='err'||i.sev==='odoo'?'bloque':'suivi',min:where==='note'?0:10,delay:false,n};}
   return {...c,why:c.why,min:c.min?Math.min(c.min(n),c.effect==='verif'?20:240):0,delay:typeof c.delay==='function'?c.delay(n):!!c.delay,n};}
@@ -1666,7 +1666,7 @@ const VCOLS=[ // clé, titre, champs FEC reliés, classe, colonne visible seulem
  ['cn','Compte',['CompteNum'],'mono'],['cl','Libellé du compte',['CompteLib']],['aux','Tiers',['CompAuxNum','CompAuxLib']],['pr','Pièce',['PieceRef']],
  ['pd','Date pièce',['PieceDate'],'mono',1],['el','Libellé',['EcritureLib']],['d','Débit',['Debit'],'amt'],['c','Crédit',['Credit'],'amt'],
  ['let','Lettrage',['EcritureLet','DateLet'],'mono'],['dev','Devise',['Montantdevise','Idevise'],'amt',1],['vd','Validation',['ValidDate'],'mono',1]];
-const VLVL={4:'Bloque l’import',3:'Fausse les données',2:'À vérifier avec le client',1:'Corrigé par le fichier de reprise, réglage Odoo ou information'};
+const VLVL={4:'Bloque l’import',3:'Importé, mais faussé',2:'À vérifier avec le client',1:'Corrigé par le fichier de reprise, réglage Odoo ou information'};
 let V={rid:0,mode:'all',iss:-1,j:'',q:'',group:true,all:false,page:0,items:[],shown:0,built:null};
 function viewReset(){V={...V,rid:0,mode:'all',iss:-1,j:'',q:'',page:0,items:[],shown:0,built:null};if($('tabView').hidden===false)viewOpen();}
 const vDate=s=>/^\d{8}$/.test(s)?s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4):s;
@@ -1764,7 +1764,7 @@ function vBuild(R,rs){
 <label class="chk"><input type="checkbox" id="vGrp"${V.group?' checked':''}> Regrouper par écriture</label>
 <label class="chk"><input type="checkbox" id="vAll"${V.all?' checked':''}> Toutes les colonnes</label>
 </div>
-<p class="vlegend"><span class="lg l4">Bloque l’import</span><span class="lg l3">Fausse les données</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Corrigé automatiquement ou pour information (non surligné)</span><span>· Cliquer une ligne pour voir ses constats et tous ses champs</span></p>
+<p class="vlegend"><span class="lg l4">Bloque l’import</span><span class="lg l3">Importé, mais faussé</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Corrigé automatiquement ou pour information (non surligné)</span><span>· Cliquer une ligne pour voir ses constats et tous ses champs</span></p>
 </section>
 <div id="vFilt"></div>
 <div class="vscroll${V.all?' vall':''}" id="vScroll" tabindex="0" role="table" aria-label="Lignes du FEC"><div class="vin" id="vIn"><div class="vrow vhead" role="row">${VCOLS.reduce((h,c)=>h+`<span role="columnheader" class="${c[3]==='amt'?'amt':''}${c[4]?' vx':''}">${c[1]}</span>`,'<span role="columnheader" aria-label="Constats"></span>')}</div><div class="vrows" id="vRows" role="rowgroup"></div></div></div>
