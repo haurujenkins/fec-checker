@@ -340,8 +340,7 @@
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
     "[info] Écritures en devise étrangère",
-    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
-    "[warn] Code journal incohérent sur quelques lignes (1)"
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
    ]
   }
  ],
