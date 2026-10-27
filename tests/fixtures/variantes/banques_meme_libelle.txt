@@ -1,0 +1,3 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+OD|Journal OD|1|20250105|512005|FR76 3000 4000 0100 0000 0000 001|||P1|20250105|x|10,00|0,00|||20250131||
+OD|Journal OD|1|20250105|512006|FR76 3000 4000 0100 0000 0000 001|||P1|20250105|x|0,00|10,00|||20250131||

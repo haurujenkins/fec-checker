@@ -794,6 +794,41 @@
    ]
   }
  ],
+ "tests/fixtures/variantes/banques_meme_libelle.txt": [
+  {
+   "name": "banques_meme_libelle.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (2)",
+    "[odoo] Comptes de banque à créer avec le même libellé (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (2)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/compte_caracteres_refuses.txt": [
+  {
+   "name": "compte_caracteres_refuses.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Compte 401/411 sans CompAuxNum (1)",
+    "[warn] Comptes de tiers individuels (401XXX / 411XXX) (1)",
+    "[info] Codes de compte à radical numérique suivi de lettres (1)",
+    "[odoo] Caractères refusés par Odoo dans un code de compte (2)",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/variantes/compte_court.txt": [
   {
    "name": "compte_court.txt",
@@ -880,6 +915,42 @@
     "[warn] Nom de fichier non conforme",
     "[warn] ValidDate antérieure à EcritureDate (1)",
     "[warn] Écritures avec plusieurs dates sur des mois différents (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/excel_reenregistre.txt": [
+  {
+   "name": "excel_reenregistre.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Compte 401/411 sans CompAuxNum (2)",
+    "[odoo] Guillemet à l’intérieur d’un champ (1)",
+    "[info] EcritureNum réutilisé dans plusieurs journaux",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
+    "[odoo] Fichier rouvert puis réenregistré dans un tableur (1)"
+   ]
+  }
+ ],
+ "tests/fixtures/variantes/journal_bnk2.txt": [
+  {
+   "name": "journal_bnk2.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[odoo] Code journal BNK… pris par les journaux de banque qu’Odoo crée (1)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
