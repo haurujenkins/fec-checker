@@ -72,23 +72,23 @@ code{font-family:var(--mono);font-size:.88em}
 .lvl>h3{margin:0;font-size:1.02rem;font-weight:600;display:flex;align-items:center;gap:10px}
 .report{counter-reset:lvl}.ln::before{counter-increment:lvl;content:counter(lvl)}
 .ln{flex:none;width:1.55rem;height:1.55rem;border-radius:50%;display:inline-grid;place-items:center;font-size:.8rem;font-weight:600;background:var(--sunk);color:var(--muted)}
-.l1{border-color:var(--err);box-shadow:inset 4px 0 0 var(--err)}.l1 .ln{background:var(--err);color:#fff}
-.l1.clear{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}.l1.clear .ln{background:var(--ok)}
+.lvl.l1{border-color:var(--err);box-shadow:inset 4px 0 0 var(--err)}.lvl.l1 .ln{background:var(--err);color:#fff}
 .okline{margin:0;color:var(--ok);font-weight:600}
 .blist{display:grid}
 .bitem{border-top:1px solid var(--line)}.bitem:first-child{border-top:0}
+.bsub{margin:6px 0 0;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600}.bsub.bloque{color:var(--err)}.bsub.fausse{color:var(--warn)}
 .bitem>summary{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:baseline;padding:10px 0;cursor:pointer;list-style:none}
 .bitem>summary::-webkit-details-marker{display:none}
 .bitem .tt{font-weight:600}.bitem .tt small{font-weight:400;color:var(--muted);margin-left:6px}
 .bitem>summary::after{content:"▸";color:var(--accent)}.bitem[open]>summary::after{content:"▾"}
 .bitem em{font-style:normal;font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
 .bbody{display:grid;gap:8px;padding:0 0 12px}.bbody .item{border:0;padding:0 0 0 2px;background:none}.bbody .ihead{display:none}
-@media (max-width:760px){.bitem>summary{grid-template-columns:1fr auto auto}.bitem>summary .eff{grid-column:1/-1;justify-self:start}}
+@media (max-width:760px){.bitem>summary{grid-template-columns:1fr auto auto}.bitem>summary .wtag{grid-column:1/-1;justify-self:start}}
 .plan-b{border-top:1px dashed var(--line);padding-top:10px;font-size:.93rem}.plan-b>summary{cursor:pointer;color:var(--accent)}.plan-b>summary b{color:var(--fg)}
 .plan-b[open] .alt{margin-top:10px}
 .aline{margin:0;font-size:.95rem}.aline>summary{cursor:pointer}.aline .items{margin-top:10px}
 .okm{color:var(--ok);font-weight:700;margin-right:4px}.okm.i{color:var(--info)}
-.l2 .files{border:0;padding:0;background:none}
+.lvl.l2 .files{border:0;padding:0;background:none}
 .eff.ok{background:var(--ok-bg);color:var(--ok)}
 .lvl3>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.lvl3>summary b{font-weight:600}.l3c{color:var(--muted);font-size:.9rem}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
@@ -1459,29 +1459,32 @@ ${files.length||F?`<section class="files">${F?`<p class="note">Options du fichie
 }
 // Trois niveaux : 1. ce qui bloque l’import (à corriger à la source), 2. ce que la page règle et prépare, 3. après l’import et pour information
 const pl2=(n,w,ws)=>`${n.toLocaleString('fr-FR')} ${n>1?(ws||w+'s'):w}`;
-const blockers=P=>{const by={};for(const i of P.g.source.filter(i=>['bloque','fausse'].includes(i._k.effect)))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
+// Bloque ou fausse, et le fichier de reprise ne le règle pas : où qu’il faille agir (source, Odoo avant ou après), c’est le niveau 1, comme dans le filtre de la Lecture
+const BLK=i=>['bloque','fausse'].includes(i._k.effect);
+const blockers=P=>{const by={};for(const i of ['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK)))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
 function vSub(R,P){
   const B=blockers(P),nA=P.g.auto.length;
-  if(!B.length)return esc(nA?`Rien ne bloque l’import : le fichier de reprise règle les ${pl2(nA,'point')} relevé${nA>1?'s':''}.`:'Rien ne bloque l’import.');
-  return esc(`${pl2(B.length,'point bloque','points bloquent')} l’import et ${B.length>1?'doivent':'doit'} être corrigé${B.length>1?'s':''} à la source${nA?`. Le fichier de reprise règle les ${pl2(nA,'autre')}`:''}.`)+(P.delay?' Il faut un nouvel export du logiciel du client : compter souvent plusieurs jours.':'');
+  if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`:'Rien ne bloque l’import.');
+  const nR=B.filter(g=>g[0]._k.effect==='bloque').length,nF=B.length-nR;
+  return esc(`${[nR?pl2(nR,'point bloque','points bloquent')+' l’import':'',nF?pl2(nF,'point fausserait','points fausseraient')+' les chiffres une fois importé'+(nF>1?'s':''):''].filter(Boolean).join(' et ')} : ${(W=>W.length===1?{source:'à corriger à la source',odoo:'à régler dans Odoo avant l’import',after:'à régler dans Odoo après l’import'}[W[0]]:'à régler avant l’import')([...new Set(B.map(g=>g[0]._k.where))])}${nA?`. Le fichier de reprise règle ${nA>1?`les ${nA} autres`:'l’autre'}`:''}.`)+(P.delay?' Il faut un nouvel export du logiciel du client : compter souvent plusieurs jours.':'');
 }
 function levelsHTML(R,P,useAlt){
   const B=blockers(P),F=R._fix;
   const row=g=>{const i=g[0],k=i._k,n=g.reduce((t,x)=>t+x._k.n,0),min=g.reduce((t,x)=>t+x._k.min,0);
-    return `<details class="bitem"><summary><span class="eff ${k.effect}">${EFFECT[k.effect]}</span><span class="tt">${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span><em>${min?'≈ '+fmtMin(min):''}</em></summary><div class="bbody">${g.map(issueHTML).join('')}</div></details>`;};
-  const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>Ce qui bloque l’import${B.length?` <span class="count">${B.length}</span>`:''}</h3>
-${B.length?`<p class="note">À corriger dans le logiciel du client ou avec son expert-comptable : le fichier de reprise ne le fait pas. Cliquer sur un point pour savoir quoi faire.</p><div class="blist">${B.map(row).join('')}</div>`:`<p class="okline">✓ Rien ne bloque l’import dans Odoo.</p>`}
+    return `<details class="bitem"><summary><span class="wtag ${k.where}">${{source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'}[k.where]}</span><span class="tt">${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span><em>${min?'≈ '+fmtMin(min):''}</em></summary><div class="bbody">${g.map(issueHTML).join('')}</div></details>`;};
+  const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>À corriger avant l’import${B.length?` <span class="count">${B.length}</span>`:''}</h3>
+${B.length?`<p class="note">Le fichier de reprise ne règle pas ces points : à corriger dans le logiciel du client, ou dans Odoo quand c’est indiqué. Cliquer sur un point pour savoir quoi faire.</p>${[['bloque','Odoo refuse le fichier'],['fausse','Odoo importe, mais les chiffres seront faux']].map(([e,t])=>{const G=B.filter(g=>g[0]._k.effect===e);return G.length?`<p class="bsub ${e}">${t}</p><div class="blist">${G.map(row).join('')}</div>`:'';}).join('')}`:`<p class="okline">✓ Rien ne bloque l’import dans Odoo.</p>`}
 ${useAlt?`<details class="plan-b"><summary><b>Plus rapide :</b> repartir d’une balance d’ouverture (≈ ${fmtMin(15+Math.ceil(R._open.missing.length/5))}), sans l’historique détaillé</summary>${altHTML(R,P)}</details>`:''}</section>`;
   // Niveau 2
   const ch=F?Object.entries(F.changes):[],fmt=ch.filter(([k,v])=>v.kind==='fmt');
-  const auto=P.g.auto,odoo=P.g.odoo;
+  const auto=P.g.auto,odoo=P.g.odoo.filter(i=>!BLK(i));
   const fl=fmt.map(([k])=>(x=>x[0].toLowerCase()+x.slice(1))(k.replace(/ \(.*\)$/,'')));
   const autoLine=auto.length?`<details class="aline"><summary><span class="okm">✓</span> Le fichier de reprise règle ${pl2(auto.length,'point')}${fl.length?` (${esc(fl.slice(0,3).join(', '))}${fl.length>3?'…':''})`:''}. Montants identiques au centime.</summary><div class="items">${auto.map(issueHTML).join('')}</div></details>`
     :F&&fmt.length?`<p class="aline"><span class="okm">✓</span> Le fichier de reprise met le fichier au format Odoo (${esc(fmt.map(([k])=>k.toLowerCase()).join(', '))}). Montants identiques au centime.</p>`:'';
-  const odooLine=odoo.length?`<details class="aline"><summary><span class="okm i">⚙</span> Dans Odoo, avant l’import : ${pl2(odoo.length,'réglage')} (${esc(odoo.map(i=>i._k.t.toLowerCase()).join(', '))}${P.m.odoo?`, ≈ ${fmtMin(P.m.odoo)}`:''})</summary><div class="items">${odoo.map(issueHTML).join('')}</div></details>`:'';
+  const odooLine=odoo.length?`<details class="aline"><summary><span class="okm i">⚙</span> Dans Odoo, avant l’import : ${pl2(odoo.length,'réglage')} (${esc(odoo.map(i=>i._k.t.toLowerCase()).join(', '))}${(m=>m?`, ≈ ${fmtMin(m)}`:'')(odoo.reduce((t,i)=>t+i._k.min,0))})</summary><div class="items">${odoo.map(issueHTML).join('')}</div></details>`:'';
   return l1+`<section class="lvl l2"><h3><span class="ln"></span>Préparer l’import</h3>${autoLine}${odooLine}${summaryHTML(R,P,useAlt).replace(/^[\s\S]*?(<section class="files">)/,'$1')}</section>`;
 }
-function l3List(R,P){return [...P.g.source.filter(i=>!['bloque','fausse'].includes(i._k.effect)),...P.g.after];}
+function l3List(R,P){return [...P.g.source,...P.g.after].filter(i=>!BLK(i));}
 function l3Sum(R,P){
   const a=l3List(R,P).length,n=P.g.note.length,D=R.dgfip;
   const bits=[a?pl2(a,'point à vérifier','points à vérifier'):'',D?(D.rej.size?'refusé par le testeur DGFiP':'DGFiP ✓'):'',n?pl2(n,'information'):''].filter(Boolean);
@@ -1743,7 +1746,7 @@ const VCOLS=[ // clé, titre, champs FEC reliés, classe, colonne visible seulem
  ['cn','Compte',['CompteNum'],'mono'],['cl','Libellé du compte',['CompteLib']],['aux','Tiers',['CompAuxNum','CompAuxLib']],['pr','Pièce',['PieceRef']],
  ['pd','Date pièce',['PieceDate'],'mono',1],['el','Libellé',['EcritureLib']],['d','Débit',['Debit'],'amt'],['c','Crédit',['Credit'],'amt'],
  ['let','Lettrage',['EcritureLet','DateLet'],'mono'],['dev','Devise',['Montantdevise','Idevise'],'amt',1],['vd','Validation',['ValidDate'],'mono',1]];
-const VLVL={4:'Bloque l’import',3:'Importé, mais faussé',2:'À vérifier avec le client',1:'Corrigé par le fichier de reprise, réglage Odoo ou information'};
+const VLVL={4:'À corriger avant l’import : Odoo refuse le fichier',3:'À corriger avant l’import : chiffres faux une fois importés',2:'À vérifier avec le client',1:'Réglé par le fichier de reprise, à revoir après l’import ou pour information'};
 let V={rid:0,mode:'all',iss:-1,j:'',q:'',group:true,all:false,page:0,items:[],shown:0,built:null};
 function viewReset(){V={...V,rid:0,mode:'all',iss:-1,j:'',q:'',page:0,items:[],shown:0,built:null};if($('tabView').hidden===false)viewOpen();}
 const vDate=s=>/^\d{8}$/.test(s)?s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4):s;
@@ -1841,7 +1844,7 @@ function vBuild(R,rs){
 <label class="chk"><input type="checkbox" id="vGrp"${V.group?' checked':''}> Regrouper par écriture</label>
 <label class="chk"><input type="checkbox" id="vAll"${V.all?' checked':''}> Toutes les colonnes</label>
 </div>
-<p class="vlegend"><span class="lg l4">Bloque l’import</span><span class="lg l3">Importé, mais faussé</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Corrigé automatiquement ou pour information (non surligné)</span><span>· Cliquer une ligne pour voir ses constats et tous ses champs</span></p>
+<p class="vlegend"><span class="lg l4">Odoo refuse le fichier</span><span class="lg l3">Chiffres faux une fois importés</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Réglé par le fichier de reprise ou pour information (non surligné)</span><span>· Cliquer une ligne pour voir ses constats et tous ses champs</span></p>
 </section>
 <div id="vFilt"></div>
 <div class="vscroll${V.all?' vall':''}" id="vScroll" tabindex="0" role="table" aria-label="Lignes du FEC"><div class="vin" id="vIn"><div class="vrow vhead" role="row">${VCOLS.reduce((h,c)=>h+`<span role="columnheader" class="${c[3]==='amt'?'amt':''}${c[4]?' vx':''}">${c[1]}</span>`,'<span role="columnheader" aria-label="Constats"></span>')}</div><div class="vrows" id="vRows" role="rowgroup"></div></div></div>
