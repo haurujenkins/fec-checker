@@ -27,6 +27,27 @@
    ]
   }
  ],
+ "tests/fixtures/999999999FEC20121231.txt": [
+  {
+   "name": "999999999FEC20121231.txt",
+   "verdict": "Importable avec le fichier de reprise",
+   "issues": [
+    "[info] BOM UTF-8 en tête de fichier",
+    "[warn] Colonnes supplémentaires après Idevise",
+    "[warn] Compte 401/411 sans CompAuxNum (12)",
+    "[info] EcritureNum réutilisé dans plusieurs journaux",
+    "[odoo] Codes de compte courts créés tels quels (2)",
+    "[odoo] Codes de compte à plus de 6 chiffres non réductibles (2)",
+    "[warn] Comptes de tiers individuels (401XXX / 411XXX) (2)",
+    "[info] Codes de compte à radical numérique suivi de lettres (5)",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (2)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] À-nouveaux dans un journal ordinaire (1)"
+   ]
+  }
+ ],
  "tests/fixtures/U01_latin1.txt": [
   {
    "name": "U01_latin1.txt",
@@ -543,10 +564,10 @@
  "tests/fixtures/nonum.txt": [
   {
    "name": "nonum.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
-    "[warn] Codes de compte non numériques (1)",
+    "[info] Codes de compte à radical numérique suivi de lettres (1)",
     "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
