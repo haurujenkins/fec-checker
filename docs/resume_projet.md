@@ -17,12 +17,11 @@ Outil « Contrôle FEC » pour les consultants qui importent des FEC clients dan
   - `tests/bench_dataset.js` et `tests/bench_measure.py` : banc d'essai sur les 400 paires. Usage : `node tests/bench_dataset.js "chemin/fichiers FECS"`, puis `python3 tests/bench_measure.py`.
   - `tests/gen_editeurs.py`, `tests/gen_variantes.py`, `tests/fixtures/` : FEC fictifs imitant Sage 100, EBP, Pennylane, Quadra, Coala, un Excel retouché, etc.
 - **Artifact claude.ai** « Contrôle FEC » (privé, version 18) : https://claude.ai/artifact/7C65uX5PTtUaNcDK1nkZtq. Capability `downloads` activée pour les téléchargements. La source de l'artifact est la même page que `index.html`, sans l'enveloppe `<html>/<head>/<body>`.
-- **Poste de l'utilisateur** (`/home/odoo/Documents/FEC`) :
+- **Poste de l'utilisateur** (dossier local `FEC/`) :
   - `fichiers FECS/` : jeu de test de 400 paires. Il contient `index.csv`, `01_fec_corrects`, `02_fec_erreurs` et `03_reference_erreurs` (une fiche JSON par paire avec les erreurs injectées : 52 codes C01…C29 et F01…F32).
   - `fichiers_FECS.zip`, `Anciens Fichiers/`, `Contrôle FEC.html`.
-- **Base Odoo de test** : https://magasin-mcp.odoo.com. Tous les droits sur cette base uniquement.
-  - Société 1 : magasin-mcp. Ne pas toucher à ses données.
-  - Société 2 : [société retirée]. Ne jamais toucher.
+- **Base Odoo de test** (adresse hors repo). Tous les droits sur cette base uniquement.
+  - Sociétés 1 et 2 : ne jamais toucher à leurs données.
   - Société 3 : **« Banc FEC (test) »**. Créée pour les tests, laissée vide : 0 pièce, plan comptable FR chargé. À réutiliser pour les prochains tests, ou à supprimer si l'utilisateur le souhaite.
   - Module `l10n_fr_fec_import` : désinstallé après chaque campagne. Le réinstaller pour tester.
 - **Contraintes permanentes** :
@@ -105,7 +104,7 @@ Source : Test Compta Démat 1.00.10b, code Perl (`trt_txt.pl`, `trt_entete.pl`, 
 - Une ligne vide est signalée par le testeur, sans blocage.
 
 ## 7. Campagnes de test réalisées
-1. Imports réels successifs sur magasin-mcp : FEC du test de bout en bout, mini-FEC, plusieurs exercices, profils d'éditeurs. 31 fichiers, tous conformes aux prédictions.
+1. Imports réels successifs sur la base de test : FEC du test de bout en bout, mini-FEC, plusieurs exercices, profils d'éditeurs. 31 fichiers, tous conformes aux prédictions.
 2. **Banc des 400 paires** (17 styles d'export, 1 567 erreurs injectées) :
    - 400 / 400 FEC corrects « Importable tel quel » ;
    - 1 546 / 1 567 erreurs détectées (98,7 %) ; les écarts restants sont surtout des numéros de ligne décalés dans la mesure ;

@@ -2,7 +2,7 @@
 
 La page cite des chemins de menu Odoo (« Comptabilité › Configuration › Plan comptable », « Actions › Désarchiver »…). Chacun est affiché comme une étiquette. Quand le fichier de capture correspondant existe dans ce dossier, l'étiquette prend une icône d'appareil photo et la capture s'affiche au survol (au toucher sur mobile), avec un encadré rouge sur l'endroit où cliquer.
 
-Les captures ont été prises le 21/10/2026 sur Odoo 20, base de test magasin-mcp, société « Banc FEC (test) » uniquement, en lecture seule (menus ouverts, cases cochées, rien d'enregistré). Les noms visibles dans la liste des pièces comptables sont les exemples fictifs qu'Odoo affiche sur une liste vide.
+Les captures ont été prises le 21/10/2026 sur Odoo 20, base de test, société « Banc FEC (test) » uniquement, en lecture seule (menus ouverts, cases cochées, rien d'enregistré). Les noms visibles dans la liste des pièces comptables sont les exemples fictifs qu'Odoo affiche sur une liste vide.
 
 Un fichier absent ne casse rien : l'étiquette reste simplement sans capture. La page enregistrée seule (sans ce dossier) fonctionne aussi, sans les captures.
 
