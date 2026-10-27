@@ -10,7 +10,7 @@ const s=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].pop()[1];
 const els={};global.document={getElementById:id=>els[id]||(els[id]={addEventListener(){},set innerHTML(v){this._h=v},get innerHTML(){return this._h||''},className:'',textContent:''}),createElement:()=>({}),body:{appendChild(){},removeChild(){}},addEventListener(){},querySelector:()=>null};global.window={};
 global.XLSX=require('xlsx');global.navigator={};
 global.FileReader=class{readAsArrayBuffer(f){setTimeout(()=>{this.result=f._buf;this.onload();},0);}};
-eval(s+';global.T_={handleFiles,render,planOf,reports:()=>REPORTS,opts:()=>OPTS,combined};');
+eval(s+';global.T_={handleFiles,render,planOf,reports:()=>REPORTS,opts:()=>OPTS,combined,classify};');
 const F=path.join(__dirname,'fixtures'),F24=path.join(F,'123456789FEC20241231.txt'),F25=path.join(F,'123456789FEC20251231.txt');
 // Exercice 2026 fictif, tiré de 2025 (mêmes numéros de pièce, à-nouveaux = clôture 2025)
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'fec-opt-'));
@@ -211,6 +211,35 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   ok('TVA encaissements : comptes à créer avant l’import des factures listés',()=>assert.deepStrictEqual(R._fix.cb.files.accMiss,['706100']));
   R=set(R,{prefixOn:true,prefix:'2025'});
   ok('TVA encaissements : le préfixe d’exercice s’applique aussi au nom des factures recréées',()=>assert.deepStrictEqual(R._fix.cb.files.aoa.slice(1).filter(r=>r[0]).map(r=>r[2]),['2025-2','2025-5','2025-1']));
+
+  // ---------- Exercice décalé (clôture au 30/09) ----------
+  // Vérifié sur Odoo 20 : « 2024- » est lu comme une année, la comptabilisation d’une pièce datée de 2023 est refusée ; « 2324- » passe.
+  const FD=path.join(tmp,'123456789FEC20240930.txt');
+  fs.writeFileSync(FD,[H,
+   'AN|A-nouveaux|0|20231001|101300|Capital|||-|20231001|Capital|0,00|1000,00|||20231001||',
+   'AN|A-nouveaux|0|20231001|512100|Banque|||-|20231001|Banque|1000,00|0,00|||20231001||',
+   'VT|Ventes|1|20231015|411000|Clients|C1|Client Un|FA1|20231015|Facture FA1|120,00|0,00|A|20231120|20231015||',
+   'VT|Ventes|1|20231015|706000|Prestations|||FA1|20231015|Facture FA1|0,00|120,00|||20231015||',
+   'VT|Ventes|2|20240210|411000|Clients|C2|Client Deux|FA2|20240210|Facture FA2|60,00|0,00|A|20240310|20240210||',
+   'VT|Ventes|2|20240210|706000|Prestations|||FA2|20240210|Facture FA2|0,00|60,00|||20240210||',
+   'BQ|Banque|1|20231120|512100|Banque|||RG1|20231120|Reglement FA1|120,00|0,00|||20231120||',
+   'BQ|Banque|1|20231120|411000|Clients|C1|Client Un|RG1|20231120|Reglement FA1|0,00|120,00|A|20231120|20231120||',
+   'BQ|Banque|2|20240310|512100|Banque|||RG2|20240310|Reglement FA2|60,00|0,00|||20240310||',
+   'BQ|Banque|2|20240310|411000|Clients|C2|Client Deux|RG2|20240310|Reglement FA2|0,00|60,00|A|20240310|20240310||',
+   'BQ4|Banque USD|1|20240320|512140|Banque USD|||RG3|20240320|Virement|50,00|0,00|||20240320||',
+   'BQ4|Banque USD|1|20240320|512100|Banque|||RG3|20240320|Virement|0,00|50,00|||20240320||'].join('\r\n')+'\r\n');
+  [R]=await load([FD]);
+  ok('exercice décalé : préfixe proposé = les deux années sur 2 chiffres',()=>assert.strictEqual(R._opts.prefix,'2324'));
+  R=set(R,{prefixOn:true});
+  ok('exercice décalé : numéros « 2324-1 », jamais lus comme une année par Odoo',()=>assert.deepStrictEqual([...new Set(lines(R).filter(l=>l[0]==='VT').map(l=>l[2]))],['2324-1','2324-2']));
+  ok('même lettre chez deux tiers d’un compte : signalée, réglée par le fichier de reprise',()=>{const i=R.issues.find(i=>/^Même lettre chez plusieurs tiers/.test(i.title));assert.ok(i);assert.deepStrictEqual(i.lines,['411000 lettre A (2 tiers, ligne 4)']);assert.strictEqual(T_.classify(i).where,'auto');});
+  ok('code journal proche d’un autre mais pièces équilibrées : pas signalé',()=>assert.ok(!R.issues.some(i=>/^Code journal incohérent/.test(i.title))));
+  // Un seul fichier qui contient deux exercices décalés : chaque exercice est préfixé par ses deux années
+  const FD2=path.join(tmp,'123456789FEC20250930.txt');
+  const bodyD=fs.readFileSync(FD,'utf8').trim().split('\r\n').slice(1);
+  fs.writeFileSync(FD2,[H,...bodyD,...bodyD.map(l=>l.replace(/\|(2023|2024)(\d{4})\|/g,(m,y,md)=>'|'+(+y+1)+md+'|'))].join('\r\n')+'\r\n');
+  [R]=await load([FD2]);
+  ok('fichier à deux exercices décalés : préfixes « 2324- » et « 2425- »',()=>assert.deepStrictEqual([...new Set(lines(R).filter(l=>l[0]==='VT').map(l=>l[2].split('-')[0]))],['2324','2425']));
 
   fs.rmSync(tmp,{recursive:true,force:true});
   console.log(`\n${n} vérifications réussies`);

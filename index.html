@@ -838,7 +838,7 @@ function analyse({name,rows:rows0,meta,isSample}){
     if(!en){const k=jc+'\u0001'+pr;if(!byRef.has(k))byRef.set(k,{d:0,c:0});const o=byRef.get(k);o.d+=d;o.c+=c;}
     totD+=d;totC+=c;
     rowsInfo.push({n,jc,en,ed,cn,d,c,pr,can,el});
-    if(let_){const lk=cn+'\u0001'+can+'\u0001'+let_;if(!letters.has(lk))letters.set(lk,{s:0,n:0,first:n,cn,let:let_});const o=letters.get(lk);o.s+=d-c;o.n++;}
+    if(let_){const lk=cn+'\u0001'+can+'\u0001'+let_;if(!letters.has(lk))letters.set(lk,{s:0,n:0,first:n,cn,can,let:let_});const o=letters.get(lk);o.s+=d-c;o.n++;}
     {const ek=en||('#'+pr);if(!jent.has(jc))jent.set(jc,new Map());const m=jent.get(jc);if(!m.has(ek))m.set(ek,{r:0,p:0,b:0});const o=m.get(ek);if(/^41/.test(cn))o.r=1;if(/^40/.test(cn))o.p=1;if(/^5(1[2-9]|3)/.test(cn))o.b=1;}
     const k=jc+'\u0001'+en;if(!ecr.has(k))ecr.set(k,{jc,en,d:0,c:0,dates:new Set(),first:n,last:n});const e=ecr.get(k);e.last=n;e.d+=d;e.c+=c;e.dates.add(ed);
     if(!numByJournal.has(en))numByJournal.set(en,new Set());numByJournal.get(en).add(jc);
@@ -940,7 +940,11 @@ function analyse({name,rows:rows0,meta,isSample}){
   const lt=[...letters.values()];const ltSingle=lt.filter(o=>o.n===1).map(o=>`${o.cn} lettre ${o.let} (ligne ${o.first})`);const ltPart=lt.filter(o=>o.n>1&&o.s!==0).map(o=>`${o.cn} lettre ${o.let} (écart ${fmtE(o.s)}, ligne ${o.first})`);
   if(ltSingle.length)add('warn','Lettre de lettrage présente sur une seule ligne','Vérifié : Odoo reprend le code de lettrage mais n’a rien à rapprocher : la ligne reste ouverte. Souvent un export partiel (période coupée) ou une lettre posée d’un seul côté.',ltSingle,'Lettre');
   if(ltPart.length)add('warn','Lettrages non soldés','Vérifié : à la comptabilisation, Odoo relettre les lignes de même lettre ; si leur somme n’est pas nulle, il crée un lettrage partiel et laisse le reste dû ouvert.',ltPart,'Lettre');
-  if(lt.length&&!ltSingle.length&&!ltPart.length)ok(`Lettrage cohérent (${lt.length} lettre${lt.length>1?'s':''} soldée${lt.length>1?'s':''}) : vérifié, Odoo le reconstitue à la comptabilisation`);
+  // Odoo lettre par compte + lettre, sans regarder le tiers : une lettre portée par plusieurs tiers d’un même compte les mélange
+  const ltT=new Map();for(const o of lt)if(o.can){const k=o.cn+'\u0001'+o.let;if(!ltT.has(k))ltT.set(k,{cn:o.cn,let:o.let,t:0,first:o.first});const x=ltT.get(k);x.t++;if(o.first<x.first)x.first=o.first;}
+  const ltShared=[...ltT.values()].filter(x=>x.t>1);
+  if(ltShared.length)add('odoo','Même lettre chez plusieurs tiers d’un même compte','Vérifié sur Odoo 20 : l’import lettre par compte + lettre, sans regarder le tiers. Ces lettres sont reprises par plusieurs tiers du même compte collectif : Odoo les lettre ensemble, et le lettrage reste partiel (« P… ») même quand chaque tiers est soldé. Le fichier de reprise préfixe la lettre par le code du tiers.',ltShared.map(x=>`${x.cn} lettre ${x.let} (${x.t} tiers, ligne ${x.first})`),'Lettre');
+  if(lt.length&&!ltSingle.length&&!ltPart.length&&!ltShared.length)ok(`Lettrage cohérent (${lt.length} lettre${lt.length>1?'s':''} soldée${lt.length>1?'s':''}) : vérifié, Odoo le reconstitue à la comptabilisation`);
   if(BASE_SRC)ok(`Contrôlé contre la base cible : ${BASE_SRC}`);else add('info','Contrôle sur le plan comptable Odoo 20 par défaut','Pour contrôler contre la base réelle du client, déposez dans l’encart 2 « Plan comptable de la base Odoo cible » les exports du plan comptable (comptes actifs + comptes inactifs) et des journaux.');
   if(BASE_NO_INACTIVE)add('odoo','Export des comptes inactifs manquant','Odoo masque les comptes archivés dans la liste du plan comptable : sans un second export avec le filtre « Comptes inactifs », la page ne voit pas ceux de la base et suppose les comptes archivés par défaut d’Odoo. Faire ce second export et l’ajouter dans l’encart 2 « Plan comptable de la base Odoo cible ».');
   if(!L['ValidDate vide'])ok('ValidDate renseignée');
@@ -969,7 +973,7 @@ function analyse({name,rows:rows0,meta,isSample}){
   if(dates.length){const p0=dates.reduce((a,b)=>a<b?a:b),p1=dates.reduce((a,b)=>a>b?a:b);let st=[];
     for(const d of [...new Set(data.filter(({r})=>isANrow(r)).map(({r})=>String(r[F.EcritureDate]??'').trim()).filter(isDate))].sort())if(!st.length||dayN(d)-dayN(st[st.length-1])>=300)st.push(d);
     if(st.length<2&&cloture&&isDate(cloture)&&dayN(cloture)-dayN(p0)>458){st=[];let e=cloture;while(true){const s0=ymd(dayN(addY(e,-1))+1);st.unshift(s0);if(s0<=p0)break;e=ymd(dayN(s0)-1);}}
-    if(st.length>=2)exos=st.map((d,i)=>({start:d,end:i<st.length-1?ymd(dayN(st[i+1])-1):p1,label:(i<st.length-1?ymd(dayN(st[i+1])-1):addY(ymd(dayN(d)-1),1)).slice(0,4)}));}
+    if(st.length>=2)exos=st.map((d,i)=>({start:d,end:i<st.length-1?ymd(dayN(st[i+1])-1):p1,label:exLab(d,i<st.length-1?ymd(dayN(st[i+1])-1):addY(ymd(dayN(d)-1),1))}));}
   const exoOf=d=>{let k=0;for(let i=0;i<exos.length;i++)if(d>=exos[i].start)k=i;return k;};
   if(exos.length>=2){const laterAN=data.filter(({r})=>isANrow(r)&&exoOf(String(r[F.EcritureDate]??'').trim())>0);
     const seen=new Map(),coll=new Set();for(const {r} of data){const en=String(r[F.EcritureNum]??'').trim(),d=String(r[F.EcritureDate]??'').trim();if(!en||!isDate(d))continue;const k=String(r[F.JournalCode]??'').trim()+'/'+en,x=exoOf(d);if(seen.has(k)&&seen.get(k)!==x)coll.add(k);else if(!seen.has(k))seen.set(k,x);}
@@ -1018,7 +1022,7 @@ function analyse({name,rows:rows0,meta,isSample}){
    out('Taux de TVA inhabituel','warn','Sur ces factures de vente, TVA collectée ÷ base HT ne donne aucun taux français en vigueur (20 ; 10 ; 5,5 ; 2,1 % ; DOM : 8,5 ; 2,1 %). Erreur de saisie probable ; Odoo importe tel quel.',badV,'Écriture');
    // codes journaux incohérents sur quelques lignes
    const jcount=new Map();for(const x of rowsInfo)jcount.set(x.jc,(jcount.get(x.jc)||0)+1);const codes=[...jcount.keys()];
-   out('Code journal incohérent sur quelques lignes','warn','Ces codes ne servent qu’à quelques lignes et ressemblent à un autre code du fichier : Odoo créera un journal à part.',codes.filter(c=>jcount.get(c)<=5).map(c=>[c,codes.find(o=>o!==c&&jcount.get(o)>jcount.get(c)&&(o.toUpperCase()===c.toUpperCase()||(c.length>=2&&(o.startsWith(c)||c.startsWith(o)))))]).filter(([c,o])=>o).map(([c,o])=>`${c} (${jcount.get(c)} ligne${jcount.get(c)>1?'s':''}) ↔ ${o}`),'Journal');
+   out('Code journal incohérent sur quelques lignes','warn','Ces codes ne servent qu’à quelques lignes et ressemblent à un autre code du fichier : Odoo créera un journal à part.',codes.filter(c=>jcount.get(c)<=5&&[...E.values()].some(e=>e.jc===c&&Math.round(e.L.reduce((t,x)=>t+x.d-x.c,0)*100)!==0)).map(c=>[c,codes.find(o=>o!==c&&jcount.get(o)>jcount.get(c)&&(o.toUpperCase()===c.toUpperCase()||(c.length>=2&&(o.startsWith(c)||c.startsWith(o)))))]).filter(([c,o])=>o).map(([c,o])=>`${c} (${jcount.get(c)} ligne${jcount.get(c)>1?'s':''}) ↔ ${o}`),'Journal');
    if(meta.mixedLines&&meta.mixedLines.length)add('warn','Encodage mixte','Une partie du fichier est en UTF-8, le reste en Windows-1252. Vérifié dans le code de l’assistant Odoo : il lit alors tout le fichier en ISO-8859-15 et les accents de ces lignes deviennent illisibles (« Ã© » au lieu de « é »).',meta.mixedLines,'Ligne');
   }
   const anSet=new Set(typeof anJournals!=='undefined'?anJournals:[]);
@@ -1038,7 +1042,7 @@ function crossChecks(reports){
   if(rs.length<2)return out;
   const first=rs[0];
   for(const r of rs.slice(1)){
-    if(r.hasAN)out.push({sev:'odoo',an:true,title:`${r.name} : journal d’à-nouveaux (${r.anJournals.join(', ')}) alors qu’un exercice antérieur est importé`,desc:`${first.name} couvre déjà la période ${first.periodStart} → ${first.periodEnd}. Vérifié sur Odoo 20 : importer les deux tels quels double les soldes de bilan (capital, banque, TVA…) et compte deux fois le résultat de l’exercice précédent. Retirer les lignes du journal d’à-nouveaux de ce fichier avant import.`,lines:[],label:'Ligne'});
+    if(r.hasAN)out.push({sev:'odoo',an:true,title:`${r.name} : journal d’à-nouveaux (${r.anJournals.join(', ')}) alors qu’un exercice antérieur est importé`,desc:`${first.name} couvre déjà la période ${first.periodStart} → ${first.periodEnd}. Vérifié sur Odoo 20 : importer les deux tels quels double les soldes de bilan (capital, banque, TVA…) et compte deux fois le résultat de l’exercice précédent. Les lignes ouvertes recopiées dans les à-nouveaux avec leur lettre seraient aussi lettrées deux fois (lettrages partiels). Retirer les lignes du journal d’à-nouveaux de ce fichier avant import.`,lines:[],label:'Ligne'});
     if(r.periodStart<=first.periodEnd)out.push({sev:'warn',title:`${r.name} : période qui chevauche ${first.name}`,desc:`${first.periodStart} → ${first.periodEnd} et ${r.periodStart} → ${r.periodEnd}. Des écritures seraient importées deux fois.`,lines:[],label:'Ligne'});
   }
   for(let i=0;i<rs.length;i++)for(let j=i+1;j<rs.length;j++){
@@ -1319,6 +1323,7 @@ const CAT=[
  C(/^Journal d’à-nouveaux présent/,{t:'Le fichier contient des à-nouveaux',why:'Si l’exercice précédent est aussi importé, les soldes seraient comptés deux fois.',how:['N’importer les à-nouveaux que pour le premier exercice importé. Si l’exercice précédent est déjà dans Odoo, cocher « Retirer les écritures d’à-nouveaux » dans les options du fichier de reprise.','Déposer tous les exercices ensemble pour que la page vérifie.'],where:'note',effect:'aucun'}),
  C(/^Journaux qui seront créés avec un type différent/,{t:'Journaux créés avec un mauvais type',why:'Odoo devine le type d’un journal d’après son contenu. Ici il se trompera : un journal d’achats en « Divers » ne permet pas de saisir de factures.',how:['Après l’import : Comptabilité → Configuration → Journaux, corriger le type de chaque journal cité.'],where:'after',effect:'suivi',min:n=>2*n}),
  C(/^Lettrages non soldés/,{t:'Lettrages incomplets',why:'Odoo reconstitue le lettrage à la comptabilisation, mais ces lettres ne sont pas soldées : il restera un reste dû.',how:['Vérifier la balance âgée après l’import ; c’est souvent fidèle à la réalité (paiement partiel).'],where:'after',effect:'suivi',min:()=>10}),
+ C(/^Même lettre chez plusieurs tiers/,{t:'Lettres partagées entre plusieurs tiers',why:'Odoo lettre par compte et par lettre, sans regarder le tiers : les clients ou fournisseurs d’un même compte qui ont la même lettre seraient lettrés ensemble, en lettrages partiels (« P… »).',how:['Le fichier de reprise préfixe chaque lettre par le code du tiers (« C001-AAM »).'],where:'auto',effect:'fausse'}),
  C(/^Lettre de lettrage présente sur une seule ligne/,{t:'Lettrages sans contrepartie',why:'La lettre n’apparaît que sur une ligne : rien à rapprocher, la ligne restera ouverte.',how:['Souvent un export coupé en cours de période. Vérifier la balance âgée après l’import.'],where:'after',effect:'suivi',min:()=>10}),
  C(/^Libellé de compte variable/,{t:'Un même compte porte plusieurs libellés',why:'Odoo garde le dernier libellé rencontré.',how:[],where:'note',effect:'aucun'}),
  C(/^Libellé de journal variable/,{t:'Un même journal porte plusieurs libellés',why:'Odoo garde le dernier libellé rencontré.',how:[],where:'note',effect:'aucun'}),
@@ -1388,6 +1393,9 @@ const CAT=[
 ];
 const WHERE={auto:{t:'Corrigé automatiquement',s:'Le fichier de reprise règle ces points. Rien à faire à la main.'},odoo:{t:'À faire dans Odoo, avant l’import',s:'Des réglages rapides dans la base du client.'},source:{t:'À corriger à la source',s:'Seul le client, son expert-comptable ou son logiciel peut corriger ces points.'},after:{t:'À reprendre dans Odoo, après l’import',s:'L’import passe, mais ces points demandent une vérification ensuite.'},note:{t:'Pour information',s:'Aucune action nécessaire.'}};
 const EFFECT={bloque:'Bloque l’import',fausse:'Importé, mais faussé',suivi:'À vérifier ensuite',verif:'À vérifier avec le client',dgfip:'Norme DGFiP seulement',aucun:''};
+// Préfixe d’exercice : l’année de clôture (« 2025 ») ; à cheval sur deux années civiles, les deux années sur 2 chiffres (« 2324 »).
+// Vérifié sur Odoo 20 : il lit « 2024- » comme une année et refuse de comptabiliser une pièce datée de 2023 ; « 2324- » n’est pas lu comme une année.
+function exLab(start,end){const a=String(start||'').slice(0,4),b=String(end||'').slice(0,4);return /^\d{4}$/.test(a)&&/^\d{4}$/.test(b)&&a<b?a.slice(2)+b.slice(2):b;}
 function classify(i){const c=CAT.find(x=>x.re.test(i.title));const n=i.lines.length;
   if(!c){const where=i.sev==='err'?'source':i.sev==='odoo'?'odoo':i.sev==='warn'?'after':'note';return {t:i.title,why:i.desc,how:[],where,effect:i.sev==='err'||i.sev==='odoo'?'bloque':'suivi',min:where==='note'?0:10,delay:false,n};}
   return {...c,why:c.why,min:c.min?Math.min(c.min(n),c.effect==='verif'?20:240):0,delay:typeof c.delay==='function'?c.delay(n):!!c.delay,n};}
@@ -1538,7 +1546,7 @@ function optsHTML(R){
   const hasAN=R.hasAN&&nAN,on3=O.prefixOn&&(!hasAN||O.dropAN),part=!on3&&(O.prefixOn||(hasAN&&O.dropAN));
   const demo=ex?`« ${esc(ex.JournalCode)} ${esc(ex._num)} » devient « ${esc(ex.JournalCode)} ${esc((EX?EX[ex._exo].label+'-':pf||(O.prefix||'2025')+'-')+ex._num)} »`:'';
   const why3=EX?`Ce fichier contient ${EX.length} exercices (${EX.map(e=>esc(e.label)).join(', ')}). Chaque pièce est préfixée par son exercice (${demo})${hasAN?` et les à-nouveaux des exercices suivants sont retirés (${nb(nAN)} ligne${nAN>1?'s':''})`:''}.`
-    :`À cocher si l’exercice précédent est importé dans la même base. Les pièces sont préfixées par l’année (${demo})${hasAN?` et les à-nouveaux sont retirés (${nb(nAN)} ligne${nAN>1?'s':''}, journal ${esc(R.anJournals.join(', '))})`:''}. Sinon Odoo fusionne des pièces d’un exercice à l’autre${hasAN?' et compte deux fois les soldes':''}.`;
+    :`À cocher si l’exercice précédent est importé dans la même base. Les pièces sont préfixées par l’exercice (${demo})${hasAN?` et les à-nouveaux sont retirés (${nb(nAN)} ligne${nAN>1?'s':''}, journal ${esc(R.anJournals.join(', '))})`:''}. Sinon Odoo fusionne des pièces d’un exercice à l’autre${hasAN?' et compte deux fois les soldes':''}.`;
   const why3m=why3+(REPORTS.length>1&&REPORTS.includes(R)?` Les ${REPORTS.length} exercices déposés peuvent aussi être téléchargés en un seul fichier de reprise, en haut des résultats.`:'');
   const tune=`<label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}</span></label>${hasAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${id}"${O.dropAN?' checked':''}><span>${later?'Retirer les à-nouveaux des exercices suivants':'Retirer les écritures d’à-nouveaux'}<small>Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>`:''}`;
   const a3=act(on3,false,'multi','3. Préparer l’import de plusieurs exercices',why3m,['Régler séparément',tune],part?'en partie':(EX||R._dropAll||on3)&&O.prefixOn?'coché d’office':'')
@@ -1607,7 +1615,7 @@ function render(reports){
   if(multi){cross=crossChecks(rs);cross.sort((a,b)=>ORDER[a.sev]-ORDER[b.sev]);}
   rs.forEach((R,ix)=>{R._id=ix;R.issues=R.issues.filter(i=>!i.cross);
     // Options du fichier de reprise : choix de l’utilisateur, sinon ce que demande le contrôle croisé
-    const O=OPTS[R.name]||{},yr=(R.name.match(/FEC(\d{4})\d{4}/)||[])[1]||String(R.periodEnd||'').slice(0,4);
+    const O=OPTS[R.name]||{},yr=exLab(String(R.periodStart||''),(R.name.match(/FEC(\d{8})/)||[])[1]||String(R.periodEnd||''));
     const exo=!!(R.hints&&R.hints.exos),dropAll=R._dropAll=cross.some(i=>i.an&&i.title.startsWith(R.name+' : '));
     R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true,cashBasis:O.cashBasis??false,cid:O.cid||'1'};
     prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}});
