@@ -482,7 +482,7 @@
  "tests/fixtures/dup.txt": [
   {
    "name": "dup.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Lignes strictement identiques (2)",
