@@ -1114,6 +1114,25 @@
    ]
   }
  ],
+ "tests/fixtures/variantes/lignes_identiques.txt": [
+  {
+   "name": "lignes_identiques.txt",
+   "verdict": "FEC déconseillé en l’état",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[info] Lignes identiques dans une pièce équilibrée (1)",
+    "[warn] Lignes strictement identiques (3)",
+    "[err] Écritures déséquilibrées (débit ≠ crédit) (1)",
+    "[err] Total débit ≠ total crédit",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (2)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/variantes/montant_vide_espaces_piecedate.txt": [
   {
    "name": "montant_vide_espaces_piecedate.txt",
