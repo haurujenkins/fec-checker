@@ -1,0 +1,3 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+BNK2|Banque reserve|1|20250105|512005|Banque A|||P1|20250105|x|10,00|0,00|||20250131||
+BNK2|Banque reserve|1|20250105|606400|Fournitures|||P1|20250105|x|0,00|10,00|||20250131||

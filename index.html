@@ -389,6 +389,7 @@ dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
 .ib:hover,.tip.open .ib,.ib:focus-visible{color:var(--accent);border-color:var(--accent)}
 .ib:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tipb{position:absolute;z-index:30;top:calc(100% + 8px);left:-12px;width:max-content;max-width:min(360px,calc(100vw - 32px));padding:9px 12px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);font:400 .86rem/1.5 var(--sans);text-align:left;white-space:normal;visibility:hidden;opacity:0;transition:opacity .12s}
+.tipb .tp{display:block}.tipb .tp+.tp{margin-top:6px}.tipb .tq{color:var(--muted,#666);font-size:.82rem}
 .tipb::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
 .tip:hover .tipb,.tip.open .tipb,.ib:focus-visible+.tipb,.tipb:focus-within{visibility:visible;opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -688,8 +689,13 @@ function runText(name,buf,isSample){
   let sep=tabs>=pipes?'\t':'|', sepOther='';
   if(tabs<5&&pipes<5){ if(semis>=5){sep=';';sepOther=';';} else if(commas>=5){sep=',';sepOther=',';} }
   const other=sep==='\t'?'|':'\t';
+  // Fichier rouvert puis réenregistré dans un tableur (Excel, séparateur « ; ») : « ; » ajoutés en fin de ligne, lignes contenant un guillemet entourées de guillemets (intérieurs doublés). On remet chaque ligne dans sa forme d'origine.
+  let excel=null;
+  if((sep==='\t'||sep==='|')&&(/;{2,}$/.test(head)||lines.filter(l=>/;$/.test(l)).length>=lines.length/2)){let n=0;const quoted=[];
+    for(let i=0;i<lines.length;i++){const l=lines[i];if(!/;$/.test(l)&&!l.startsWith('"'))continue;let c='',q=false;for(let k=0;k<l.length;k++){const ch=l[k];if(q){if(ch==='"'){if(l[k+1]==='"'){c+='"';k++;}else q=false;}else c+=ch;}else if(ch==='"')q=true;else c+=ch;}c=c.replace(/;+$/,'');if(c!==l){n++;if(l.startsWith('"'))quoted.push(i+1);lines[i]=c;}}
+    if(n)excel={n,quoted};}
   const rows=lines.map(l=>l.split(sep));
-  analyse({name,rows,meta:{source:'texte',enc,bom,euroLost,mixedLines,eol,sep:sep==='\t'?'tabulation':sep==='|'?'| (pipe)':sep,sepOther,trailingBlank,crcrlf,otherSepInHeader:head.includes(other)&&sep==='\t'&&pipes>0,rawLines:lines.length},isSample});
+  analyse({name,rows,meta:{source:'texte',excel,enc,bom,euroLost,mixedLines,eol,sep:sep==='\t'?'tabulation':sep==='|'?'| (pipe)':sep,sepOther,trailingBlank,crcrlf,otherSepInHeader:head.includes(other)&&sep==='\t'&&pipes>0,rawLines:lines.length},isSample});
 }
 function runXlsx(name,buf){
   let wb;
@@ -910,6 +916,8 @@ function analyse({name,rows:rows0,meta,isSample}){
   const nonNum=[...accounts.keys()].filter(c=>!/^\d+$/.test(c)&&!tiers4.includes(c)&&!tiersQ.includes(c));
   const nonNumRad=nonNum.filter(c=>/^\d{3}/.test(c)),nonNumOther=nonNum.filter(c=>!/^\d{3}/.test(c));
   if(nonNumRad.length)add('info','Codes de compte à radical numérique suivi de lettres','Vérifié le 27/10 sur Odoo 20 : Odoo les crée tels quels, avec le type du compte du PCG le plus proche par le radical (2751… immobilisation, 426… dette, 607… charge, 512… ou 517… banque, avec un journal BNK en plus). Le testeur DGFiP les accepte (3 premiers caractères numériques). Rien à corriger pour l’import ; les regrouper sur un compte à 6 chiffres seulement si le client le souhaite.',nonNumRad,'Compte');
+  const badChar=[...accounts.keys()].filter(c=>/[^A-Za-z0-9.\-]/.test(c.trim())&&!/[\u0000-\u001f]/.test(c)); // UTF-16 lu de travers : déjà refusé
+  if(badChar.length)add('odoo','Caractères refusés par Odoo dans un code de compte','Vérifié le 27/10 sur Odoo 20 : un code de compte ne peut contenir que des lettres sans accent, des chiffres, des points et des tirets. Une apostrophe, une lettre accentuée, une espace ou un souligné font refuser tout le paquet d’environ 1 000 lignes (« The account code can only contain alphanumeric characters, dots, and dashes »).',badChar,'Compte');
   if(nonNumOther.length)add('warn','Codes de compte non numériques',`Vérifié : Odoo les crée tels quels (601A00, A12345) sans contrôle ; le testeur DGFiP alerte si les 3 premiers caractères ne sont pas des chiffres.`,nonNumOther,'Compte');
   if(accounts.size&&!longCodes.length&&!merged.length)ok('Codes de compte homogènes après normalisation Odoo');
   // Règles Odoo observées sur une base de test (Odoo 20) — voir journal de constats
@@ -924,6 +932,9 @@ function analyse({name,rows:rows0,meta,isSample}){
   if(noLib.length)add('odoo','Compte à créer sans libellé','Vérifié : pour un compte qui n’existe pas encore, Odoo refuse l’import (« Champ requis manquant ’Nom du compte’ »). Renseigner CompteLib sur au moins une ligne de ces comptes.',noLib,'Compte');
   const bankNew=[...createdSet].filter(isCashCode);
   if(bankNew.length)add('warn','Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte','Vérifié : à la création d’un compte de banque ou caisse, Odoo ouvre automatiquement un journal de banque (BNK2, BNK3…) en plus des journaux du FEC. Cela vaut pour les 512 à 519 et 53, mais aussi pour la plupart des 50x, 511, 52 et 58, rangés en « Banque et caisse » dans le plan Odoo (vérifié le 26/10 avec des comptes 502, 508, 511, 521, 581 et un code court 5120). Vérifié : le journal de banque du FEC et ce nouveau journal pointent alors sur le même compte 512. Archiver le journal BNK vide après import, sinon le rapprochement bancaire part sur un journal vide.',bankNew,'Compte');
+  const bankLib=new Map();for(const [c,l] of accounts){const k=odooCode(c);if(!bankNew.includes(k))continue;const lb=[...l].find(x=>x)||'';const n=lb.trim().replace(/\s+/g,' ').toLowerCase();if(!n)continue;if(!bankLib.has(n))bankLib.set(n,{lib:lb.trim(),codes:new Set()});bankLib.get(n).codes.add(k);}
+  const bankDup=[...bankLib.values()].filter(v=>v.codes.size>1);
+  if(bankDup.length)add('odoo','Comptes de banque à créer avec le même libellé','Vérifié le 27/10 sur Odoo 20 : Odoo crée un journal de banque par compte, nommé d’après le libellé du compte. Deux libellés identiques (souvent le même IBAN) donnent la même adresse e-mail de journal et Odoo refuse tout le paquet (« Email aliases … cannot be used on several records »). Un libellé complété par le code du compte suffit (vérifié).',bankDup.map(v=>`${[...v.codes].join(' + ')} « ${v.lib} »`),'Compte');
   if(toCreate.length)add('info','Comptes absents '+(BASE_SRC?'de la base cible':'du plan comptable Odoo par défaut')+' (seront créés)',`${toCreate.length} compte${toCreate.length>1?'s':''} sur ${sixDigit.length}. Odoo déduit leur type du compte voisin du PCG : contrôler les types après import (notamment 4xx et comptes de résultat). Vérifié le 26/10 : Odoo n’enregistre le libellé du FEC qu’en anglais ; un utilisateur en français voit le nom du compte voisin (448600 « Charges à payer » affiché « État - Produits à recevoir »). Renommer ces comptes en français après import.`,toCreate,'Compte');
   const jColl=[],jSame=[],jNew=[],collCodes=[];
   for(const j of journals.keys()){const J=j.trim().toUpperCase();const lib=[...journals.get(j)][0]||'';const pf=jacc.get(j)||new Set();
@@ -932,6 +943,8 @@ function analyse({name,rows:rows0,meta,isSample}){
     if(!b){jNew.push(`${j} « ${lib} »`);continue;}
     const bt=b[1].type,same=bt===nat||(bt==='cash'&&nat==='bank')||(bt==='bank'&&nat==='cash');
     if(!same)collCodes.push(j);(same?jSame:jColl).push(`${j} « ${lib} » (nature ${JTYPE_LABEL[nat]}) → journal Odoo existant « ${b[1].name} » de type ${JTYPE_LABEL[bt]||bt}`);}
+  const bnkJ=bankNew.length?[...journals.keys()].filter(j=>/^BNK\d+$/i.test(j.trim())&&!Object.keys(BASE_JOURNALS).some(k=>k.trim().toUpperCase()===j.trim().toUpperCase())):[];
+  if(bnkJ.length)add('odoo','Code journal BNK… pris par les journaux de banque qu’Odoo crée','Vérifié le 27/10 sur Odoo 20 : en créant un compte de banque, Odoo ouvre un journal nommé BNK2, BNK3… Si le FEC a déjà un journal de ce code, Odoo refuse tout le paquet (« Le code du journal doit être unique par société »), ou, si le journal d’Odoo existe déjà, y verse les écritures du FEC. Cas typique d’un FEC exporté depuis Odoo.',bnkJ.map(j=>`${j} « ${[...journals.get(j)][0]||''} »`),'Journal');
   if(jColl.length)add('odoo','Code journal déjà utilisé dans '+(BASE_SRC?'la base cible':'Odoo par défaut')+' par un journal d’un autre type','Vérifié : Odoo rattache les écritures au journal existant portant ce code, quel que soit son type (ex. écritures d’inventaire « INV » versées dans le journal Factures clients « INV »). Renommer le code dans le FEC ou le journal Odoo avant l’import.',jColl,'Journal');
   if(jNew.length&&BASE_HAS_J)add('info','Journaux absents de la base cible (seront créés)','Odoo crée ces journaux avec un type deviné : le vérifier après import (un journal d’achats créé en « Divers » empêche la saisie de factures).',jNew,'Journal');
   if(jSame.length)add('info','Codes journaux repris des journaux par défaut d’Odoo','Même code et même nature que le journal Odoo existant (typique d’un FEC exporté depuis Odoo) : les écritures y seront versées.',jSame,'Journal');
@@ -1038,13 +1051,14 @@ function analyse({name,rows:rows0,meta,isSample}){
    // codes journaux incohérents sur quelques lignes
    const jcount=new Map();for(const x of rowsInfo)jcount.set(x.jc,(jcount.get(x.jc)||0)+1);const codes=[...jcount.keys()];
    out('Code journal incohérent sur quelques lignes','warn','Ces codes ne servent qu’à quelques lignes et ressemblent à un autre code du fichier : Odoo créera un journal à part.',codes.filter(c=>jcount.get(c)<=5&&[...E.values()].some(e=>e.jc===c&&Math.round(e.L.reduce((t,x)=>t+x.d-x.c,0)*100)!==0)).map(c=>[c,codes.find(o=>o!==c&&jcount.get(o)>jcount.get(c)&&(o.toUpperCase()===c.toUpperCase()||(c.length>=2&&(o.startsWith(c)||c.startsWith(o)))))]).filter(([c,o])=>o).map(([c,o])=>`${c} (${jcount.get(c)} ligne${jcount.get(c)>1?'s':''}) ↔ ${o}`),'Journal');
+   if(meta.excel)add(meta.excel.quoted.length?'odoo':'warn','Fichier rouvert puis réenregistré dans un tableur',`Le fichier a été ouvert dans Excel (ou un autre tableur) puis réenregistré : ${meta.excel.n} ligne${meta.excel.n>1?'s se terminent':' se termine'} par des « ; » ajoutés, en-tête compris${meta.excel.quoted.length?`, et ${meta.excel.quoted.length} ligne${meta.excel.quoted.length>1?'s sont entourées':' est entourée'} de guillemets (guillemets intérieurs doublés)`:''}. Vérifié le 27/10 sur Odoo 20 : ${meta.excel.quoted.length?'l’assistant refuse le fichier (« Certaines lignes n’ont pas le même nombre de champs que l’en-tête »), et ':''}la colonne Idevise n’est plus reconnue. Le contrôle porte sur les lignes remises dans leur forme d’origine, et le fichier de reprise les écrit ainsi.`,meta.excel.quoted,'Ligne');
    if(meta.mixedLines&&meta.mixedLines.length)add('warn','Encodage mixte','Une partie du fichier est en UTF-8, le reste en Windows-1252. Vérifié dans le code de l’assistant Odoo : il lit alors tout le fichier en ISO-8859-15 et les accents de ces lignes deviennent illisibles (« Ã© » au lieu de « é »).',meta.mixedLines,'Ligne');
   }
   const anSet=new Set(typeof anJournals!=='undefined'?anJournals:[]);
   const nonAN=data.filter(({r})=>!anSet.has(String(r[F.JournalCode]??'').trim())).map(({r})=>String(r[F.EcritureDate]??'').trim()).filter(isDate).sort();
   let fyStart='';if(cloture&&isDate(cloture)){const d=new Date(Date.UTC(+cloture.slice(0,4)-1,+cloture.slice(4,6)-1,+cloture.slice(6,8)+1));fyStart=d.toISOString().slice(0,10).replace(/-/g,'');}else if(nonAN.length)fyStart=nonAN[0].slice(0,6)+'01';
-  const allJ=new Set([...journals.keys(),...Object.keys(BASE_JOURNALS)].map(x=>x.trim().toUpperCase()));const renameJ={};for(const j of collCodes){let k=j.trim()+'F',n=2;while(allJ.has(k.toUpperCase()))k=j.trim()+'F'+(n++);renameJ[j]=k;allJ.add(k.toUpperCase());}
-  const hints={anJournals:[...anSet],fyStart,renameJ,exos:exos.length>=2?exos.map(e=>({start:e.start,label:e.label})):null};
+  const allJ=new Set([...journals.keys(),...Object.keys(BASE_JOURNALS)].map(x=>x.trim().toUpperCase()));const renameJ={},renameWhy={};for(const j of [...collCodes,...bnkJ]){if(renameJ[j])continue;let k=j.trim()+'F',n=2;while(allJ.has(k.toUpperCase()))k=j.trim()+'F'+(n++);renameJ[j]=k;allJ.add(k.toUpperCase());if(!collCodes.includes(j))renameWhy[j]='code réservé aux journaux de banque créés par Odoo';}
+  const hints={anJournals:[...anSet],fyStart,renameJ,renameWhy,bankDup:bankDup.flatMap(v=>[...v.codes]),excel:!!meta.excel,exos:exos.length>=2?exos.map(e=>({start:e.start,label:e.label})):null};
   const dgfip=dgfipTester(rows0,meta,name);
   collect({rows,hints,dgfip,name,isSample,meta,issues,passed,stats:{lignes:data.length,ecritures:ecr.size,journaux:journals.size,comptes:accounts.size,tiers:aux.size,periode:dates.length?periodStart+' → '+periodEnd:'—',total:(totD/100).toLocaleString('fr-FR',{minimumFractionDigits:2})+' €'},ecrKeys:new Set(ecr.keys()),jt:[...jt].map(([k,t])=>({code:k,lib:t.lib,lignes:t.n,ecritures:t.e.size,d:t.d,c:t.c})),totD,totC,hasAN,anJournals,periodStart,periodEnd,siren:m?m[1]:''});
 }
@@ -1080,6 +1094,7 @@ function dgfipTester(rows0,meta,name){
   if(meta&&meta.source==='Excel'){put(rej,'Fichier Excel : le testeur n’accepte que le fichier texte (.txt) ou XML');return {rej,al,nor};}
   // Préparation identique au testeur : espaces insécables en espaces, espaces autour des séparateurs et en fin de ligne supprimés
   const rows=rows0.map(r=>r.map((x,i)=>{x=String(x??'').replace(/\u00A0/g,' ');if(i>0)x=x.replace(/^ +/,'');return x.replace(/ +$/,'');}));
+  if(meta&&meta.excel)put(rej,'Fichier rouvert dans un tableur : les « ; » ajoutés en fin de ligne font que le testeur ne reconnaît plus le champ Idevise (il lit « IDEVISE___ »), vu sur un rapport réel du testeur');
   if(name&&!/^\d{9}FEC\d{8}(\.[A-Za-z0-9]+)?$/.test(String(name).replace(/^.*[\/\\]/,'')))put(nor,'Nom de fichier hors norme (attendu SIRENFECAAAAMMJJ, ex. 123456789FEC20251231.txt)');
   if(meta&&meta.sep&&!/^(tabulation|\| \(pipe\))$/.test(meta.sep))put(nor,'Séparateur « '+meta.sep+' » : l’arrêté prévoit la tabulation ou la barre verticale |');
   const nm=h=>String(h??'').replace(/^﻿/,'').trim().normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'_');
@@ -1147,6 +1162,7 @@ function fixFEC(rows,hints){
   const missing=EXPECTED.filter(e=>idx[e]<0&&!(bnc&&(e==='Debit'||e==='Credit'))&&!['Montantdevise','Idevise','EcritureLet','DateLet','ValidDate'].includes(e));
   if(missing.length)return {error:'Colonnes introuvables : '+missing.join(', ')+'. Pas de fichier de reprise possible.'};
   if(hdr.slice(0,18).join('|')!==EXPECTED.join('|'))c('En-tête remis au format réglementaire (18 colonnes, ordre et casse)','fmt');
+  if(hints.excel)c('Lignes remises dans leur forme d’origine (« ; » et guillemets ajoutés par le tableur retirés)','fmt');
   const out=[];let srcD=0,srcC=0,srcN=0;
   rows.slice(1).forEach((r,ri)=>{
     const ln=ri+2;
@@ -1175,9 +1191,11 @@ function fixFEC(rows,hints){
     else if(/^4[01]10*$/.test(cn)&&o.CompAuxNum&&cn.padEnd(6,'0')!==(cn[1]==='0'?PAY:RCV)){const nw=cn[1]==='0'?PAY:RCV;nColl++;collAcc.add(cn);if(COLL){M('CompteNum',cn,nw,`Comptes collectifs ${cn[1]==='0'?'fournisseurs':'clients'} reportés sur le compte par défaut d’Odoo (${nw}), comme les nouvelles factures`);o.CompteNum=nw;}else if(/^\d{1,5}$/.test(cn)){const nw=cn.padEnd(6,'0');M('CompteNum',cn,nw,'Codes de compte courts complétés à 6 chiffres');o.CompteNum=nw;}}
     else if(/^\d{1,5}$/.test(cn)){const nw=cn.padEnd(6,'0');M('CompteNum',cn,nw,'Codes de compte courts complétés à 6 chiffres');o.CompteNum=nw;}
     else if(/^\d{7,}$/.test(cn)&&/0$/.test(cn)){let k=cn;while(k.length>6&&k.endsWith('0'))k=k.slice(0,-1);if(k!==cn){M('CompteNum',cn,k,'Codes de compte longs ramenés à 6 chiffres (zéros finaux, comme le fait Odoo)');o.CompteNum=k;}}
+    if(/[^A-Za-z0-9.\-]/.test(o.CompteNum)){const nw=o.CompteNum.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9.\-]/g,'');if(nw){M('CompteNum',o.CompteNum,nw,'Caractères refusés par Odoo retirés des codes de compte (apostrophe, espace, souligné ; accents enlevés)');o.CompteNum=nw;}}
+    if(hints.bankDup&&hints.bankDup.includes(o.CompteNum)&&o.CompteLib&&!o.CompteLib.endsWith(`(${o.CompteNum})`)){const nw=`${o.CompteLib} (${o.CompteNum})`;M('CompteLib',o.CompteLib,nw,'Libellés identiques de comptes de banque à créer complétés par le code du compte (sinon Odoo refuse le paquet)');o.CompteLib=nw;}
     if(o.CompAuxNum&&!o.CompAuxLib){M('CompAuxLib','',o.CompAuxNum,'Nom de tiers vide remplacé par son code (ce que ferait Odoo)');o.CompAuxLib=o.CompAuxNum;}
     o._exo=exoOf(o.EcritureDate);
-    if(hints.renameJ&&hints.renameJ[o.JournalCode]){const nw=hints.renameJ[o.JournalCode];M('JournalCode',o.JournalCode,nw,`Journal ${o.JournalCode} renommé ${nw} (code déjà pris dans Odoo par un journal d’un autre type)`);o.JournalCode=nw;}
+    if(hints.renameJ&&hints.renameJ[o.JournalCode]){const nw=hints.renameJ[o.JournalCode];M('JournalCode',o.JournalCode,nw,`Journal ${o.JournalCode} renommé ${nw} (${(hints.renameWhy||{})[o.JournalCode]||'code déjà pris dans Odoo par un journal d’un autre type'})`);o.JournalCode=nw;}
     out.push(o);
   });
   const lib=new Map();for(const o of out)if(o.CompteLib&&!lib.has(o.CompteNum))lib.set(o.CompteNum,o.CompteLib);
@@ -1372,6 +1390,10 @@ const CAT=[
  C(/^Lettrage sur un compte de charge ou de produit/,{t:'Lettrage sur des comptes de charges ou produits',why:'On ne lettre que les comptes de tiers ou d’attente. Vérifié : Odoo garde la lettre mais ne lettre rien sur ces comptes.',how:[],where:'source',effect:'verif',min:()=>3}),
  C(/^Caractère \| ou tabulation dans un champ/,{t:'Séparateur caché dans un libellé',why:'Un | ou une tabulation à l’intérieur d’un libellé décale les colonnes.',how:['Le fichier de reprise les remplace par un espace.'],where:'auto',effect:'bloque'}),
  C(/^Champ entièrement entre guillemets/,{t:'Champs entourés de guillemets',why:'Export de type CSV. Odoo retire ces guillemets à la lecture (vérifié dans son code).',how:['Le fichier de reprise les retire aussi.'],where:'auto',effect:'dgfip'}),
+ C(/^Fichier rouvert puis réenregistré dans un tableur/,{t:'Le FEC a été rouvert puis réenregistré dans Excel',why:'Excel ajoute des « ; » en fin de ligne et entoure de guillemets les lignes qui en contiennent : Odoo refuse alors le fichier et ne reconnaît plus la colonne Idevise.',how:['Le fichier de reprise remet chaque ligne dans sa forme d’origine.','Pour la suite : ne pas ouvrir un FEC dans Excel avant import, ou ne pas l’enregistrer.'],where:'auto',effect:'bloque'}),
+ C(/^Caractères refusés par Odoo dans un code de compte/,{t:'Codes de compte avec des caractères refusés par Odoo',why:'Odoo n’accepte que des lettres sans accent, des chiffres, des points et des tirets : une apostrophe ou un accent font refuser tout un paquet de 1 000 lignes.',how:['Le fichier de reprise retire ces caractères et enlève les accents (401DUPONT’S → 401DUPONTS).'],where:'auto',effect:'bloque'}),
+ C(/^Comptes de banque à créer avec le même libellé/,{t:'Deux comptes de banque à créer portent le même libellé',why:'Odoo crée un journal par compte de banque, nommé d’après le libellé : deux noms identiques et Odoo refuse tout le paquet.',how:['Le fichier de reprise ajoute le code du compte au libellé (« FR76… (512005) »).'],where:'auto',effect:'bloque'}),
+ C(/^Code journal BNK/,{t:'Un journal BNK du FEC entre en conflit avec ceux qu’Odoo crée',why:'En créant un compte 512, Odoo ouvre un journal BNK2, BNK3… : si le FEC a déjà ce code, Odoo refuse le paquet ou mélange les écritures.',how:['Le fichier de reprise renomme ces journaux (code suivi de F).'],where:'auto',effect:'bloque'}),
  C(/^Guillemet à l’intérieur d’un champ/,{t:'Guillemets dans les libellés',why:'Odoo lit les guillemets comme des délimiteurs : il voit un nombre de colonnes faux et refuse tout le fichier.',how:['Le fichier de reprise retire les guillemets (aucune valeur comptable).'],where:'auto',effect:'bloque'}),
  C(/^CompAuxNum sans CompAuxLib/,{t:'Tiers sans nom',why:'Odoo nommera la fiche du tiers avec son code.',how:['Le fichier de reprise reprend le code comme nom.'],where:'auto',effect:'dgfip'}),
  C(/^(CompAuxLib sans CompAuxNum|Compte 401\/411 sans CompAuxNum)/,{t:'Lignes clients ou fournisseurs sans tiers',why:'Odoo importe la ligne sans partenaire : elle n’apparaîtra dans aucune balance âgée par client.',how:['À signaler au client si le suivi par tiers compte.'],where:'source',effect:'verif',min:()=>3}),
@@ -1426,12 +1448,13 @@ function issueHTML(i){
   const k=i._k||classify(i);
   const tech=i.desc&&i.desc!==k.why;
   const see=i._vr!=null&&i.lines.length&&!i.cross&&!GENERIC.test(i.title);
+  // Visible : titre, effet, que faire (sauf si la reprise s’en charge). Derrière le « i » : pourquoi, ce que fait la reprise, constat technique.
+  const info=[k.why?`<span class="tp">${esc(k.why)}</span>`:'',k.where==='auto'&&k.how&&k.how.length?`<span class="tp">${k.how.map(esc).join(' ')}</span>`:'',tech?`<span class="tp tq"><b>Constat technique.</b> ${esc(i.desc)}</span>`:''].join('');
   return `<article class="item ${k.where}"${i._vr!=null?` id="iss-${i._vr}-${i._vx}"`:''}>
-<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}</h4>${k.where==='auto'?'<span class="eff ok">Réglé par le fichier de reprise</span>':EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
-${k.why?`<p class="why">${esc(k.why)}</p>`:''}
-${k.how&&k.how.length?`<div class="howbox"><span class="hl">Que faire</span><ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>`:''}
+<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}${info?' '+tip(info):''}</h4>${k.where==='auto'?'<span class="eff ok">Réglé par le fichier de reprise</span>':EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
+${k.where!=='auto'&&k.how&&k.how.length?`<ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
 ${see?`<p class="seefec"><button class="linkbtn" type="button" data-vsee="${i._vr}:${i._vx}">Voir ${i.label==='Ligne'?(i.lines.length>1?'ces lignes':'cette ligne'):'les lignes concernées'} dans le FEC</button></p>`:''}
-${i.lines.length||tech?`<details class="more"><summary>${i.lines.length?`${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})${tech?' et constat technique':''}`:'Constat technique'}</summary>${i.lines.length?`<ul class="chips">${chips(i.lines,40)}</ul>`:''}${tech?`<div class="techd"><span class="hl">Constat technique</span><p><b>${esc(i.title)}.</b> ${esc(i.desc)}</p></div>`:''}</details>`:''}
+${i.lines.length?`<details class="more"><summary>${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})</summary><ul class="chips">${chips(i.lines,40)}</ul></details>`:''}
 </article>`;
 }
 function planOf(R){

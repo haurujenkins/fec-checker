@@ -1,0 +1,5 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+OD|Journal OD|1|20250105|401A'B|Tiers A|||P1|20250105|x|10,00|0,00|||20250131||
+OD|Journal OD|1|20250105|606400|Fournitures|||P1|20250105|x|0,00|10,00|||20250131||
+OD|Journal OD|2|20250105|6064É0|Fournitures E|||P2|20250105|x|10,00|0,00|||20250131||
+OD|Journal OD|2|20250105|512000|Banque|||P2|20250105|x|0,00|10,00|||20250131||
