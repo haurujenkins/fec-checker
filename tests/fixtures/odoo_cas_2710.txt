@@ -1,0 +1,15 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+OD|Opérations diverses|1|20250115|601000|Achats|||P1|20250115|Libellé|10,00|0,00|||20250131||
+OD|Opérations diverses|1|20250115|512000|Banque|||P1|20250115|Libellé|0,00|10,00|||20250131||
+OD|Opérations diverses|2|20250015|601000|Achats|||P2|20250015|Libellé|10,00|0,00|||20250131||
+OD|Opérations diverses|2|20250015|512000|Banque|||P2|20250015|Libellé|0,00|9,00|||20250131||
+OD|Opérations diverses|3||601000|Achats|||P3||Libellé|10,00|0,00|||20250131||
+OD|Opérations diverses|3||512000|Banque|||P3||Libellé|0,00|10,00|||20250131||
+OD|Opérations diverses|2024-27|20231115|601000|Achats|||P2024-27|20231115|Libellé|10,00|0,00|||20250131||
+OD|Opérations diverses|2024-27|20231115|512000|Banque|||P2024-27|20231115|Libellé|0,00|10,00|||20250131||
+od|Opérations diverses|4|20250115|601000|Achats|||P4|20250115|Libellé|10,00|0,00|||20250131||
+od|Opérations diverses|4|20250115|512000|Banque|||P4|20250115|Libellé|0,00|10,00|||20250131||
+VT|Ventes|5|20250115|411000|Clients|C1|Client 1|F5|20250115|Libellé|100,00|0,00|AA|20250220|20250131|110,00|USD
+VT|Ventes|5|20250115|706000|Prestations|||F5|20250115|Libellé|0,00|100,00|||20250131|-110,00|USD
+BQ|Banque|6|20250220|512000|Banque|||R6|20250220|Libellé|95,00|0,00|||20250131|110,00|USD
+BQ|Banque|6|20250220|411000|Clients|C1|Client 1|R6|20250220|Libellé|0,00|95,00|AA|20250220|20250131|-110,00|USD

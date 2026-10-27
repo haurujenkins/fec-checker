@@ -12,6 +12,7 @@ for(const p of txt(F))cases[rel(p)]=[p];
 cases['multi-exercices']=[path.join(F,'123456789FEC20241231.txt'),path.join(F,'123456789FEC20251231.txt')];
 cases['neg.txt + exports Odoo xlsx']=[path.join(F,'neg.txt'),...odoo];
 cases['xyz.txt + exports Odoo csv']=[path.join(F,'xyz.txt'),...csv];
+cases['hors_bilan.txt + export comptes hors bilan']=[path.join(F,'hors_bilan.txt'),path.join(F,'export_comptes_hors_bilan.csv')];
 for(const e of fs.readdirSync(path.join(F,'editeurs')).sort())for(const p of txt(path.join(F,'editeurs',e)))cases[rel(p)]=[p];
 for(const p of txt(path.join(F,'variantes')))cases[rel(p)]=[p];
 

@@ -1,0 +1,5 @@
+Code,Nom du compte,Type,Actif
+512000,Banque,Banque et caisse,True
+601000,Achats,Charges,True
+801000,Engagements donnés,Hors bilan,True
+809000,Contrepartie engagements,Hors bilan,True

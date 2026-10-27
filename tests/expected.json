@@ -315,8 +315,7 @@
     "[err] Nombre de champs différent de l’en-tête sur certaines lignes (4)",
     "[err] JournalLib vide (4)",
     "[err] EcritureNum vide (Odoo utilisera PieceRef) (4)",
-    "[err] EcritureDate vide (4)",
-    "[err] PieceDate vide (4)",
+    "[err] EcritureDate et PieceDate vides (4)",
     "[err] ValidDate vide (4)",
     "[warn] CompteNum ne commence pas par 3 chiffres (6)",
     "[err] CompteLib vide (4)",
@@ -339,7 +338,7 @@
     "[warn] Lettre de lettrage présente sur une seule ligne (2)",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[info] Écritures en devise étrangère",
+    "[odoo] Écritures en devise étrangère",
     "[info] Pas de journal d’à-nouveaux (AN / OUV)"
    ]
   }
@@ -409,6 +408,22 @@
     "[err] Lignes vides au milieu du fichier (fins de ligne CR CR LF) (2)",
     "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
     "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "tests/fixtures/banques_100.txt": [
+  {
+   "name": "banques_100.txt",
+   "verdict": "FEC déconseillé en l’état",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (100)",
+    "[err] Trop de comptes de banque ou caisse à créer",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (100)",
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
@@ -497,6 +512,22 @@
    ]
   }
  ],
+ "tests/fixtures/hors_bilan.txt": [
+  {
+   "name": "hors_bilan.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Compte hors plan comptable (classe 0, 8 ou 9) (5)",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (3)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/long.txt": [
   {
    "name": "long.txt",
@@ -575,6 +606,34 @@
    ]
   }
  ],
+ "tests/fixtures/odoo_cas_2710.txt": [
+  {
+   "name": "odoo_cas_2710.txt",
+   "verdict": "FEC déconseillé en l’état",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[err] Date inexistante (EcritureDate) (2)",
+    "[err] Date inexistante (PieceDate) (2)",
+    "[err] EcritureDate et PieceDate vides (2)",
+    "[warn] ValidDate antérieure à EcritureDate (2)",
+    "[warn] Numéro d’écriture portant une autre année que sa date (1)",
+    "[err] Écritures déséquilibrées (débit ≠ crédit) (1)",
+    "[err] Total débit ≠ total crédit",
+    "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[warn] Codes journaux qui ne diffèrent que par la casse (1)",
+    "[err] Écriture déséquilibrée sans mois valide : l’assistant Odoo s’arrête (2)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (2)",
+    "[info] Type prévu des journaux créés",
+    "[warn] Lettrages en devise avec un écart de change (1)",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[odoo] Écritures en devise étrangère",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
+    "[warn] Numérotation non chronologique (1)"
+   ]
+  }
+ ],
  "tests/fixtures/pv.txt": [
   {
    "name": "pv.txt",
@@ -619,7 +678,7 @@
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[info] Écritures en devise étrangère",
+    "[odoo] Écritures en devise étrangère",
     "[info] Pas de journal d’à-nouveaux (AN / OUV)"
    ]
   }
@@ -679,7 +738,23 @@
     "[info] Comptes absents de la base cible (seront créés) (1)",
     "[info] Codes journaux repris des journaux par défaut d’Odoo (1)",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[info] Écritures en devise étrangère",
+    "[odoo] Écritures en devise étrangère",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
+ "hors_bilan.txt + export comptes hors bilan": [
+  {
+   "name": "hors_bilan.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Compte hors plan comptable (classe 0, 8 ou 9) (5)",
+    "[info] Type prévu des journaux créés",
+    "[odoo] Export des comptes inactifs manquant",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[odoo] Pièces mêlant comptes hors bilan et autres comptes (1)",
+    "[odoo] Lettrage sur des comptes hors bilan (2)",
     "[info] Pas de journal d’à-nouveaux (AN / OUV)"
    ]
   }

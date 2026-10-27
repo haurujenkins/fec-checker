@@ -1,0 +1,7 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+OD|Opérations diverses|1|20250115|801000|Engagements donnés|||P1|20250115|Libellé|10,00|0,00|A|20250115|20250131||
+OD|Opérations diverses|1|20250115|809000|Contrepartie engagements|||P1|20250115|Libellé|0,00|10,00|||20250131||
+OD|Opérations diverses|2|20250115|801000|Engagements donnés|||P1|20250115|Libellé|10,00|0,00|||20250131||
+OD|Opérations diverses|2|20250115|512000|Banque|||P1|20250115|Libellé|0,00|10,00|||20250131||
+OD|Opérations diverses|3|20250115|801000|Engagements donnés|||P1|20250115|Libellé|0,00|10,00|A|20250115|20250131||
+OD|Opérations diverses|3|20250115|809000|Contrepartie engagements|||P1|20250115|Libellé|10,00|0,00|||20250131||
