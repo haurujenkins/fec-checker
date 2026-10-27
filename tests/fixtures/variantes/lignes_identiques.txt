@@ -1,0 +1,14 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+OD|Journal OD|1|20250105|421000|Personnel|||P1|20250105|Cotisation|50,00|0,00|||20250131||
+OD|Journal OD|1|20250105|421000|Personnel|||P1|20250105|Cotisation|144,18|0,00|||20250131||
+OD|Journal OD|1|20250105|437000|Organismes sociaux|||P1|20250105|Cotisation|0,00|25,00|||20250131||
+OD|Journal OD|1|20250105|437000|Organismes sociaux|||P1|20250105|Cotisation|0,00|25,00|||20250131||
+OD|Journal OD|1|20250105|437000|Organismes sociaux|||P1|20250105|Cotisation|0,00|75,00|||20250131||
+OD|Journal OD|1|20250105|437000|Organismes sociaux|||P1|20250105|Cotisation|0,00|69,18|||20250131||
+OD|Journal OD|2|20250106|606000|Achats|||P2|20250106|Fournitures|30,00|0,00|||20250131||
+OD|Journal OD|2|20250106|606000|Achats|||P2|20250106|Fournitures|30,00|0,00|||20250131||
+OD|Journal OD|2|20250106|512000|Banque|||P2|20250106|Fournitures|0,00|30,00|||20250131||
+OD|Journal OD|3|20250107|606000|Achats|||P3|20250107|Timbres|12,00|0,00|||20250131||
+OD|Journal OD|3|20250107|512000|Banque|||P3|20250107|Timbres|0,00|12,00|||20250131||
+OD|Journal OD|3|20250107|606000|Achats|||P3|20250107|Timbres|12,00|0,00|||20250131||
+OD|Journal OD|3|20250107|512000|Banque|||P3|20250107|Timbres|0,00|12,00|||20250131||
