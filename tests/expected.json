@@ -997,6 +997,22 @@
    ]
   }
  ],
+ "tests/fixtures/variantes/ecritures_double_reference.txt": [
+  {
+   "name": "ecritures_double_reference.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Compte 401/411 sans CompAuxNum (4)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
+    "[warn] Écritures en double (numéros différents) (1)"
+   ]
+  }
+ ],
  "tests/fixtures/variantes/excel_reenregistre.txt": [
   {
    "name": "excel_reenregistre.txt",
@@ -1231,7 +1247,7 @@
  "tests/fixtures/variantes/types_journaux.txt": [
   {
    "name": "types_journaux.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Compte auxiliaire sur un compte non collectif (10)",
@@ -1241,8 +1257,7 @@
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[info] Pas de journal d’à-nouveaux (AN / OUV)",
-    "[warn] Écritures en double (numéros différents) (8)"
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
    ]
   }
  ]
