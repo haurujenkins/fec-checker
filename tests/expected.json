@@ -479,6 +479,22 @@
    ]
   }
  ],
+ "tests/fixtures/devise_zero.txt": [
+  {
+   "name": "devise_zero.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] Nom de fichier non conforme",
+    "[warn] Ligne sans montant (ni débit ni crédit) (1)",
+    "[info] Idevise sans Montantdevise (1)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (1)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[info] Pas de journal d’à-nouveaux (AN / OUV)"
+   ]
+  }
+ ],
  "tests/fixtures/dup.txt": [
   {
    "name": "dup.txt",
