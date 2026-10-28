@@ -1,0 +1,27 @@
+name: Publication de version
+# À chaque arrivée sur main : si le numéro de version de index.html n'a pas encore de tag,
+# pose le tag vX.Y et crée la Release GitHub avec index.html en pièce jointe.
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tag et Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(grep -o 'data-version="[^"]*"' index.html | head -1 | cut -d'"' -f2)
+          [ -n "$V" ] || { echo "::error::Numéro de version introuvable dans index.html"; exit 1; }
+          if git rev-parse -q --verify "refs/tags/v$V" >/dev/null; then
+            echo "v$V existe déjà : rien à publier"; exit 0; fi
+          awk -v h="### v$V" '$0==h||index($0,h" ")==1{f=1;next} f&&/^#{2,3} /{exit} f' docs/versions.md > notes.md
+          [ -s notes.md ] || echo "Version $V" > notes.md
+          T=$(grep -m1 "^### v$V\( \|$\)" docs/versions.md | sed "s/^### v/Version /")
+          gh release create "v$V" index.html --target "$GITHUB_SHA" --title "${T:-Version $V}" --notes-file notes.md

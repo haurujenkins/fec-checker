@@ -1,8 +1,9 @@
 name: Tests de non-régression
 on:
   push:
-    branches: [main]
+    branches: [dev, main]
   pull_request:
+    branches: [dev, main]
 jobs:
   regression:
     runs-on: ubuntu-latest
@@ -14,3 +15,19 @@ jobs:
       - run: npm i --no-save xlsx@0.18.5
       - run: node tests/regression.js
       - run: node tests/options.js
+  # Une PR vers main publie une version : son numéro doit être nouveau et figurer au journal des versions
+  version:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Numéro de version nouveau et documenté
+        run: |
+          V=$(grep -o 'data-version="[^"]*"' index.html | head -1 | cut -d'"' -f2)
+          echo "Version de la page : $V"
+          [ -n "$V" ] || { echo "::error::Numéro de version introuvable dans index.html (data-version)"; exit 1; }
+          if git rev-parse -q --verify "refs/tags/v$V" >/dev/null; then
+            echo "::error::La version v$V est déjà publiée : changer le numéro dans index.html"; exit 1; fi
+          grep -q "^### v$V" docs/versions.md || { echo "::error::Ajouter la section « ### v$V » au journal de docs/versions.md"; exit 1; }
