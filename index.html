@@ -5,24 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Contrôle FEC</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap">
 <style>
 /* Layout : une colonne de travail. Deux encarts de dépôt (1. FEC, 2. base Odoo cible) → résultat : verdict et temps → points à régler → fichiers → détail. */
+/* Habillage aux couleurs d'Odoo : bandeau violet, verdict en carte pleine couleur, cartes arrondies sans bordure. */
 :root{
-  --bg:#f5f6f3; --surface:#ffffff; --sunk:#eef0ec; --fg:#18212c; --muted:#59636f; --line:#d8dcd4;
-  --accent:#1f4e79; --accent-fg:#ffffff;
-  --ok:#1d7343; --ok-bg:#e2f2e7; --warn:#8f5c00; --warn-bg:#fff1d1; --err:#b0261e; --err-bg:#fbe3e1; --info:#245a86; --info-bg:#e3edf7; --vrf:#6a3d9a; --vrf-bg:#efe7f8;
-  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#f4f2f3; --surface:#ffffff; --sunk:#f6f1f4; --fg:#2a2230; --muted:#6d6470; --line:#e5dfe3;
+  --accent:#714b67; --accent-fg:#ffffff; --band:#714b67; --band-fg:#ffffff; --btnline:#d9cfd6; --shade:rgba(60,30,55,.07); --tabshade:rgba(60,30,55,.35);
+  --ok:#00807a; --ok-bg:#e0f3f1; --warn:#b85c00; --warn-bg:#fdefdc; --err:#c43b3b; --err-bg:#fbe5e5; --info:#36689c; --info-bg:#e5eef7; --vrf:#714b67; --vrf-bg:#f1e7ee;
+  --v-ok:linear-gradient(120deg,#00756f,#14a39a); --v-warn:linear-gradient(120deg,#c76a08,#e08a1e); --v-err:linear-gradient(120deg,#b52f3a,#d9534f); --v-fg:#ffffff;
+  --sans:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#141920; --surface:#1d242e; --sunk:#181e26; --fg:#e7eaee; --muted:#9ba6b3; --line:#2f3847;
-  --accent:#86b8ea; --accent-fg:#0e1925;
-  --ok:#74d39a; --ok-bg:#15301f; --warn:#f1c35e; --warn-bg:#382b0f; --err:#ff8f86; --err-bg:#3b1a18; --info:#94c4f0; --info-bg:#1a2c40; --vrf:#c7a4f0; --vrf-bg:#2b2040;
+  --bg:#17131a; --surface:#221c25; --sunk:#1c171f; --fg:#efe9ee; --muted:#a99fa8; --line:#382e3a;
+  --accent:#d3a8c8; --accent-fg:#22131e; --band:#3b2737; --band-fg:#f6eef4; --btnline:#4a3d4c; --shade:rgba(0,0,0,.35); --tabshade:rgba(0,0,0,.6);
+  --ok:#5fd0c4; --ok-bg:#12302e; --warn:#f2b056; --warn-bg:#3a2a12; --err:#ff8f86; --err-bg:#3b1a18; --info:#94c4f0; --info-bg:#1a2c40; --vrf:#d3a8c8; --vrf-bg:#352434;
+  --v-ok:linear-gradient(120deg,#0b5f5a,#127e77); --v-warn:linear-gradient(120deg,#8f4c07,#ad6512); --v-err:linear-gradient(120deg,#8c2530,#a83a3a);
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#141920; --surface:#1d242e; --sunk:#181e26; --fg:#e7eaee; --muted:#9ba6b3; --line:#2f3847;
-  --accent:#86b8ea; --accent-fg:#0e1925;
-  --ok:#74d39a; --ok-bg:#15301f; --warn:#f1c35e; --warn-bg:#382b0f; --err:#ff8f86; --err-bg:#3b1a18; --info:#94c4f0; --info-bg:#1a2c40; --vrf:#c7a4f0; --vrf-bg:#2b2040;
+  --bg:#17131a; --surface:#221c25; --sunk:#1c171f; --fg:#efe9ee; --muted:#a99fa8; --line:#382e3a;
+  --accent:#d3a8c8; --accent-fg:#22131e; --band:#3b2737; --band-fg:#f6eef4; --btnline:#4a3d4c; --shade:rgba(0,0,0,.35); --tabshade:rgba(0,0,0,.6);
+  --ok:#5fd0c4; --ok-bg:#12302e; --warn:#f2b056; --warn-bg:#3a2a12; --err:#ff8f86; --err-bg:#3b1a18; --info:#94c4f0; --info-bg:#1a2c40; --vrf:#d3a8c8; --vrf-bg:#352434;
+  --v-ok:linear-gradient(120deg,#0b5f5a,#127e77); --v-warn:linear-gradient(120deg,#8f4c07,#ad6512); --v-err:linear-gradient(120deg,#8c2530,#a83a3a);
   color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15.5px;line-height:1.55;
@@ -392,6 +396,49 @@ dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
 .tipb .tp{display:block}.tipb .tp+.tp{margin-top:6px}.tipb .tq{color:var(--muted,#666);font-size:.82rem}
 .tipb::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
 .tip:hover .tipb,.tip.open .tipb,.ib:focus-visible+.tipb,.tipb:focus-within{visibility:visible;opacity:1}
+/* Habillage Odoo : vient après les règles de base et les surcharge */
+body{margin:0;padding-top:0}
+main{max-width:880px;gap:20px}
+header.top{position:relative;padding:30px 0 66px;color:var(--band-fg);background:var(--band);box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax);margin-bottom:-64px}
+header.top h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em}
+header.top .ib,.verdict .ib{background:transparent;color:inherit;border-color:rgba(255,255,255,.5)}
+header.top .privacy{background:rgba(255,255,255,.14);color:var(--band-fg)}
+.tabs{position:relative;z-index:1;background:var(--surface);border-radius:14px;padding:6px;gap:4px;box-shadow:0 8px 24px -10px var(--tabshade);justify-self:stretch}
+.tab{border:0;border-radius:10px;font-weight:700;padding:9px 18px}
+.tab[aria-selected="true"]{background:var(--sunk);color:var(--accent)}
+.tab:focus-visible{outline-offset:2px}
+.resbar{border-bottom:0}
+.btn{border-radius:999px;font-weight:700;padding:8px 18px;border-color:var(--btnline)}
+.btn.primary{box-shadow:0 6px 14px -6px var(--tabshade)}
+.verdict{border:0;border-radius:20px;padding:26px 28px;color:var(--v-fg);background:var(--v-ok);box-shadow:0 14px 30px -14px var(--tabshade)}
+.verdict.ok{background:var(--v-ok)}.verdict.warn{background:var(--v-warn)}.verdict.err{background:var(--v-err)}
+.verdict h2,.verdict .eyebrow,.verdict .vmain p:last-child,.verdict .vtime span,.verdict .vtime small,.verdict .vtime b{color:var(--v-fg)!important}
+.verdict .vmain p:last-child{opacity:.92}
+.verdict .eyebrow{opacity:.8}
+.verdict h2{font-size:1.75rem;font-weight:800}
+.verdict .vmain{position:relative;padding-left:74px}
+.verdict .vmain::before{content:"✓";position:absolute;left:0;top:50%;translate:0 -50%;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;font-size:1.6rem;font-weight:700;background:rgba(255,255,255,.2);color:var(--v-fg);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.verdict.warn .vmain::before{content:"!"}.verdict.err .vmain::before{content:"✕"}
+.verdict .linkbtn,.verdict a{color:var(--v-fg)}
+.vtime{border-left-color:rgba(255,255,255,.35)}
+.vtime b{font-family:var(--sans);font-weight:800;font-size:2.2rem}
+.lvl{border:0;border-radius:18px;padding:20px 24px;box-shadow:0 2px 6px var(--shade)}
+.lvl.l1{box-shadow:inset 6px 0 0 var(--err),0 2px 6px var(--shade)}
+.lvl>h3{font-size:1.15rem;font-weight:800}
+.ln{width:2rem;height:2rem;background:var(--sunk);color:var(--accent);font-weight:800}
+.lvl.l1 .ln{background:var(--err);color:var(--surface)}
+.bitem>summary{padding:12px 0}
+.bitem .tt{font-weight:700}
+.wtag,.eff,.count,.atag,.vpill{font-weight:700}
+.act{border-radius:14px}
+.act.on{box-shadow:none;background:var(--sunk)}
+.detail.lvl3{border:0;border-radius:18px;box-shadow:0 2px 6px var(--shade)}
+.vbar,.vscroll{border:0;border-radius:16px;box-shadow:0 2px 6px var(--shade)}
+.vhead{color:var(--accent)}
+.slot{border:0;border-radius:18px;box-shadow:0 2px 6px var(--shade)}
+.slot.filled{box-shadow:0 0 0 1.5px var(--ok),0 2px 6px var(--shade)}
+.drop{border-radius:14px;border-color:var(--btnline)}
+@media (max-width:600px){header.top{padding:22px 0 60px}header.top h1{font-size:1.5rem}.verdict{padding:20px}.verdict .vmain{padding-left:0;padding-top:52px}.verdict .vmain::before{top:0;translate:none;width:42px;height:42px;font-size:1.2rem}.verdict h2{font-size:1.4rem}.lvl{padding:16px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
