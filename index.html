@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Contrôle FEC</title>
+<title>FEC it until you make it</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap">
 <style>
@@ -439,6 +439,8 @@ header.top .privacy{background:rgba(255,255,255,.14);color:var(--band-fg)}
 .slot.filled{box-shadow:0 0 0 1.5px var(--ok),0 2px 6px var(--shade)}
 .drop{border-radius:14px;border-color:var(--btnline)}
 @media (max-width:600px){header.top{padding:22px 0 60px}header.top h1{font-size:1.5rem}.verdict{padding:20px}.verdict .vmain{padding-left:0;padding-top:52px}.verdict .vmain::before{top:0;translate:none;width:42px;height:42px;font-size:1.2rem}.verdict h2{font-size:1.4rem}.lvl{padding:16px}}
+header.top .credit{position:relative;outline:none}header.top .credit::after{content:attr(data-credit);position:absolute;left:0;top:100%;margin-top:4px;font-size:.78rem;font-weight:400;letter-spacing:0;white-space:nowrap;background:#2a2230;color:#fff;padding:4px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:3}header.top .credit:hover::after,header.top .credit:focus::after{opacity:1}
+footer.appver{margin:40px 0 24px;text-align:center;font-size:.78rem;color:var(--muted)}footer.appver a{color:inherit}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -446,7 +448,7 @@ header.top .privacy{background:rgba(255,255,255,.14);color:var(--band-fg)}
 
 <main>
 <header class="top">
-  <h1>Contrôle FEC<span class="tip"><button class="ib" type="button" aria-label="En savoir plus" aria-expanded="false">i</button><span class="tipb">Avant d’importer un FEC dans Odoo : verdict, points à régler avec leur temps estimé, et fichier de reprise prêt à importer.</span></span></h1>
+  <h1><span class="credit" tabindex="0" data-credit="D’après une idée originale de anrs">FEC it until you make it</span><span class="tip"><button class="ib" type="button" aria-label="En savoir plus" aria-expanded="false">i</button><span class="tipb">Avant d’importer un FEC dans Odoo : verdict, points à régler avec leur temps estimé, et fichier de reprise prêt à importer.</span></span></h1>
   <p class="privacy"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 12 6h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5H6V4.5a2 2 0 1 1 4 0V6Z"/></svg>Rien ne quitte votre poste · fonctionne hors ligne</p>
 </header>
 
@@ -561,6 +563,7 @@ header.top .privacy{background:rgba(255,255,255,.14);color:var(--band-fg)}
 </div>
 </section>
 </div>
+<footer class="appver">FEC it until you make it · version <span id="appVersion" data-version="1.0">1.0</span> du 28/10/2026 · <a href="https://github.com/haurujenkins/fec-checker/releases" target="_blank" rel="noopener">Nouveautés</a></footer>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1784,7 +1787,7 @@ ${!R.issues.length?'<p class="note">Aucune anomalie détectée.</p>':''}
 ${P.level==='ok'?altHTML(R,P).replace('<section class="alt"','<details class="block"><summary>Autre méthode : balance d’ouverture</summary><section class="alt"').replace(/<\/section>$/,'</section></details>'):''}
 ${R.jt&&R.jt.length?ctrlTable(R):''}
 <details class="block"><summary>Contrôles réussis (${R.passed.length})</summary><ul class="passed">${R.passed.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details></div></details></div>`;
-    txt+=`Contrôle FEC — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.client?' + délai client':''}${useAlt?` ; ou ≈ ${fmtMin(altMin)} avec une balance d’ouverture`:''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
+    txt+=`FEC it until you make it — ${R.name}\nVerdict : ${P.title} (≈ ${fmtMin(total)}${P.client?' + délai client':''}${useAlt?` ; ou ≈ ${fmtMin(altMin)} avec une balance d’ouverture`:''})\n${P.sub}\nExigences fiscales : ${R.dgfip&&!R.dgfip.rej.size?'accepté par le testeur DGFiP':'refusé par le testeur DGFiP'}${R.dgfip?[...R.dgfip.rej].map(([k,a])=>`\n- ${k}${a.length?` (${a.length} ligne${a.length>1?'s':''})`:''}`).join('')+[...R.dgfip.al].map(([k,a])=>`\n- alerte : ${k}${a.length?` (${a.length})`:''}`).join('')+[...(R.dgfip.nor||[])].map(([k,a])=>`\n- écart à la norme : ${k}${a.length?` (${a.length})`:''}`).join(''):''}\n\n`+['source','odoo','after','auto'].filter(w=>P.g[w].length).map(w=>WHERE[w].t.toUpperCase()+'\n'+P.g[w].map(i=>`- ${i._k.t}${i._k.n?` (${i._k.n})`:''}${i._k.min&&w!=='auto'?` — ≈ ${fmtMin(i._k.min)}`:''}\n  ${i._k.why||''}${i._k.how.length?'\n  → '+i._k.how.join('\n  → '):''}${i.lines.length?`\n  ${i.label}s : ${i.lines.slice(0,30).join(', ')}${i.lines.length>30?' …':''}`:''}`).join('\n')).join('\n\n')+(changes.length?`\n\nFEC CORRIGÉ\n`+changes.map(([k,n])=>`- ${k} (${n})`).join('\n'):'')+`\n\nLignes ${S.lignes} · Écritures ${S.ecritures} · Période ${S.periode} · Total débit ${S.total}\n\n`;
   }
   $('reports').innerHTML=navify(html);lastReport=(`Référentiel : ${BASE_SRC?'base Odoo cible ('+BASE_SRC+')':'plan comptable Odoo 20 FR par défaut'}\n\n`+txt).trim();
   $('refLine').innerHTML=refLineHTML();$('resbar').hidden=false;document.querySelector('.inputs')?.classList.add('min');$('empty').hidden=true;viewReset();
