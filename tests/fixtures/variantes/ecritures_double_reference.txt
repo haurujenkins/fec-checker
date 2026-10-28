@@ -1,0 +1,9 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+ACH|Achats|1|20250110|606000|Achats|||B325-0001|20250110|Fournitures|40,00|0,00|||20250131||
+ACH|Achats|1|20250110|401000|Fournisseurs|||B325-0001|20250110|Fournitures|0,00|40,00|||20250131||
+ACH|Achats|2|20250110|606000|Achats|||N° B325-0001|20250110|Fournitures|40,00|0,00|||20250131||
+ACH|Achats|2|20250110|401000|Fournisseurs|||N° B325-0001|20250110|Fournitures|0,00|40,00|||20250131||
+ACH|Achats|3|20250110|606000|Achats|||F-0010|20250110|Fournitures|25,00|0,00|||20250131||
+ACH|Achats|3|20250110|401000|Fournisseurs|||F-0010|20250110|Fournitures|0,00|25,00|||20250131||
+ACH|Achats|4|20250110|606000|Achats|||F-0011|20250110|Fournitures|25,00|0,00|||20250131||
+ACH|Achats|4|20250110|401000|Fournisseurs|||F-0011|20250110|Fournitures|0,00|25,00|||20250131||
