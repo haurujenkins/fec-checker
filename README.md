@@ -1,4 +1,4 @@
-# fec_checker
+# FEC it until you make it
 
 Un checker de FEC avant l'import dans Odoo.
 
@@ -33,7 +33,11 @@ La page est servie gratuitement par GitHub Pages, directement depuis la branche 
 2. *Build and deployment* → *Source* : **Deploy from a branch**.
 3. *Branch* : **main**, dossier **/ (root)**, puis **Save**.
 
-Après une minute environ, la page est en ligne sur https://haurujenkins.github.io/fec-checker/. Chaque push sur `main` la met à jour.
+Après une minute environ, la page est en ligne sur https://haurujenkins.github.io/fec-checker/.
+
+## Versions
+
+Le travail se fait sur la branche `dev` ; `main` ne reçoit que les versions publiées (1.0, 1.1…), et le site en ligne ne change qu'à ce moment-là. Chaque version a son tag et sa Release GitHub avec le `index.html` à envoyer aux collègues ; le numéro s'affiche en bas de la page. Processus et journal des versions : `docs/versions.md`.
 
 Le serveur ne fait que livrer la page : le FEC et les exports Odoo restent dans le navigateur et ne sont jamais envoyés. La page charge seulement la bibliothèque de lecture Excel (cdnjs) et les polices (Google Fonts). Le dépôt étant public, tout ce qui y est versé est aussi publié : n'y mettre aucun fichier client.
 
