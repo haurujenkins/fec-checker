@@ -1,0 +1,4 @@
+JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise
+VT|Ventes|1|20250107|706000|Prestations|||F1|20250107|Ligne offerte|0,00|0,00|||20250107||EUR
+VT|Ventes|1|20250107|706000|Prestations|||F1|20250107|Vente|0,00|100,00|||20250107|-100,00|EUR
+VT|Ventes|1|20250107|411000|Clients|C1|CLIENT UN|F1|20250107|Vente|100,00|0,00|||20250107|100,00|EUR
