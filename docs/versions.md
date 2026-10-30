@@ -27,6 +27,15 @@ Quand `dev` contient assez de nouveautés :
 
 ## Journal des versions
 
+### v1.1
+
+Deuxième version publiée (30/10/2026), qui corrige des fausses alertes vues sur des FEC réels et clarifie l'affichage :
+
+- Montant en devise à zéro sans code devise : plus signalé (Odoo l'ignore). Non nul, il devient une simple note « Pour information ».
+- Même numéro d'écriture pour plusieurs pièces équilibrées (paquets mensuels) : passe de « Importé, mais faussé » à « À vérifier avec le client », car les montants et les soldes restent justes.
+- Temps estimé plus cohérent : les vérifications après import comptent en un seul passage, plafonné à 15 minutes.
+- Bulle « i » du temps estimé réparée, et bulles du fichier de reprise et de la table de correspondance réécrites.
+
 ### v1.0
 
 Première version publiée (28/10/2026), qui reprend tout le travail fait depuis le début du projet :
