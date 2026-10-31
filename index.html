@@ -1554,7 +1554,7 @@ function planOf(R){
       if(i.an&&R._fix.opts.dropAN){k.where='auto';k.how=['Le fichier de reprise retire les écritures d’à-nouveaux (option choisie, à valider avec l’expert-comptable).'];k.min=0;k.delay=false;}
       else if(i.pair&&pf(i.pair[0])!==pf(i.pair[1])){k.where='auto';k.how=['Le fichier de reprise préfixe les numéros d’écriture (option choisie) : laisser vide le préfixe de document dans l’assistant.'];k.min=0;k.delay=false;}}
     i._k=k;}
-  const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);
+  const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);for(const w in g)g[w]=jFirst(g[w]);
   const sum=w=>g[w].reduce((t,i)=>t+i._k.min,0);
   const blockSrc=g.source.filter(i=>['bloque','fausse'].includes(i._k.effect));
   const delay=blockSrc.some(i=>i._k.delay);
@@ -1572,6 +1572,9 @@ function planOf(R){
 }
 // Après l’import : les vérifications (balance, balance âgée, plan comptable, journaux) se font en un seul passage, plafonné à 15 min ; seules les actions qui conditionnent la comptabilisation s’ajoutent une à une
 const afterMin=L=>L.filter(i=>!i._k.check).reduce((t,i)=>t+i._k.min,0)+Math.min(15,L.filter(i=>i._k.check).reduce((t,i)=>t+i._k.min,0));
+// Constats sur les journaux (journal de banque en double, type deviné…) : en tête de chaque liste, dans le rapport comme dans la Lecture
+const JRN=i=>i.label==='Journal'||/journa/i.test(i._k?i._k.t:i.title);
+const jFirst=a=>a.filter(JRN).concat(a.filter(i=>!JRN(i)));
 // Points communs à tous les FEC : ils restent dans l’analyse, mais l’affichage les renvoie à l’onglet Méthodologie (ou au bandeau du référentiel)
 const GENERIC=/^(Import Odoo : non atomique|Contrôle sur le plan comptable Odoo 20 par défaut)/;
 function viewPlan(P){const g={};for(const w in P.g)g[w]=P.g[w].filter(i=>!GENERIC.test(i.title));
@@ -1580,7 +1583,7 @@ function viewPlan(P){const g={};for(const w in P.g)g[w]=P.g[w].filter(i=>!GENERI
   return {...P,g,m,sub};}
 function summaryHTML(R,P,useAlt){
   const W={source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'};
-  const key=['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)).map(i=>[w,i]));
+  const key=jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)))).map(i=>[i._k.where,i]);
   const shown=key.slice(0,6);
   const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map');
   const files=[];
@@ -1598,7 +1601,7 @@ const tip=h=>`<span class="tip"><button class="ib" type="button" aria-label="En 
 const pl2=(n,w,ws)=>`${n.toLocaleString('fr-FR')} ${n>1?(ws||w+'s'):w}`;
 // Bloque ou fausse, et le fichier de reprise ne le règle pas : où qu’il faille agir (source, Odoo avant ou après), c’est le niveau 1, comme dans le filtre de la Lecture
 const BLK=i=>['bloque','fausse'].includes(i._k.effect);
-const blockers=P=>{const by={};for(const i of ['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK)))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
+const blockers=P=>{const by={};for(const i of jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK))))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
 function vSub(R,P){
   const B=blockers(P),nA=P.g.auto.length;
   if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`:'Rien ne bloque l’import.');
@@ -1621,7 +1624,7 @@ ${useAlt?`<details class="plan-b"><summary><b>Plus rapide :</b> repartir d’une
   const odooLine=odoo.length?`<details class="aline"><summary><span class="okm i">⚙</span> Dans Odoo, avant l’import : ${pl2(odoo.length,'réglage')} (${esc(odoo.map(i=>i._k.t.toLowerCase()).join(', '))}${(m=>m?`, ≈ ${fmtMin(m)}`:'')(odoo.reduce((t,i)=>t+i._k.min,0))})</summary><div class="items">${odoo.map(issueHTML).join('')}</div></details>`:'';
   return l1+`<section class="lvl l2"><h3><span class="ln"></span>Préparer l’import</h3>${autoLine}${odooLine}${summaryHTML(R,P,useAlt).replace(/^[\s\S]*?(<section class="files">)/,'$1')}</section>`;
 }
-function l3List(R,P){return [...P.g.source,...P.g.after].filter(i=>!BLK(i));}
+function l3List(R,P){return jFirst([...P.g.source,...P.g.after].filter(i=>!BLK(i)));}
 function l3Sum(R,P){
   const a=l3List(R,P).length,n=P.g.note.length,D=R.dgfip;
   const bits=[a?pl2(a,'point à vérifier','points à vérifier'):'',D?(D.rej.size?'refusé par le testeur DGFiP':'DGFiP ✓'):'',n?pl2(n,'information'):''].filter(Boolean);
@@ -1968,7 +1971,7 @@ function viewOpen(){
 function vBuild(R,rs){
   const X=viewIndex(R),S=R.stats;
   const opt=(v,t,sel)=>`<option value="${esc(v)}"${sel?' selected':''}>${esc(t)}</option>`;
-  const grp=[4,3,2,1].map(l=>{const a=X.iss.map((o,id)=>[o,id]).filter(([o])=>o.lvl===l);return a.length?`<optgroup label="${VLVL[l]}">${a.map(([o,id])=>opt(id,`${o.k.t} (${o.rows.length.toLocaleString('fr-FR')} ligne${o.rows.length>1?'s':''})`,id===V.iss)).join('')}</optgroup>`:'';}).join('');
+  const grp=[4,3,2,1].map(l=>{const a=X.iss.map((o,id)=>[o,id]).filter(([o])=>o.lvl===l);a.sort(([x],[y])=>JRN(y.i)-JRN(x.i));return a.length?`<optgroup label="${VLVL[l]}">${a.map(([o,id])=>opt(id,`${o.k.t} (${o.rows.length.toLocaleString('fr-FR')} ligne${o.rows.length>1?'s':''})`,id===V.iss)).join('')}</optgroup>`:'';}).join('');
   const js=[...X.jcodes].sort((a,b)=>a[0].localeCompare(b[0]));
   $('viewer').innerHTML=`<section class="vbar" aria-label="Filtres de lecture">
 <div class="vfile">${rs.length>1?`<span class="vctl"><select id="vFile" aria-label="Fichier">${rs.map(r=>opt(r._id,r.name+' · '+fmtP(r.stats.periode),r===R)).join('')}</select></span>`:`<b>${esc(R.name)}</b>`}<span class="vsum">${S.lignes.toLocaleString('fr-FR')} lignes · ${S.ecritures.toLocaleString('fr-FR')} écritures · ${X.flags.size?`${X.flags.size.toLocaleString('fr-FR')} ligne${X.flags.size>1?'s':''} avec un constat, dont ${X.nErr.toLocaleString('fr-FR')} en erreur`:'aucune ligne en erreur'}</span></div>
