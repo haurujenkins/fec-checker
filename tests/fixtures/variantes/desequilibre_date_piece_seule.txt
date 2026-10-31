@@ -1,0 +1,5 @@
+JournalCode	JournalLib	EcritureNum	EcritureDate	CompteNum	CompteLib	CompAuxNum	CompAuxLib	PieceRef	PieceDate	EcritureLib	Debit	Credit	EcritureLet	DateLet	ValidDate	Montantdevise	Idevise
+ACH	Achats	1		601200	Achats			P1	20250107	Achat	40,00	0,00					
+ACH	Achats	1		401000	Fournisseurs	F1	FOURN UN	P1	20250107	Achat	0,00	35,46					
+ACH	Achats	2	20250107	601200	Achats			P2	20250107	Achat	35,46	0,00			20250107		
+ACH	Achats	2	20250107	401000	Fournisseurs	F1	FOURN UN	P2	20250107	Achat	0,00	35,46			20250107		
