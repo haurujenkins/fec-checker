@@ -9,7 +9,8 @@
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base"
+    "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base",
+    "[info] FEC partiel : l’exercice n’est pas complet"
    ]
   }
  ],
@@ -23,7 +24,26 @@
     "[info] Type prévu des journaux créés",
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
-    "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base"
+    "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base",
+    "[info] FEC partiel : l’exercice n’est pas complet"
+   ]
+  }
+ ],
+ "tests/fixtures/999999998FEC20261231.txt": [
+  {
+   "name": "999999998FEC20261231.txt",
+   "verdict": "Importable tel quel",
+   "issues": [
+    "[warn] EcritureLet sans DateLet (2)",
+    "[warn] ValidDate antérieure à EcritureDate (4)",
+    "[info] Écritures déséquilibrées qui se compensent le même jour (2)",
+    "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (1)",
+    "[warn] Journaux qui seront créés avec un type différent de leur libellé (2)",
+    "[info] Type prévu des journaux créés",
+    "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
+    "[info] Import Odoo : non atomique et à relancer proprement",
+    "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base",
+    "[info] FEC partiel : l’exercice n’est pas complet"
    ]
   }
  ],
@@ -710,6 +730,7 @@
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
     "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base",
+    "[info] FEC partiel : l’exercice n’est pas complet",
     "[odoo] 1 numéro de pièce (journal + EcritureNum) en commun entre 123456789FEC20241231.txt et 123456789FEC20251231.txt (1)"
    ]
   },
@@ -723,6 +744,7 @@
     "[info] Contrôle sur le plan comptable Odoo 20 par défaut",
     "[info] Import Odoo : non atomique et à relancer proprement",
     "[warn] Journal d’à-nouveaux présent : à retirer si un exercice antérieur est importé dans la même base",
+    "[info] FEC partiel : l’exercice n’est pas complet",
     "[odoo] 123456789FEC20251231.txt : journal d’à-nouveaux (AN) alors qu’un exercice antérieur est importé",
     "[odoo] 1 numéro de pièce (journal + EcritureNum) en commun entre 123456789FEC20241231.txt et 123456789FEC20251231.txt (1)"
    ]
