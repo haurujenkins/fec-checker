@@ -396,6 +396,8 @@ dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
 .tipb{position:absolute;z-index:30;top:calc(100% + 8px);left:-12px;width:max-content;max-width:min(360px,calc(100vw - 32px));padding:9px 12px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);font:400 .86rem/1.5 var(--sans);text-align:left;white-space:normal;visibility:hidden;opacity:0;transition:opacity .12s}
 .tipb .tp{display:block}.tipb .tp+.tp{margin-top:6px}.tipb .tq{color:var(--muted,#666);font-size:.82rem}
 .tipb::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
+.vdlg .tipb{max-width:min(360px,calc(100vw - 72px))}
+.tip.up .tipb{top:auto;bottom:calc(100% + 8px)}.tip.up .tipb::before{top:auto;bottom:-10px}
 .tip:hover .tipb,.tip.open .tipb,.ib:focus-visible+.tipb,.tipb:focus-within{visibility:visible;opacity:1}
 /* Habillage Odoo : vient après les règles de base et les surcharge */
 body{margin:0;padding-top:0}
@@ -625,7 +627,7 @@ document.addEventListener('click',ev=>{const g=ev.target.closest&&ev.target.clos
 let lastReport='';
 // Icône « i » : clic ou toucher pour ouvrir et fermer, Échap ou clic ailleurs pour fermer ; la bulle se décale si elle déborde de l’écran
 const tipClose=keep=>document.querySelectorAll('.tip.open').forEach(t=>{if(t!==keep){t.classList.remove('open');t.querySelector('.ib').setAttribute('aria-expanded','false');}});
-const tipFit=t=>{const tb=t.querySelector('.tipb');tb.style.transform='';const b=tb.getBoundingClientRect(),W=document.documentElement.clientWidth;let dx=0;if(b.right>W-8)dx=W-8-b.right;if(b.left+dx<8)dx=8-b.left;if(dx)tb.style.transform=`translateX(${dx}px)`;};
+const tipFit=t=>{const tb=t.querySelector('.tipb');tb.style.transform='';t.classList.remove('up');{const d=t.closest('dialog'),db=d&&d.getBoundingClientRect(),lim=db?db.bottom:document.documentElement.clientHeight,b=tb.getBoundingClientRect(),top=t.getBoundingClientRect().top;if(b.bottom>lim-8&&top-b.height-8>(db?db.top:0))t.classList.add('up');}const b=tb.getBoundingClientRect(),c=t.closest('dialog'),cb=c&&c.getBoundingClientRect(),R=cb?cb.right:document.documentElement.clientWidth,L=cb?cb.left:0;let dx=0;if(b.right>R-8)dx=R-8-b.right;if(b.left+dx<L+8)dx=L+8-b.left;if(dx)tb.style.transform=`translateX(${dx}px)`;};
 document.addEventListener('click',e=>{const ib=e.target.closest('.ib');
   if(ib){e.preventDefault();const t=ib.parentElement,on=!t.classList.contains('open');tipClose(t);t.classList.toggle('open',on);ib.setAttribute('aria-expanded',on);if(on)tipFit(t);return;}
   if(!e.target.closest('.tipb'))tipClose();});
@@ -2071,6 +2073,19 @@ function vRowHTML(R,X,n){
   const names=f.map(id=>X.iss[id].k.t);
   return `<div class="vrow vline${lvl?' l'+lvl:''}" role="row" data-vrow="${n}"><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${f.length} constat${f.length>1?'s':''}, ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const hl=fs.some(c=>cs.has(c));return `<span role="cell" class="${cl||''}${x?' vx':''}${hl?' hl':''}"${tip[k]?` title="${esc(tip[k])}"`:''}>${val[k]}</span>`;}).join('')}</div>`;
 }
+// Rôle dans Odoo des champs FEC au nom peu explicite (bulle « i » du détail d’une ligne)
+const FTIP={
+ JournalCode:'Code du journal dans Odoo. Un journal existant est repris par son code (espaces en bordure retirés) ; sinon Odoo le crée avec ce code et en devine le type (banque, ventes, achats ou divers). Vide : import refusé (« journal non trouvé »).',
+ EcritureNum:'Identifie la pièce Odoo avec le journal : les lignes du même journal et du même numéro forment une seule pièce, nommée avec ce numéro. Un numéro déjà présent dans le journal (autre exercice, second import) est fusionné avec la pièce existante. Vide : Odoo regroupe par PieceRef.',
+ CompAuxNum:'Code du tiers. Odoo cherche le contact qui a ce code en référence, le crée s’il n’existe pas et le met sur la ligne. Vide : ligne sans partenaire.',
+ CompAuxLib:'Nom donné au contact quand Odoo le crée. Ignoré si le contact existe déjà ; vide, le contact est nommé avec son code.',
+ PieceRef:'Référence de la pièce dans Odoo. Quand EcritureNum est vide, Odoo s’en sert pour regrouper et nommer les pièces.',
+ PieceDate:'Odoo ne la reprend pas, sauf si EcritureDate est vide : elle sert alors de date à la pièce.',
+ EcritureLet:'Lettre de lettrage. Odoo rapproche les lignes du même compte qui portent la même lettre : lettrage complet si elles se soldent, partiel sinon.',
+ DateLet:'Date du lettrage. Exigée par la norme, Odoo ne l’utilise pas.',
+ ValidDate:'Date de validation dans le logiciel d’origine. Exigée par la norme, Odoo ne l’utilise pas : les pièces arrivent en brouillon.',
+ Montantdevise:'Montant en devise de la ligne. Odoo ne le prend que si Idevise désigne une devise active. Attention : en EUR, s’il diffère du débit ou du crédit, Odoo importe ce montant à la place.',
+ Idevise:'Code ISO de la devise (USD, GBP…). Odoo ne l’applique que si la devise est active dans la base ; sinon il l’ignore sans prévenir et la ligne reste en euros.'};
 function vDetail(n){
   const R=REPORTS[V.rid],X=viewIndex(R),r=R.rows[n-1];if(!r)return;
   const f=X.flags.get(n)||[],cs=new Set();for(const id of f){const o=X.iss[id];(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
@@ -2078,7 +2093,7 @@ function vDetail(n){
   $('vDlgT').textContent=`Ligne ${n} du fichier`;
   $('vDlgB').innerHTML=(f.length?`<h4>${f.length} constat${f.length>1?'s':''} sur cette ligne</h4>${f.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns"><button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}</div></div>`;}).join('')}`:'<p class="vnote">Aucun constat sur cette ligne.</p>')
    +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':`, écart ${fmtE(t.d-t.c)}.`}</p>`:'')
-   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`;
+   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}${FTIP[lab]?tip(FTIP[lab]):''}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`;
   const d=$('vDlg');if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute('open','');
 }
 function vClose(){const d=$('vDlg');if(d.open)d.close?d.close():d.removeAttribute('open');}
