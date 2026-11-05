@@ -318,3 +318,9 @@ FEC d'un exercice 2012 fourni par Loïc (données client supprimées après le t
 - Lettrage : chaque lettre soldée donne un lettrage complet ; les lettres non soldées (lettrées sur les exercices suivants) donnent des lettrages partiels ; les lettres sur une seule ligne restent ouvertes. Les comptes de la page étaient exacts.
 - À-nouveaux dans un journal ordinaire : la page disait « Pas de journal d'à-nouveaux » et signalait le compte 129 de ces à-nouveaux comme « 12x hors à-nouveaux ». Elle les reconnaît désormais (écriture datée du premier jour dont chaque ligne porte « AN » ou « à nouveau » en référence ou en libellé), sans les retirer d'office.
 - Le conflit de code INV annoncé par la page dépend de la base : la société 3 a un journal de ventes FAC, pas INV, et INV y a été créé en Divers.
+
+## Lettrages à cheval entre deux exercices (05/11/2026)
+
+FEC fictifs 111222333 2024 + 2025 (tests/lettrage_cheval.js), fichier de reprise combiné importé dans la société 3 puis comptabilisé : 14 pièces, 32 lignes, 18 180 € au débit et au crédit, égaux au fichier.
+- La lettre d'une ligne d'à-nouveaux retirée, reportée sur la facture 2024 restée ouverte, donne un lettrage complet 2024 / 2025 : AN détaillé (C1, C3), AN global par tiers sur deux factures (C2), fournisseur (F1). 5 lettrages complets, comme prévu.
+- Cas non reportés (deux factures identiques sans référence, lettre déjà prise en 2024) : le règlement 2025 reste en lettre en attente (« IAE », « IAA »), la facture 2024 ouverte : à lettrer à la main, comme annoncé par la page.
