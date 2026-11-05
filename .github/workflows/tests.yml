@@ -15,6 +15,7 @@ jobs:
       - run: npm i --no-save xlsx@0.18.5
       - run: node tests/regression.js
       - run: node tests/options.js
+      - run: node tests/lettrage_cheval.js
   # Une PR vers main publie une version : son numéro doit être nouveau et figurer au journal des versions
   version:
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
