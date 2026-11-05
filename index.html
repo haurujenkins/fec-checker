@@ -1250,6 +1250,30 @@ function normDate(s){s=String(s??'').trim();if(s===''||/^\d{8}$/.test(s))return 
   let m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/);if(m)return m[3]+m[2].padStart(2,'0')+m[1].padStart(2,'0');
   m=s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);if(m)return m[1]+m[2].padStart(2,'0')+m[3].padStart(2,'0');
   return s;}
+/* Lettrage à cheval sur deux exercices : la facture de N reste ouverte, l'à-nouveaux de N+1 la reprend avec la lettre de son règlement.
+   Quand l'à-nouveaux est retiré, sa lettre est reportée sur les lignes d'origine de N, sans rien changer d'autre (ni montant, ni ligne).
+   Seulement si l'appariement est sûr : même compte, même tiers, lignes sans lettre ; à-nouveaux global par tiers = somme exacte des lignes
+   ouvertes ; à-nouveaux détaillé = même montant (PieceRef, puis date pour départager). Une lettre déjà prise dans N sur ce compte n'est pas reportée. */
+function carryLetters(prev,an){
+  const amt=o=>(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0),K=o=>o.CompteNum+'\u0001'+(o.CompAuxNum||''),sum=a=>a.reduce((t,o)=>t+amt(o),0);
+  const LT=o=>o._let??o.EcritureLet,used=new Set(prev.filter(LT).map(o=>o.CompteNum+'\u0001'+LT(o)));
+  const pool=new Map();for(const o of prev)if(!LT(o)&&amt(o)){const k=K(o);if(!pool.has(k))pool.set(k,[]);pool.get(k).push(o);}
+  const grp=new Map();for(const a of an)if(a.EcritureLet&&amt(a))grp.set(K(a),[]);
+  for(const a of an)if(amt(a)&&grp.has(K(a)))grp.get(K(a)).push(a);
+  const set=new Map(),miss=[],lab=a=>`${a.CompteNum}${a.CompAuxNum?' '+a.CompAuxNum:''} lettre ${a.EcritureLet}`;
+  for(const [k,A] of grp){const P=pool.get(k)||[];
+    if(A.length===1&&P.length&&sum(P)===amt(A[0])){for(const o of P)set.set(o,A[0].EcritureLet);continue;}
+    const take=new Set(),rest=[];
+    for(const a of A){let c=P.filter(o=>!take.has(o)&&amt(o)===amt(a));
+      if(c.length>1&&a.PieceRef&&a.PieceRef!=='-'){const r=c.filter(o=>o.PieceRef===a.PieceRef);if(r.length)c=r;}
+      if(c.length>1){const r=c.filter(o=>o.PieceDate===a.PieceDate||o.EcritureDate===a.PieceDate);if(r.length)c=r;}
+      if(c.length===1){take.add(c[0]);if(a.EcritureLet)set.set(c[0],a.EcritureLet);}else rest.push(a);}
+    const L=rest.filter(a=>a.EcritureLet),free=P.filter(o=>!take.has(o));
+    if(L.length&&L.length===rest.length&&new Set(L.map(a=>a.EcritureLet)).size===1&&free.length&&sum(free)===sum(L))for(const o of free)set.set(o,L[0].EcritureLet);
+    else for(const a of L)miss.push(lab(a));}
+  for(const [o,l] of set)if(used.has(o.CompteNum+'\u0001'+l)){set.delete(o);miss.push(lab(o).replace(/lettre .*$/,'lettre '+l)+' (lettre déjà prise l’exercice précédent)');}
+  return {set,miss:[...new Set(miss)]};
+}
 function fixFEC(rows,hints){
   // Deux natures de modifications, jamais d'autre :
   //  fmt : écriture technique d'une même valeur (encodage, séparateur, en-tête, guillemets, espaces, virgule décimale, date AAAAMMJJ, Montant/Sens → Débit/Crédit) ;
@@ -1308,6 +1332,11 @@ function fixFEC(rows,hints){
   // Odoo lettre par compte + lettre, sans regarder le partenaire : une même lettre portée par plusieurs tiers d'un même compte est rendue unique
   const letT=new Map();for(const o of out)if(o.EcritureLet&&o.CompAuxNum){const k=o.CompteNum+'\u0001'+o.EcritureLet;if(!letT.has(k))letT.set(k,new Set());letT.get(k).add(o.CompAuxNum);}
   for(const o of out)if(o.EcritureLet&&o.CompAuxNum&&letT.get(o.CompteNum+'\u0001'+o.EcritureLet).size>1){const nw=o.CompAuxNum+'-'+o.EcritureLet;corr.push([o._ln,'EcritureLet',o.EcritureLet,nw]);c('Lettres de lettrage partagées par plusieurs tiers d’un même compte préfixées par le code du tiers (sinon Odoo lettrerait les tiers ensemble)','map');o.EcritureLet=nw;}
+  // Lettrage à cheval : lettre d'un à-nouveaux retiré reportée sur la ligne d'origine restée ouverte (jamais de montant changé)
+  const carryApply=r=>{for(const [o,l] of r.set){corr.push([o._ln,'EcritureLet','',l]);o.EcritureLet=l;}
+    if(r.set.size)c('Lettres des à-nouveaux retirés reportées sur les factures et règlements d’origine restés ouverts (même compte, même tiers, même montant) : Odoo lettre la pièce de l’exercice précédent avec son règlement','map',r.set.size);
+    if(r.miss.length)left.push(`Lettrage à cheval non reporté (appariement incertain, à refaire dans Odoo) : ${r.miss.length} lettre${r.miss.length>1?'s':''}, ${r.miss.slice(0,3).join(', ')}${r.miss.length>3?'…':''}`);};
+  if(hints.carry){const byLn=new Map(out.map(o=>[o._ln,o])),set=new Map();for(const [ln,l] of hints.carry.set){const o=byLn.get(ln);if(o&&!o.EcritureLet)set.set(o,l);}carryApply({set,miss:hints.carry.miss||[]});}
   const empty=out.filter(o=>!o.EcritureNum);
   if(empty.length){const g=new Map();for(const o of empty){const k=o.JournalCode+'\u0001'+o.PieceRef+'\u0001'+o.EcritureDate;g.set(k,(g.get(k)||0)+(parseAmt(o.Debit)||0)-(parseAmt(o.Credit)||0));}
     const bad=[...g.values()].filter(v=>v!==0).length;
@@ -1318,8 +1347,11 @@ function fixFEC(rows,hints){
   // Dans un fichier à plusieurs exercices, seuls les à-nouveaux des exercices suivants sont retirés, sauf si un exercice antérieur est importé à part (dropAN 'all')
   const later=EX&&opts.dropAN!=='all';for(const o of out)o._num=o.EcritureNum;
   if(opts.dropAN){const an=out.filter(o=>o._an&&(!later||o._exo>0));let d=0,cr=0;for(const o of an){d+=parseAmt(o.Debit)||0;cr+=parseAmt(o.Credit)||0;}
-    if(an.length&&d===cr){const A=new Set(an);kept=out.filter(o=>!A.has(o));drop={n:an.length,d,c:cr,j:[...AN].join(', ')};for(const o of an)corr.push([o._ln,'ligne retirée',`journal ${o.JournalCode} (à-nouveaux)`,'']);c(later?`Écritures d’à-nouveaux des exercices suivants retirées (journal ${drop.j}, ${[...new Set(an.map(o=>EX[o._exo].label))].join(', ')}) : ceux du premier exercice sont gardés`:`Écritures d’à-nouveaux retirées (journal ${drop.j}) : l’exercice précédent est importé dans la même base`,'map',an.length);}
+    if(an.length&&d===cr){const A=new Set(an);
+      // Lettres des à-nouveaux retirés reportées sur les lignes d'origine des exercices précédents (dans ce fichier ; facture restée ouverte sur plusieurs clôtures comprise)
+      if(EX)for(let k=1;k<EX.length;k++){const r=carryLetters(out.filter(o=>o._exo<k&&!A.has(o)),an.filter(o=>o._exo===k));carryApply(r);}kept=out.filter(o=>!A.has(o));drop={n:an.length,d,c:cr,j:[...AN].join(', ')};for(const o of an)corr.push([o._ln,'ligne retirée',`journal ${o.JournalCode} (à-nouveaux)`,'']);c(later?`Écritures d’à-nouveaux des exercices suivants retirées (journal ${drop.j}, ${[...new Set(an.map(o=>EX[o._exo].label))].join(', ')}) : ceux du premier exercice sont gardés`:`Écritures d’à-nouveaux retirées (journal ${drop.j}) : l’exercice précédent est importé dans la même base`,'map',an.length);}
     else if(an.length)left.push(`À-nouveaux non retirés : ${fmtE(d)} € au débit pour ${fmtE(cr)} € au crédit, le fichier serait déséquilibré`);}
+  for(const o of out)o._let=o.EcritureLet; // lettre avant préfixe d'exercice (report entre deux fichiers)
   const pf=String(opts.prefix||'').replace(/["\t|]/g,'').trim().slice(0,12);let pfx=pf?pf+(/[-_/. ]$/.test(pf)?'':'-'):'';
   // Odoo lettre par compte + lettre, tous exercices confondus : une lettre soldée dans son exercice reçoit le préfixe de l'exercice ; une lettre soldée seulement sur deux exercices (facture réglée l'année suivante) reste commune
   if(pfx){const lab=o=>EX?EX[o._exo].label+'-':pfx,key=o=>o.CompteNum+'\u0001'+o.EcritureLet+'\u0001'+lab(o),s=new Map();
@@ -1338,7 +1370,7 @@ function fixFEC(rows,hints){
   const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,droppedCB:dropCB,ok:okN&&dD===srcD&&dC===srcC};
   const text=[EXPECTED.join('\t'),...kept.map(o=>EXPECTED.map(e=>o[e]).join('\t'))].join('\r\n')+'\r\n';
   const corrCsv=['ligne;champ;valeur d’origine;valeur dans le fichier de reprise',...corr.map(r=>r.map(x=>String(x).replace(/;/g,',')).join(';'))].join('\r\n')+'\r\n';
-  return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL,cashBasis:!!dropCB,cid:opts.cid||'1'},nQuadra,nColl,collAcc:[...collAcc],cb};
+  return {text,out,kept,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL,cashBasis:!!dropCB,cid:opts.cid||'1'},nQuadra,nColl,collAcc:[...collAcc],cb};
 }
 
 /* ---------- TVA sur encaissements ----------
@@ -1584,7 +1616,7 @@ function planOf(R){
       if(!still.has(i.title)&&['source','after','odoo'].includes(k.where)&&k.effect!=='aucun'&&!/^(Compte existant mais archivé|Comptes qui seront créés archivés|Écritures en devise|Comptes absents|Volume)/.test(i.title)){k.where='auto';k.how=['Le fichier de reprise règle ce point.'];k.min=0;k.delay=false;}
       else if(still.has(i.title)&&k.where==='auto'){k.where=i.sev==='err'?'source':'after';k.how=['La correction automatique ne suffit pas : voir les lignes citées.'];k.min=k.min||10;}}
     if(i.cross&&R._fix){const pf=n=>(REPORTS.find(x=>x.name===n)?._fix?.opts.prefix)||'';
-      if(i.an&&R._fix.opts.dropAN){k.where='auto';k.how=['Le fichier de reprise retire les écritures d’à-nouveaux (option choisie, à valider avec l’expert-comptable).'];k.min=0;k.delay=false;}
+      if(i.an&&R._fix.opts.dropAN){k.where='auto';k.how=['Le fichier de reprise retire les écritures d’à-nouveaux (option choisie, à valider avec l’expert-comptable).','Quand une ligne d’à-nouveaux retirée était lettrée avec un règlement, sa lettre est reportée sur la facture d’origine restée ouverte (même compte, même tiers, même montant) : Odoo relettre les deux exercices. Un appariement incertain n’est pas reporté et reste à lettrer à la main.'];k.min=0;k.delay=false;}
       else if(i.pair&&pf(i.pair[0])!==pf(i.pair[1])){k.where='auto';k.how=['Le fichier de reprise préfixe les numéros d’écriture (option choisie) : laisser vide le préfixe de document dans l’assistant.'];k.min=0;k.delay=false;}}
     i._k=k;}
   const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);for(const w in g)g[w]=jFirst(g[w]);
@@ -1694,7 +1726,7 @@ function optsHTML(R){
   const F=R._fix,O=R._opts||{},EX=R.hints&&R.hints.exos,later=EX&&!R._dropAll,id=R._id;
   const nAN=F.out.filter(o=>o._an&&(!later||o._exo>0)).length,ex=F.out.find(o=>o._num&&!o._an)||F.out.find(o=>o._num);
   const pf=O.prefix?O.prefix+(/[-_/. ]$/.test(O.prefix)?'':'-'):'';
-  const ch=Object.entries(F.changes),TIERS=/^(Écritures d’à-nouveaux|Comptes de tiers individuels regroupés|Comptes collectifs (clients|fournisseurs) reportés|Lettres de lettrage partagées|Factures non réglées en TVA sur encaissements)/;
+  const ch=Object.entries(F.changes),TIERS=/^(Écritures d’à-nouveaux|Comptes de tiers individuels regroupés|Comptes collectifs (clients|fournisseurs) reportés|Lettres de lettrage partagées|Lettres des à-nouveaux retirés|Factures non réglées en TVA sur encaissements)/;
   const fmt=ch.filter(([k,v])=>v.kind==='fmt'),map=ch.filter(([k,v])=>v.kind==='map'&&!TIERS.test(k));
   const nb=n=>n.toLocaleString('fr-FR'),cut=k=>esc(k.replace(/ \(.*\)$/,''));
   const act=(on,lock,opt,title,body,more,tag)=>`<div class="act${on?' on':''}${lock?' lock':''}"><label class="opt"><input type="checkbox"${opt?` data-opt="${opt}" data-r="${id}"`:''}${on?' checked':''}${lock?' disabled':''}><span><b>${title}</b>${tip(body.split(' <span class="aw">')[0])}${tag?` <span class="atag">${tag}</span>`:''}${body.includes('<span class="aw">')?`<small>${body.slice(body.indexOf('<span class="aw">'))}</small>`:''}</span></label>${more?`<details class="amore"><summary>${more[0]}</summary><div>${more[1]}</div></details>`:''}</div>`;
@@ -1712,7 +1744,9 @@ function optsHTML(R){
   const demo=ex?`« ${esc(ex.JournalCode)} ${esc(ex._num)} » devient « ${esc(ex.JournalCode)} ${esc((EX?EX[ex._exo].label+'-':pf||(O.prefix||'2025')+'-')+ex._num)} »`:'';
   const why3=EX?`Ce fichier contient ${EX.length} exercices (${EX.map(e=>esc(e.label)).join(', ')}). Chaque pièce est préfixée par son exercice (${demo})${hasAN?` et les à-nouveaux des exercices suivants sont retirés (${nb(nAN)} ligne${nAN>1?'s':''})`:''}.`
     :`À cocher si l’exercice précédent est importé dans la même base. Les pièces sont préfixées par l’exercice (${demo})${hasAN?` et les à-nouveaux sont retirés (${nb(nAN)} ligne${nAN>1?'s':''}, journal ${esc(R.anJournals.join(', '))})`:''}. Sinon Odoo fusionne des pièces d’un exercice à l’autre${hasAN?' et compte deux fois les soldes':''}.`;
-  const why3m=why3+(REPORTS.length>1&&REPORTS.includes(R)?` Les ${REPORTS.length} exercices déposés peuvent aussi être téléchargés en un seul fichier de reprise, en haut des résultats.`:'');
+  const cv=Object.entries(F.changes).find(([k])=>/^Lettres des à-nouveaux retirés/.test(k)),cm=F.left.find(x=>/^Lettrage à cheval/.test(x));
+  const why3c=(cv?` Lettrages à cheval : ${nb(cv[1].n)} ligne${cv[1].n>1?'s':''} restée${cv[1].n>1?'s':''} ouverte${cv[1].n>1?'s':''} à la clôture ${cv[1].n>1?'reçoivent':'reçoit'} la lettre de ${cv[1].n>1?'leur':'son'} règlement de l’exercice suivant, reprise de l’à-nouveaux retiré : Odoo les relettre ensemble.`:'')+(cm?` ${cm.replace(/^Lettrage à cheval non reporté \(appariement incertain, à refaire dans Odoo\) : /,'Non reporté faute d’appariement sûr, à lettrer à la main : ')}.`:'');
+  const why3m=why3+why3c+(REPORTS.length>1&&REPORTS.includes(R)?` Les ${REPORTS.length} exercices déposés peuvent aussi être téléchargés en un seul fichier de reprise, en haut des résultats.`:'');
   const tune=`<label class="opt"><input type="checkbox" data-opt="prefixOn" data-r="${id}"${O.prefixOn?' checked':''}><span>${EX?`Préfixer chaque numéro d’écriture par son exercice`:`Préfixer les numéros d’écriture par <input class="pfx" type="text" data-opt="prefix" data-r="${id}" value="${esc(O.prefix||'')}" maxlength="12" spellcheck="false" aria-label="Préfixe des numéros d’écriture">`}</span></label>${hasAN?`<label class="opt"><input type="checkbox" data-opt="dropAN" data-r="${id}"${O.dropAN?' checked':''}><span>${later?'Retirer les à-nouveaux des exercices suivants':'Retirer les écritures d’à-nouveaux'}<small>Décision à valider avec l’expert-comptable ; les lignes retirées sont listées dans la table de correspondance.</small></span></label>`:''}`;
   const a3=act(on3,false,'multi','3. Préparer l’import de plusieurs exercices',why3m,['Régler séparément',tune],part?'en partie':(EX||R._dropAll||on3)&&O.prefixOn?'coché d’office':'')
     +(O.dropAN&&!F.opts.dropAN&&F.left.length?`<p class="warnline">${esc(F.left.find(x=>/^À-nouveaux/.test(x))||'')}</p>`:'');
@@ -1783,8 +1817,13 @@ function render(reports){
     const O=OPTS[R.name]||{},yr=exLab(String(R.periodStart||''),(R.name.match(/FEC(\d{8})/)||[])[1]||String(R.periodEnd||''));
     const exo=!!(R.hints&&R.hints.exos),dropAll=R._dropAll=cross.some(i=>i.an&&i.title.startsWith(R.name+' : '));
     R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true,cashBasis:O.cashBasis??false,cid:O.cid||'1'};
-    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}});
+    R._flags={opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}};
+    prepare(R,R._flags);
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
+  // Lettrages à cheval entre deux fichiers : la lettre des à-nouveaux retirés du fichier suivant est reportée sur les lignes ouvertes du précédent
+  for(let ix=1;ix<rs.length;ix++){const R=rs[ix],P=rs[ix-1];if(!R._fix||!P._fix||!R._fix.opts.dropAN||R._fix.opts.later)continue;
+    const last=Math.max(0,...P._fix.kept.map(o=>o._exo)),r=carryLetters(P._fix.kept.filter(o=>o._exo===last),R._fix.out.filter(o=>o._an&&o._exo===0));
+    if(r.set.size||r.miss.length){prepare(P,{...P._flags,carry:{set:new Map([...r.set].map(([o,l])=>[o._ln,l])),miss:r.miss}});}}
   REPORTS=rs;
   for(const R of rs)if(R.rows)R.issues.forEach((i,ix)=>{i._vr=R._id;i._vx=ix;});
   $('fname').innerHTML=rs.map(R=>esc(R.name)+(R.isSample?'<span class="tag-ex">Exemple fictif</span>':'')).join(' · ');
