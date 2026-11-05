@@ -63,5 +63,12 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
     else ok('un seul fichier : lettre partagée par deux tiers préfixée par le tiers, puis reportée',()=>{assert.deepEqual(letOf(Rs,'FA15','C5'),['C5-AA']);});
     ok(`${mode} : table de correspondance et fichier combiné`,()=>{assert(Rs.some(R=>R._fix.corr.some(c=>c[1]==='EcritureLet'&&c[2]===''&&c[3]==='AB')));assert(C.ok);});
   }
+  // Facture restée ouverte sur deux clôtures : AN 2025 sans lettre, AN 2026 lettré avec le règlement 2026
+  {const Rs=await load([w('111222333FEC20261231.txt',[...Y24,...AN25,...Y25,
+     L('AN',1,'20260101','101300','','-','0,00','10000,00'),L('AN',1,'20260101','512100','','-','13160,00','0,00'),
+     L('AN',1,'20260101','411000','C3','FA14','500,00','0,00','AG'),L('AN',1,'20260101','411000','C4','-','400,00','0,00'),L('AN',1,'20260101','411000','C4','-','400,00','0,00'),
+     L('AN',1,'20260101','110000','','-','0,00','4460,00'),
+     L('BQ',2,'20260210','411000','C3','-','0,00','500,00','AG'),L('BQ',2,'20260210','512100','','-','500,00','0,00')],'trois_ans')]);
+   ok('trois exercices : facture 2024 réglée en 2026 lettrée avec son règlement',()=>{assert.deepEqual(letOf(Rs,'FA14','C3'),['AG']);assert(Rs[0]._fix.integrity.ok);const m=solde(Rs);assert.equal(m.get('411100|AG'),0);});}
   console.log(`${n} vérifications OK`);
 })().catch(e=>{console.error(e);process.exit(1);});
