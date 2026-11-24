@@ -328,7 +328,7 @@
  "tests/fixtures/U18_utf16.txt": [
   {
    "name": "U18_utf16.txt",
-   "verdict": "FEC déconseillé en l’état",
+   "verdict": "À corriger avant import",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[err] En-tête non conforme",
@@ -470,7 +470,7 @@
  "tests/fixtures/corr_devise.txt": [
   {
    "name": "corr_devise.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[odoo] Montantdevise ≠ Débit − Crédit en EUR (2)",
@@ -486,7 +486,7 @@
  "tests/fixtures/dc.txt": [
   {
    "name": "dc.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[err] Débit et Crédit tous deux renseignés (1)",
@@ -614,7 +614,7 @@
  "tests/fixtures/neg.txt": [
   {
    "name": "neg.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Montant négatif (2)",
@@ -705,7 +705,7 @@
  "tests/fixtures/xyz.txt": [
   {
    "name": "xyz.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Idevise inconnue ou inhabituelle (1)",
@@ -753,7 +753,7 @@
  "neg.txt + exports Odoo xlsx": [
   {
    "name": "neg.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Montant négatif (2)",
@@ -769,7 +769,7 @@
  "xyz.txt + exports Odoo csv": [
   {
    "name": "xyz.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Idevise inconnue ou inhabituelle (1)",
@@ -816,7 +816,7 @@
  "tests/fixtures/editeurs/coala/999999990FEC20251231.txt": [
   {
    "name": "999999990FEC20251231.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Comptes de banque ou caisse à créer : Odoo crée aussi un journal par compte (1)",
     "[info] Comptes absents du plan comptable Odoo par défaut (seront créés) (3)",
@@ -1041,7 +1041,7 @@
  "tests/fixtures/variantes/dates_mois_differents.txt": [
   {
    "name": "dates_mois_differents.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] ValidDate antérieure à EcritureDate (1)",
@@ -1287,7 +1287,7 @@
  "tests/fixtures/variantes/trois_decimales.txt": [
   {
    "name": "trois_decimales.txt",
-   "verdict": "À corriger avant import",
+   "verdict": "Importable tel quel",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Montant à plus de 2 décimales (2)",

@@ -25,9 +25,24 @@ Une page web autonome (`index.html`) qui contrôle un Fichier des Écritures Com
 
 Chaque chemin de menu Odoo cité par la page (« Comptabilité › Configuration › Plan comptable », « Action › Désarchiver »…) est affiché comme une étiquette. Si la capture correspondante est présente dans `captures/`, elle s'affiche au survol (au toucher sur mobile). Onze captures sont fournies (Odoo 20, société de test), avec un encadré rouge sur l'endroit où cliquer ; détail et règles pour les remplacer : `captures/LISEZMOI.md`. Pour garder les captures hors ligne, télécharger le dépôt complet plutôt que `index.html` seul.
 
+## Deux habillages, un seul moteur
+
+La page existe sous deux présentations, avec exactement les mêmes contrôles et le même fichier de reprise :
+
+- **Le fichier seul** (`index.html` ouvert depuis le poste, celui de la Release) garde l'habillage sobre. Il ne dépend d'aucun autre fichier.
+- **La version en ligne** (GitHub Pages) charge en plus le dossier `saas/` : barre latérale, barre du haut, parcours et téléchargement à droite du rapport, lecture du FEC en pleine largeur.
+
+Tout le moteur (contrôles, corrections, fichier de reprise) reste dans `index.html`. Le dossier `saas/` ne contient que de la présentation : `saas.css` restyle les éléments déjà affichés, `saas.js` les range autrement et ne lit que ce que la page a rendu. Un petit script en tête de `index.html` charge ce dossier seulement quand la page est servie en http(s) ; ouverte comme simple fichier, elle ne le charge pas. Pour voir l'habillage sobre en ligne, ajouter `?sobre` à l'adresse.
+
+Règles à garder :
+
+- aucune règle de contrôle ni calcul dans `saas/` (`tests/habillage.js` le vérifie) ;
+- aucun `<script>` après celui du moteur dans `index.html` : les tests lisent le dernier ;
+- tout nouvel élément de la page doit rester lisible dans les deux habillages, en clair, en sombre et sur mobile.
+
 ## Hébergement (GitHub Pages)
 
-La page est servie gratuitement par GitHub Pages, directement depuis la branche `main` : aucun build ni workflow. Pour l'activer (une seule fois) :
+La page est servie gratuitement par GitHub Pages, directement depuis la branche `main` : aucun build ni workflow. Elle sert `index.html` et le dossier `saas/` qui l'accompagne. Pour l'activer (une seule fois) :
 
 1. Dans le dépôt GitHub : **Settings → Pages**.
 2. *Build and deployment* → *Source* : **Deploy from a branch**.
@@ -69,6 +84,8 @@ npm i xlsx@0.18.5
 node tests/run.js tests/fixtures/dc.txt
 node tests/run.js tests/fixtures/neg.txt tests/fixtures/odoo20_fr_export_comptes_actifs.xlsx tests/fixtures/odoo20_fr_export_comptes_inactifs.xlsx tests/fixtures/odoo20_fr_export_journaux.xlsx
 ```
+
+Habillage en ligne : `node tests/habillage.js` vérifie que `saas/` reste de la présentation et que le chargement dans `index.html` ne gêne pas les autres tests.
 
 Non-régression : `node tests/regression.js` rejoue la page sur toutes les fixtures et compare le verdict et les points relevés à `tests/expected.json`. GitHub Actions le lance à chaque PR et à chaque push sur `main`. Après une modification voulue des résultats, refiger avec `node tests/regression.js --update` et relire le diff de `tests/expected.json` dans la PR.
 

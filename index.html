@@ -383,7 +383,10 @@ dialog.vdlg::backdrop{background:rgba(10,15,20,.5)}
 .vfields{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;margin:0;font-size:.88rem}
 .vfields dt{color:var(--muted)}
 .vfields dd{margin:0;font-family:var(--mono);overflow-wrap:anywhere;white-space:pre-wrap}
+.vsum .vblk{color:var(--err);font-weight:600}
 .vfields .hl{background:var(--hb);box-shadow:inset 0 0 0 2px var(--c);border-radius:3px;padding:0 4px}
+.vmore>summary{cursor:pointer;font-size:.9rem;color:var(--muted)}.vmore ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;font-size:.9rem}.vmore li{display:flex;justify-content:space-between;gap:12px;align-items:baseline;color:var(--muted)}.vmore li .linkbtn{white-space:nowrap}
+.vnone{font-size:.82rem}
 .seefec{margin:0;font-size:.9rem}
 .item.flash{outline:3px solid var(--accent);outline-offset:3px}
 @media (max-width:600px){.vctl label,.vctl select,.vctl input[type=search]{width:100%;max-width:none}}
@@ -483,6 +486,7 @@ footer.appver{margin:40px 0 24px;text-align:center;font-size:.78rem;color:var(--
 .fxgt{margin:0;font-size:.9rem}.fxgap{font-family:var(--mono);color:var(--err)}.fxgap.ok{color:var(--ok)}
 .fxj{list-style:none;margin:0;padding:0;display:grid;gap:8px}.fxj li{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.fxj small{color:var(--muted)}.fxj .fxi{width:7em}
 .fxbtns{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fxall{margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
 .fxs{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
 .sugl{font:inherit;font-size:.88rem;text-align:left;border:1px solid var(--btnline);background:var(--surface);color:var(--fg);border-radius:8px;padding:6px 10px;cursor:pointer;width:100%}
 .sugl:hover,.sugl:focus-visible{border-color:var(--accent);background:var(--vrf-bg)}
@@ -513,6 +517,13 @@ footer.appver{margin:40px 0 24px;text-align:center;font-size:.78rem;color:var(--
 .vrow.vadd{background:var(--vrf-bg);box-shadow:inset 3px 0 0 var(--accent);font-weight:500}.vrow.vadd .nn{color:var(--accent);font-weight:700}
 .vlegend .lg.led{--c:var(--accent);--hb:var(--vrf-bg)}
 </style>
+<script>
+/* Deux habillages, un seul moteur. Ouvert comme simple fichier, la page garde l’habillage sobre ci-dessus.
+   Servie en ligne avec son dossier saas/ (GitHub Pages), elle charge en plus l’habillage « application » : présentation seulement,
+   les contrôles et le fichier de reprise restent ceux de cette page. Ajouter ?sobre à l’adresse pour garder l’habillage sobre en ligne. */
+if(/^https?:$/.test(location.protocol)&&!/[?&]sobre\b/.test(location.search)){document.documentElement.classList.add('saas');
+  document.write('<link rel="stylesheet" href="saas/saas.css" onerror="document.documentElement.classList.remove(\'saas\')"><script defer src="saas/saas.js"><\/script>');}
+</script>
 </head>
 <body>
 
@@ -1675,7 +1686,7 @@ function planOf(R){
     i._k=k;}
   const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);for(const w in g)g[w]=jFirst(g[w]);
   const sum=w=>g[w].reduce((t,i)=>t+i._k.min,0);
-  const blockSrc=g.source.filter(i=>['bloque','fausse'].includes(i._k.effect));
+  const blockSrc=g.source.filter(i=>i._k.effect==='bloque');
   // Un point corrigeable dans la page n’attend pas de nouvel export du client
   const delay=blockSrc.some(i=>i._k.delay&&!fixHere(R,i));
   const autoMin=g.auto.length?5:0; // télécharger, revérifier
@@ -1688,7 +1699,7 @@ function planOf(R){
   // Temps affiché : celui de la personne qui fait l’import. Une correction à la source est faite par le client (délai, pas de minutes) ; un point d’information ne prend pas de temps ; un même point n’est compté qu’une fois.
   const seenT=new Set();for(const i of R.issues){const k=i._k,dup=seenT.has(k.t);seenT.add(k.t);k.min=dup||k.where==='source'||k.effect==='aucun'?0:Math.min(k.min,30);k.check=k.where==='after'&&['suivi','verif'].includes(k.effect);}
   const nv=R.issues.filter(i=>i._k.effect==='verif'&&i._k.where!=='auto').length;if(level==='ok'&&nv)sub+=` ${nv} point${nv>1?'s':''} de cohérence comptable à vérifier avec le client.`;
-  return {g,m:{odoo:sum('odoo'),source:0,after:afterMin(g.after)},autoMin,level,title,sub,delay,client:blockSrc.length>0,blockSrc};
+  return {g,m:{odoo:sum('odoo'),source:0,after:afterMin(g.after)},autoMin,level,title,sub,delay,client:blockSrc.some(i=>!fixHere(R,i)),blockSrc};
 }
 // Après l’import : les vérifications (balance, balance âgée, plan comptable, journaux) se font en un seul passage, plafonné à 15 min ; seules les actions qui conditionnent la comptabilisation s’ajoutent une à une
 const afterMin=L=>L.filter(i=>!i._k.check).reduce((t,i)=>t+i._k.min,0)+Math.min(15,L.filter(i=>i._k.check).reduce((t,i)=>t+i._k.min,0));
@@ -1703,7 +1714,7 @@ function viewPlan(P){const g={};for(const w in P.g)g[w]=P.g[w].filter(i=>!GENERI
   return {...P,g,m,sub};}
 function summaryHTML(R,P,useAlt){
   const W={source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'};
-  const key=jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)))).map(i=>[i._k.where,i]);
+  const key=jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='bloque'))).map(i=>[i._k.where,i]);
   const shown=key.slice(0,6);
   const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map'||v.kind==='man');
   const files=[];
@@ -1720,8 +1731,9 @@ ${files.length||F?`<section class="files">${F?optsBlock(R):''}${files.length?`<h
 // Description repliée derrière une icône « i » (voir .tip)
 const tip=h=>`<span class="tip"><button class="ib" type="button" aria-label="En savoir plus" aria-expanded="false">i</button><span class="tipb">${h}</span></span>`;
 const pl2=(n,w,ws)=>`${n.toLocaleString('fr-FR')} ${n>1?(ws||w+'s'):w}`;
-// Bloque ou fausse, et le fichier de reprise ne le règle pas : où qu’il faille agir (source, Odoo avant ou après), c’est le niveau 1, comme dans le filtre de la Lecture
-const BLK=i=>['bloque','fausse'].includes(i._k.effect);
+// Le but de la page : un FEC qui s’importe. Niveau 1 = ce qui fait refuser l’import et que le fichier de reprise ne règle pas, où qu’il faille agir (source, Odoo avant ou après).
+// Ce qui fausse des chiffres sans empêcher l’import relève du comptable : niveau 3, pour information.
+const BLK=i=>i._k.effect==='bloque';
 // Écart d’une écriture (débit − crédit, en centimes) dit en clair
 const gapTxt=d=>`il manque ${fmtE(Math.abs(d))} € au ${d>0?'crédit':'débit'}`;
 // Une ligne « débit et crédit » qui explique à elle seule l’écart d’une écriture déséquilibrée n’est pas un second point : la corriger équilibre l’écriture
@@ -1739,7 +1751,7 @@ const blockers=(P,R)=>{const by={};for(const i of jFirst(['source','odoo','after
 function fixHere(R,i){if(!R||!R.rows||R.rows.length<2)return false;
   // « Total débit ≠ total crédit » se règle en équilibrant les écritures, qui se corrigent ici
   if(/^Total débit ≠ total crédit/.test(i.title))return R.issues.some(u=>u!==i&&/^(Écritures déséquilibrées \(|Écriture déséquilibrée sans mois)/.test(u.title)&&fixHere(R,u));
-  const K=fixKind(i);if(!K)return false;return i.lines.length<=(K.m==='bal'?12:FIX_MAX);}
+  const K=fixKind(i);if(!K)return false;return K.m==='bal'||i.lines.length<=FIX_MAX;} // écritures déséquilibrées : toutes peuvent recevoir leur écart sur 471000 d’un clic
 function vSub(R,P){
   const B=blockers(P,R),nA=P.g.auto.length;
   if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?(P.g.auto.some(i=>i._k.man)?'Rien ne bloque plus l’import : vos corrections sont dans le fichier de reprise.':`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`):'Rien ne bloque l’import.');
@@ -1862,6 +1874,14 @@ function balSugg(R,I,rows,anc,ec,key){const S=[],a=Math.abs(ec),side=ec>0?'Credi
   S.push({t:`Mettre l’écart sur 471000, compte d’attente, à régulariser avec le client`,go:addL('471000')});
   S.push({t:`Ajouter une ligne de ${fmtE(a)} € ${sideT}, compte à saisir`,go:addL('')});
   return S;}
+// Le but est un FEC qui s’importe : chaque écriture encore déséquilibrée peut recevoir son écart sur le compte d’attente 471000, que le comptable régularise ensuite.
+// Une écriture coupée en deux par un code journal (même numéro, écarts opposés) est laissée de côté : sa correction est le code journal.
+function unbalLeft(R){if(!R.rows||R.rows.length<2)return [];const I=rowsIndex(R),CI=curIndex(R),T=CI?CI.tot:I.tot,last=new Map();
+  for(const m of I.data)last.set(CI?CI.key.get(m):I.ekey[m-1],m);
+  const U=[];for(const [k,t] of T){const ec=t.d-t.c;if(ec&&Number.isFinite(ec)&&last.has(k))U.push({k,t,ec,anc:last.get(k)});}
+  return U.filter(u=>!(u.t.en&&U.some(v=>v!==u&&v.t.en===u.t.en&&v.t.jc!==u.t.jc&&v.ec===-u.ec)));}
+function balAll(R){const I=rowsIndex(R),U=unbalLeft(R);if(!U.length)return;const A=ADDS[R.name]=ADDS[R.name]||{};
+  for(const u of U){const a=Math.abs(u.ec);(A[u.anc]=A[u.anc]||[]).push({CompteNum:'471000',CompteLib:accLib(R,I,'471000'),EcritureLib:'',Debit:u.ec<0?fmtA(a):'0,00',Credit:u.ec>0?fmtA(a):'0,00'});}}
 // Une ligne par correction : la suggestion en un bouton, la saisie à la main repliée, la correction faite reste visible sur place
 const fxShow=(k,v)=>v===''||v==null?'<i>vide</i>':esc(showV(k,v));
 const fxChg=(k,o,v,lab)=>`<span class="fxch">${lab===false?'':`<span class="fxk">${esc(FLAB[k]||k)}</span>`}<s>${fxShow(k,o)}</s><span class="arr">→</span><b>${fxShow(k,v)}</b></span>`;
@@ -1901,7 +1921,8 @@ function fixHTML(R,i){
     const cut=new Map();for(let a=0;a<groups.length;a++){const ga=groups[a],ta=(CI?CI.tot.get(ck(ga[0])):I.tot.get(I.ekey[ga[0]-1]))||{},ea=gapOf(ga);if(!ea||!ta.en)continue;
       for(let b=a+1;b<groups.length;b++){const gb=groups[b],tb=(CI?CI.tot.get(ck(gb[0])):I.tot.get(I.ekey[gb[0]-1]))||{};if(tb.en===ta.en&&tb.jc!==ta.jc&&gapOf(gb)===-ea){cut.set(ga,gb);groups.splice(b,1);break;}}}
     if(i.lines.length<=12)i._fxt=groups.length; // le titre compte les écritures telles qu’elles sont montrées (une écriture coupée en deux = une)
-    body=groups.map(rows=>{const fk=I.ekey[rows[0]-1],key=CK?ck(rows[0]):fk,t=(CI?CI.tot.get(key):I.tot.get(fk))||{},anc=Math.max(...rows),half=cut.get(rows),allRows=half?[...rows,...half].sort((a,b)=>a-b):rows,adds=allRows.flatMap(m=>addsOf(R,m).map((a,j)=>({a,j,anc:m})));
+    const UL=unbalLeft(R);
+    body=(UL.length>1?`<p class="fxall"><button class="btn sm" type="button" data-act="${act(()=>balAll(R),`${pl2(UL.length,'écart mis','écarts mis')} sur 471000 dans le fichier de reprise.`)}">Mettre les ${UL.length} écarts sur 471000</button><small class="fxhint">Compte d’attente : une ligne par écriture. L’import passe, le comptable régularise ensuite.</small></p>`:'')+groups.map(rows=>{const fk=I.ekey[rows[0]-1],key=CK?ck(rows[0]):fk,t=(CI?CI.tot.get(key):I.tot.get(fk))||{},anc=Math.max(...rows),half=cut.get(rows),allRows=half?[...rows,...half].sort((a,b)=>a-b):rows,adds=allRows.flatMap(m=>addsOf(R,m).map((a,j)=>({a,j,anc:m})));
       const diff=gapOf(rows);
       const P=diff?balSugg(R,I,rows,anc,diff,fk):[],spec=P.length>2,man=allRows.some(n=>edOf(R)[n])||adds.length>0,shown=allRows.slice(0,FIX_MAX);
       if(!diff&&man)i._fxd=(i._fxd||0)+1;
@@ -1922,7 +1943,7 @@ function fixHTML(R,i){
 ${direct?form:view}${allRows.length>FIX_MAX?`<p class="fxnote">+ ${allRows.length-FIX_MAX} lignes : voir la Lecture du FEC.</p>`:''}
 ${spec?`<div class="fxp"><span>${esc(P[0].t)}</span><button class="btn primary sm" type="button" data-act="${act(P[0].go,msg)}">Appliquer</button></div>`:''}
 <div class="fxlinks">${rest.length?`<details class="fxmore" data-key="fxm-${rid}-${esc(key)}"><summary>${spec?pl2(rest.length,'autre piste','autres pistes'):'Autres pistes'}</summary><ul class="fxs">${rest.map(li).join('')}</ul></details>`:''}
-${direct?'':`<details class="fxmore" data-key="fxn-${rid}-${esc(key)}"><summary>Saisir les montants à la main</summary>${form}</details>`}</div></div>`;}).join('')+(i.lines.length>12?`<p class="fxnote">+ ${i.lines.length-12} écritures : à corriger dans le logiciel d’origine.</p>`:'');}
+${direct?'':`<details class="fxmore" data-key="fxn-${rid}-${esc(key)}"><summary>Saisir les montants à la main</summary>${form}</details>`}</div></div>`;}).join('')+(i.lines.length>12?`<p class="fxnote">+ ${i.lines.length-12} écritures non montrées ici : le bouton « Mettre les écarts sur 471000 » les équilibre aussi. Sinon, à corriger dans le logiciel d’origine.</p>`:'');}
   else{const rows=issRows(R,i),shown=rows.slice(0,FIX_MAX);if(!shown.length)return '';
     body=`<ul class="fxl2">${shown.map(n=>{const E=edOf(R)[n]||{},dn=K.f.filter(k=>k in E),sg=K.f.map(k=>[k,suggest(R,I,n,k,i.title)]).filter(x=>x[1]!=null);
       const other=K.f.map(k=>`<label>${esc(FLAB[k])}${fxIn(R,I,n,k,null)}</label>`).join('');
@@ -2166,9 +2187,10 @@ function render(reports){
     const changes=R._fix?Object.entries(R._fix.changes):[];
     const steps=[];
     // Validation des correspondances et des saisies : un seul échange avec le client, compté une fois
-    const chv=R._fix?Object.values(R._fix.changes):[],mp=chv.some(v=>v.kind==='map'||v.kind==='man'),hasMan=chv.some(v=>v.kind==='man'),send=P.g.source.length>0;
+    const chv=R._fix?Object.values(R._fix.changes):[],mp=chv.some(v=>v.kind==='map'||v.kind==='man'),hasMan=chv.some(v=>v.kind==='man'),send=P.client,here=P.blockSrc.length>0&&!send; // le client n’est sollicité que pour ce qui bloque l’import et ne se corrige pas ici
     if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(mp&&!send?' et faire valider les correspondances':''),P.autoMin+(mp&&!send?10:0)]);
-    if(send)steps.push(['source','Envoyer au client les points à corriger ou vérifier'+(mp?' et les correspondances à valider':'')+', puis relire son retour',10]);
+    if(here)steps.unshift(['source','Corriger ici ce qui bloque l’import',0]);
+    if(send)steps.push(['source','Envoyer au client les points qui bloquent l’import'+(mp?' et les correspondances à valider':'')+', puis relire son retour',10]);
     if(P.g.odoo.length)steps.push(['odoo','Préparer la base Odoo',P.m.odoo]);
     steps.push(['import','Importer dans Odoo (assistant Import FEC) et comptabiliser',10]);
     if(P.g.after.length)steps.push(['after','Reprendre les points après import',P.m.after]);
@@ -2290,7 +2312,7 @@ const VCOLS=[ // clé, titre, champs FEC reliés, classe, colonne visible seulem
  ['cn','Compte',['CompteNum'],'mono'],['cl','Libellé du compte',['CompteLib']],['aux','Tiers',['CompAuxNum','CompAuxLib']],['pr','Pièce',['PieceRef']],
  ['pd','Date pièce',['PieceDate'],'mono',1],['el','Libellé',['EcritureLib']],['d','Débit',['Debit'],'amt'],['c','Crédit',['Credit'],'amt'],
  ['let','Lettrage',['EcritureLet','DateLet'],'mono'],['dev','Devise',['Montantdevise','Idevise'],'amt',1],['vd','Validation',['ValidDate'],'mono',1]];
-const VLVL={4:'À corriger avant l’import : Odoo refuse le fichier',3:'À corriger avant l’import : chiffres faux une fois importés',2:'À vérifier avec le client',1:'Réglé par le fichier de reprise, à revoir après l’import ou pour information'};
+const VLVL={4:'Bloque l’import : Odoo refuse le fichier',3:'Pour information : chiffres à revoir avec le comptable',2:'Pour information : à vérifier avec le client',1:'Réglé par le fichier de reprise, à revoir après l’import ou pour information'};
 let V={rid:0,mode:'all',iss:-1,j:'',q:'',group:true,all:false,page:0,items:[],shown:0,built:null};
 function viewReset(){V={...V,rid:0,mode:'all',iss:-1,j:'',q:'',page:0,items:[],shown:0,built:null};if($('tabView').hidden===false)viewOpen();}
 const vDate=s=>/^\d{8}$/.test(s)?s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4):s;
@@ -2385,16 +2407,16 @@ function vBuild(R,rs){
   const grp=[4,3,2,1].map(l=>{const a=X.iss.map((o,id)=>[o,id]).filter(([o])=>o.lvl===l);a.sort(([x],[y])=>JRN(y.i)-JRN(x.i));return a.length?`<optgroup label="${VLVL[l]}">${a.map(([o,id])=>opt(id,`${o.k.t} (${o.rows.length.toLocaleString('fr-FR')} ligne${o.rows.length>1?'s':''})`,id===V.iss)).join('')}</optgroup>`:'';}).join('');
   const js=[...X.jcodes].sort((a,b)=>a[0].localeCompare(b[0]));
   $('viewer').innerHTML=`<section class="vbar" aria-label="Filtres de lecture">
-<div class="vfile">${rs.length>1?`<span class="vctl"><select id="vFile" aria-label="Fichier">${rs.map(r=>opt(r._id,r.name+' · '+fmtP(r.stats.periode),r===R)).join('')}</select></span>`:`<b>${esc(R.name)}</b>`}<span class="vsum">${S.lignes.toLocaleString('fr-FR')} lignes · ${S.ecritures.toLocaleString('fr-FR')} écritures · ${X.flags.size?`${X.flags.size.toLocaleString('fr-FR')} ligne${X.flags.size>1?'s':''} avec un constat, dont ${X.nErr.toLocaleString('fr-FR')} en erreur`:'aucune ligne en erreur'}</span></div>
+<div class="vfile">${rs.length>1?`<span class="vctl"><select id="vFile" aria-label="Fichier">${rs.map(r=>opt(r._id,r.name+' · '+fmtP(r.stats.periode),r===R)).join('')}</select></span>`:`<b>${esc(R.name)}</b>`}<span class="vsum">${S.lignes.toLocaleString('fr-FR')} lignes · ${S.ecritures.toLocaleString('fr-FR')} écritures · ${X.nBlk?`<b class="vblk">${pl2(X.nBlk,'ligne bloque','lignes bloquent')} l’import</b>`:'aucune ligne ne bloque l’import'}</span></div>
 <div class="vctl">
-<label>Afficher<select id="vMode">${opt('all','Toutes les lignes',V.mode==='all')}${opt('err','Seulement les lignes en erreur',V.mode==='err')}${opt('flag','Les lignes avec un constat, même informatif',V.mode==='flag')}${curIndex(R)?opt('ed','Seulement les lignes corrigées dans la page',V.mode==='ed'):''}</select></label>
+<label>Afficher<select id="vMode">${opt('all','Toutes les lignes',V.mode==='all')}${opt('err','Seulement les lignes qui bloquent l’import',V.mode==='err')}${opt('flag','Les lignes avec un constat, même pour information',V.mode==='flag')}${curIndex(R)?opt('ed','Seulement les lignes corrigées dans la page',V.mode==='ed'):''}</select></label>
 <label>Constat<select id="vIss">${opt(-1,X.iss.length?'Tous les constats':'Aucun constat relié à des lignes',V.iss<0)}${grp}</select></label>
 <label>Journal<select id="vJ">${opt('','Tous les journaux',!V.j)}${js.map(([j,n])=>opt(j,`${j||'(vide)'} · ${n.toLocaleString('fr-FR')} lignes`,j===V.j)).join('')}</select></label>
 <label>Rechercher<input type="search" id="vQ" value="${esc(V.q)}" placeholder="Compte, libellé, pièce, montant…" autocomplete="off"></label>
 <label class="chk"><input type="checkbox" id="vGrp"${V.group?' checked':''}> Regrouper par écriture</label>
 <label class="chk"><input type="checkbox" id="vAll"${V.all?' checked':''}> Toutes les colonnes</label>
 </div>
-<p class="vlegend"><span class="lg l4">Odoo refuse le fichier</span><span class="lg l3">Chiffres faux une fois importés</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Réglé par le fichier de reprise ou pour information (non surligné)</span>${curIndex(R)?'<span class="lg led">Corrigé dans la page</span>':''}${tip('Cliquer une ligne pour voir ses constats et tous ses champs.')}</p>
+<p class="vlegend"><span class="lg l4">Bloque l’import</span>${curIndex(R)?'<span class="lg led">Corrigé dans la page</span>':''}${tip('Seul ce qui fait refuser l’import par Odoo est surligné. Les autres constats restent consultables : choisir un constat dans la liste « Constat », ou cliquer une ligne pour voir son détail.')}</p>
 </section>
 <div id="vFilt"></div>
 <div class="vscroll${V.all?' vall':''}" id="vScroll" tabindex="0" role="table" aria-label="Lignes du FEC"><div class="vin" id="vIn"><div class="vrow vhead" role="row">${VCOLS.reduce((h,c)=>h+`<span role="columnheader" class="${c[3]==='amt'?'amt':''}${c[4]?' vx':''}">${c[1]}</span>`,'<span role="columnheader" aria-label="Constats"></span>')}</div><div class="vrows" id="vRows" role="rowgroup"></div></div></div>
@@ -2409,7 +2431,7 @@ function vApply(keepScroll){
   for(const n of it?it.rows:X.data){
     const r=rows[n-1];if(!r)continue;
     if(V.mode==='ed'){if(!E[n]&&!A[n])continue;}
-    else if(V.mode!=='all'){const l=X.lvlOf(n);if(V.mode==='err'?l<2:!l)continue;}
+    else if(V.mode!=='all'){const l=X.lvlOf(n);if(V.mode==='err'?l<4:!l)continue;}
     if(V.j&&X.g(r,'JournalCode')!==V.j)continue;
     if(q){const t=r.join(' ').toLowerCase();if(!t.includes(q)&&!(qq&&t.replace(/\s/g,'').includes(qq)))continue;}
     if(V.group){const k=CI?CI.key.get(n):X.ekey[n-1];if(k!==prev){out.push(-(G.push(k)));prev=k;}}
@@ -2428,7 +2450,7 @@ function vDraw(){
   $('vIn').style.height=(VHH+len*VRH)+'px';
   const h=sc.clientHeight||600,a=Math.max(0,Math.floor((sc.scrollTop-VHH)/VRH)-10),b=Math.min(len,a+Math.ceil(h/VRH)+20);
   const box=$('vRows');box.style.top=(VHH+a*VRH)+'px';
-  if(!len){box.innerHTML=`<div class="vempty">${V.mode!=='all'&&!X.flags.size?'Aucune ligne en erreur dans ce FEC.':'Aucune ligne ne correspond à ces filtres.'}</div>`;}
+  if(!len){box.innerHTML=`<div class="vempty">${V.mode!=='all'&&!X.flags.size?'Aucune ligne ne bloque l’import dans ce FEC.':'Aucune ligne ne correspond à ces filtres.'}</div>`;}
   else{let html='';for(let i=a;i<b;i++){const v=V.items[off+i];html+=v<0?vGroupHTML(X,V.groups[-v-1],R):Number.isInteger(v)?vRowHTML(R,X,v):vAddHTML(R,X,Math.floor(v),Math.round((v-Math.floor(v))*1000)-1);}box.innerHTML=html;}
   sc.setAttribute('aria-rowcount',String(V.items.length+1));
   const pg=Math.ceil(V.items.length/VPAGE);
@@ -2440,11 +2462,12 @@ function vGroupHTML(X,k,R){const CI=R&&curIndex(R),t=(CI?CI.tot:X.tot).get(k);if
 function vAddHTML(R,X,n,j){const a=addsOf(R,n)[j];if(!a)return '';const I=rowsIndex(R),cv=k=>curVal(R,I,n,k),am=v=>{const c=parseAmt(v);return c?fmtE(c):'';};
   const val={n:'＋',jc:esc(cv('JournalCode')),ed:esc(vDate(cv('EcritureDate'))),en:esc(cv('EcritureNum')),cn:esc(a.CompteNum||'?'),cl:esc(a.CompteLib||''),aux:'',pr:esc(cv('PieceRef')),pd:esc(vDate(cv('PieceDate'))),el:'Ligne ajoutée dans la page',d:am(a.Debit),c:am(a.Credit),let:'',dev:'',vd:esc(vDate(cv('ValidDate')))};
   return `<div class="vrow vadd" role="row" title="Ligne ajoutée dans la page, après la ligne ${n}"><span class="vmk" role="cell"></span>${VCOLS.map(([k,,,cl,x])=>`<span role="cell" class="${cl||''}${x?' vx':''}">${val[k]}</span>`).join('')}</div>`;}
-function vHits(X,n){const f=X.flags.get(n)||[],cs=new Set();
-  for(const id of f){const o=X.iss[id];if(V.iss>=0?id!==V.iss:o.lvl<2)continue;(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
-  return {f,cs};}
+// Surligné dans le tableau : seulement ce qui bloque l’import, ou le constat choisi dans la liste « Constat »
+function vHits(X,n){const all=X.flags.get(n)||[],f=all.filter(id=>V.iss>=0?id===V.iss:X.iss[id].lvl===4),cs=new Set();let lvl=0;
+  for(const id of f){const o=X.iss[id];lvl=Math.max(lvl,o.lvl);(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
+  return {f,cs,lvl};}
 function vRowHTML(R,X,n){
-  const r=R.rows[n-1],g=k=>X.g(r,k),{f,cs}=vHits(X,n),lvl=X.lvlOf(n),E=edOf(R)[n];
+  const r=R.rows[n-1],g=k=>X.g(r,k),{f,cs,lvl}=vHits(X,n),E=edOf(R)[n];
   const D=X.bnc?(String(r[12]??'').trim().toUpperCase()==='D'?r[11]:''):r[X.F.Debit],C=X.bnc?(String(r[12]??'').trim().toUpperCase()==='C'?r[11]:''):r[X.F.Credit];
   const amt=v=>{const s=vAmt(v);return s===null?`<b class="bad">${esc(String(v).trim())}</b>`:s==='0,00'?'':s;};
   const mk=(g,D,C)=>{const date=k=>{const s=g(k);return s&&!isDate(s)?`<b class="bad">${esc(s)}</b>`:esc(vDate(s));};
@@ -2454,17 +2477,24 @@ function vRowHTML(R,X,n){
   const val=mk(g,D,C),ge=k=>k in E?E[k]:g(k),nv=E?mk(ge,'Debit' in E?E.Debit:D,'Credit' in E?E.Credit:C):null;
   const tip={jc:g('JournalLib'),cl:g('CompteLib'),aux:g('CompAuxLib'),el:g('EcritureLib'),pr:g('PieceRef'),let:g('DateLet')?'Lettré le '+vDate(g('DateLet')):''};
   const names=f.map(id=>X.iss[id].k.t),zero=k=>k==='d'||k==='c'?'0,00':'<i>vide</i>';
-  return `<div class="vrow vline${lvl?' l'+lvl:''}${E?' ved':''}" role="row" data-vrow="${n}"${E?' title="Ligne corrigée dans la page"':''}><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${f.length} constat${f.length>1?'s':''}, ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const ch=E&&fs.some(c=>c in E),hl=!ch&&fs.some(c=>cs.has(c));
+  return `<div class="vrow vline${lvl?' l'+lvl:''}${E?' ved':''}" role="row" data-vrow="${n}"${E?' title="Ligne corrigée dans la page"':''}><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const ch=E&&fs.some(c=>c in E),hl=!ch&&fs.some(c=>cs.has(c));
     return `<span role="cell" class="${cl||''}${x?' vx':''}${hl?' hl':''}${ch?' vedc':''}"${ch?' title="Corrigé dans la page. Valeur du FEC barrée."':tip[k]?` title="${esc(tip[k])}"`:''}>${ch?`<s>${val[k]||zero(k)}</s> <b>${nv[k]||zero(k)}</b>`:val[k]}</span>`;}).join('')}</div>`;
 }
 function vDetail(n){
   const R=REPORTS[V.rid],X=viewIndex(R),r=R.rows[n-1];if(!r)return;
-  const f=X.flags.get(n)||[],cs=new Set();for(const id of f){const o=X.iss[id];(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
+  // Seulement ce qui bloque l’import (et le constat dont on vient, si la liste est filtrée) ; les autres constats tiennent en une ligne repliée
+  const f=X.flags.get(n)||[],main=f.filter(id=>X.iss[id].lvl===4||id===V.iss),rest=f.filter(id=>!main.includes(id)),nB=main.filter(id=>X.iss[id].lvl===4).length,cs=new Map();
+  for(const id of main){const o=X.iss[id];(o.cells.get(n)||o.cols).forEach(c=>cs.set(c,Math.max(cs.get(c)||0,o.lvl)));}
   const k=X.ekey[n-1],t=X.tot.get(k);
+  const links=(id,o)=>`<button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}`;
+  const val=nm=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];return {p,v:p>=0?String(r[p]??''):''};};
+  const shown=EXPECTED.filter(nm=>cs.has(nm)||val(nm).v.trim()!==''),empty=EXPECTED.filter(nm=>!shown.includes(nm));
   $('vDlgT').textContent=`Ligne ${n} du fichier`;
-  $('vDlgB').innerHTML=(f.length?`<h4>${f.length} constat${f.length>1?'s':''} sur cette ligne</h4>${f.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns"><button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}</div></div>`;}).join('')}`:'<p class="vnote">Aucun constat sur cette ligne.</p>')
-   +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':` : ${gapTxt(t.d-t.c)}.`}</p>`:'')
-   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`
+  $('vDlgB').innerHTML=(nB?`<h4>${pl2(nB,'point bloque','points bloquent')} l’import sur cette ligne</h4>`:'<p class="vnote">Rien ne bloque l’import sur cette ligne.</p>')
+   +main.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns">${links(id,o)}</div></div>`;}).join('')
+   +(t&&t.d!==t.c?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)} : ${gapTxt(t.d-t.c)}.</p>`:'')
+   +(rest.length?`<details class="vmore"><summary>${pl2(rest.length,'autre constat','autres constats')} qui ne ${rest.length>1?'bloquent':'bloque'} pas l’import</summary><ul>${rest.map(id=>{const o=X.iss[id];return `<li><span>${esc(o.k.t)}</span><button class="linkbtn" type="button" data-vfilter="${id}">${pl2(o.rows.length,'ligne')}</button></li>`;}).join('')}</ul></details>`:'')
+   +`<h4>Champs de la ligne</h4><dl class="vfields">${shown.map(nm=>{const {p,v}=val(nm),lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${cs.get(nm)}">${esc(v)||'(vide)'}</span>`:esc(v)}</dd></div>`;}).join('')}</dl>${empty.length?`<p class="vnote vnone">Vides : ${empty.join(', ')}</p>`:''}`
    +(()=>{const I=rowsIndex(R),E=edOf(R)[n]||{},ne=Object.keys(E).length;
      return `<details class="vfix"${ne?' open':''}><summary>✎ Corriger cette ligne${ne?` <small>(${pl2(ne,'valeur corrigée','valeurs corrigées')})</small>`:''}</summary><div class="fixit" data-fix="${V.rid}:-1"><p class="fxhint">La valeur saisie va dans le fichier de reprise, jamais dans le FEC d’origine, et doit être validée avec le client. Dates au format JJ/MM/AAAA.</p><div class="fxgrid">${EXPECTED.map(k=>`<label><span>${esc(FLAB[k])}</span>${fxIn(R,I,n,k,suggest(R,I,n,k))}</label>`).join('')}</div><p class="fxbtns"><button class="btn primary sm" type="button" data-fixsave="1">Enregistrer</button><span class="fxmsg" role="status"></span></p></div></details>`;})();
   const d=$('vDlg');if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute('open','');
