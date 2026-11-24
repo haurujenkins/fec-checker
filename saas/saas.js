@@ -94,19 +94,18 @@ function sync(){
     const col=document.createElement('div');col.className='rcol';
     [...r.children].filter(c=>!c.matches('.verdict,.rname')).forEach(c=>col.append(c));
     const rail=document.createElement('aside');rail.className='rail';rail.setAttribute('aria-label','Parcours et fichier de reprise');
-    const route=q('ol.route',col),time=q('.vtime b',r),dl=q('.lvl.l2 .mainf [data-dl="fix"]',col)||q('[data-dl="fix"]',col),n1=q('.lvl.l1>h3 .count',col),cf=q('[data-confirm]',col);
+    const route=q('ol.route',col),time=q('.vtime b',r),dl=q('.lvl.l2 .mainf [data-dl="fix"]',col)||q('[data-dl="fix"]',col),n1=q('.lvl.l1>h3 .count',col);
     let h='';
     if(route)h+=`<section class="rcard rsteps"><h4>Votre parcours${time?`<span>${esc(time.textContent)}</span>`:''}</h4>${route.outerHTML}</section>`;
     if(dl)h+=`<section class="rcard rdl"><h4>Fichier de reprise</h4>
 ${n1?`<p class="rleft"><a href="#${r.id}" data-rtop>${esc(n1.textContent.trim())} point${+n1.textContent>1?'s':''} à corriger avant l’import</a></p>`:'<p>Le fichier à importer dans Odoo, à la place du FEC.</p>'}
 <button class="btn${n1?'':' primary'}" type="button" data-dl="fix" data-r="${esc(dl.dataset.r)}"${dl.disabled?' disabled':''}>Télécharger</button>
-${dl.disabled?`<p class="rhint"${cf&&cf.checked?' hidden':''}>${cf?'À valider d’abord : cochez « Correspondances de reprise validées » à l’étape « Préparer l’import ».':'Indisponible pour l’instant : voir l’étape « Préparer l’import ».'}</p>`:''}</section>`;
+${dl.disabled?'<p class="rhint">Indisponible pour l’instant : voir l’étape « Préparer l’import ».</p>':''}</section>`;
     rail.innerHTML=h;r.append(col,rail);
   });
 }
 new MutationObserver(sync).observe(reports,{childList:true});
 sync();
-document.addEventListener('change',ev=>{const c=ev.target.closest&&ev.target.closest('[data-confirm]');if(!c)return;const r=c.closest('.report');if(r)qa('.rail .rhint',r).forEach(p=>p.hidden=c.checked);});
 document.addEventListener('click',ev=>{const a=ev.target.closest&&ev.target.closest('.sb-doc,[data-rtop]');if(!a)return;const t=q(a.getAttribute('href'));if(!t)return;ev.preventDefault();
   if($('tabCheck').hidden){const b=$('tabBtnCheck');if(b)b.click();}
   const l1=a.matches('[data-rtop]')&&q('.lvl.l1',t);(l1||t).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
