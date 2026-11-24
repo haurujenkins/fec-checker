@@ -513,6 +513,13 @@ footer.appver{margin:40px 0 24px;text-align:center;font-size:.78rem;color:var(--
 .vrow.vadd{background:var(--vrf-bg);box-shadow:inset 3px 0 0 var(--accent);font-weight:500}.vrow.vadd .nn{color:var(--accent);font-weight:700}
 .vlegend .lg.led{--c:var(--accent);--hb:var(--vrf-bg)}
 </style>
+<script>
+/* Deux habillages, un seul moteur. Ouvert comme simple fichier, la page garde l’habillage sobre ci-dessus.
+   Servie en ligne avec son dossier saas/ (GitHub Pages), elle charge en plus l’habillage « application » : présentation seulement,
+   les contrôles et le fichier de reprise restent ceux de cette page. Ajouter ?sobre à l’adresse pour garder l’habillage sobre en ligne. */
+if(/^https?:$/.test(location.protocol)&&!/[?&]sobre\b/.test(location.search)){document.documentElement.classList.add('saas');
+  document.write('<link rel="stylesheet" href="saas/saas.css" onerror="document.documentElement.classList.remove(\'saas\')"><script defer src="saas/saas.js"><\/script>');}
+</script>
 </head>
 <body>
 
