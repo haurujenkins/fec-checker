@@ -1779,7 +1779,7 @@ const FLAB={JournalCode:'Code journal',JournalLib:'Libellé du journal',Ecriture
 const DATEF=new Set(['EcritureDate','PieceDate','DateLet','ValidDate']),AMTF=new Set(['Debit','Credit','Montantdevise']);
 // Points de structure du fichier ou entre fichiers : rien à saisir ligne par ligne
 const FIX_NO=/^(Séparateur|Nombre de champs|Lignes? avec un champ de trop|Plusieurs exercices|À-nouveaux|Deux fichiers|Des numéros de pièce reviennent|Encodage|Total débit|Lignes? vides?|En-tête|Noms de colonnes|Colonnes|Fichier|Source Excel|FEC au format|Volume|Trop de comptes|Écritures déséquilibrées qui se compensent|Comptes de charge ou de produit dans les à-nouveaux)/;
-const FIX_MAX=40;
+const FIX_MAX=40,SUG_MAX=6; // au-delà de SUG_MAX lignes, plus de montant suggéré ligne par ligne : on ne devine pas laquelle est fausse
 const edOf=R=>EDITS[R.name]||{};
 function fileVal(R,I,n,k){const r=R.rows[n-1]||[];if(I.bnc&&(k==='Debit'||k==='Credit')){const s=String(r[12]??'').trim().toUpperCase();return (k==='Debit'?s==='D':s==='C')?String(r[11]??'').trim():'';}return I.F[k]>=0?String(r[I.F[k]]??'').replace(/"/g,'').trim():'';}
 const curVal=(R,I,n,k)=>{const e=edOf(R)[n];return e&&k in e?e[k]:fileVal(R,I,n,k);};
@@ -1928,6 +1928,8 @@ function fixHTML(R,i){
     body=(UL.length>1?`<p class="fxall"><button class="btn sm" type="button" data-act="${act(()=>balAll(R),`${pl2(UL.length,'écart mis','écarts mis')} sur 471000 dans le fichier de reprise.`)}">Mettre les ${UL.length} écarts sur 471000</button><small class="fxhint">Compte d’attente : une ligne par écriture. L’import passe, le comptable régularise ensuite.</small></p>`:'')+groups.map(rows=>{const fk=I.ekey[rows[0]-1],key=CK?ck(rows[0]):fk,t=(CI?CI.tot.get(key):I.tot.get(fk))||{},anc=Math.max(...rows),half=cut.get(rows),allRows=half?[...rows,...half].sort((a,b)=>a-b):rows,adds=allRows.flatMap(m=>addsOf(R,m).map((a,j)=>({a,j,anc:m})));
       const diff=gapOf(rows);
       const P=diff?balSugg(R,I,rows,anc,diff,fk):[],spec=P.length>2,man=allRows.some(n=>edOf(R)[n])||adds.length>0,shown=allRows.slice(0,FIX_MAX);
+      // Montants suggérés ligne par ligne : seulement sans piste précise et sur une écriture courte. Sur une longue écriture, rien ne dit quelle ligne est fausse.
+      const sugOn=diff&&!spec&&allRows.length<=SUG_MAX;
       if(!diff&&man)i._fxd=(i._fxd||0)+1;
       const msg='Écriture '+key+' corrigée dans le fichier de reprise.';
       const aIn=({a,j,anc},k)=>`<input type="text" class="fxi ed" id="fxa-${rid}-${anc}-${j}-${k}" data-addln="${anc}" data-addj="${j}" data-f="${k}" value="${esc(a[k]||'')}" data-v0="${esc(a[k]||'')}"${k==='CompteNum'?` placeholder="Compte"${a[k]?'':' aria-invalid="true"'}`:''} aria-label="${esc(FLAB[k])}, ligne ajoutée" inputmode="${k==='CompteNum'?'numeric':'decimal'}" autocomplete="off" spellcheck="false">`;
@@ -1936,16 +1938,16 @@ function fixHTML(R,i){
       const jc=n=>{const E=edOf(R)[n];return E&&'JournalCode' in E?`<s>${esc(fileVal(R,I,n,'JournalCode'))||'<i>vide</i>'}</s> <b>${esc(E.JournalCode)}</b>`:`<b>${esc(curVal(R,I,n,'JournalCode'))||'<i class="bad">journal vide</i>'}</b>`;};
       const view=`<table class="fxe"><tbody>${shown.map(n=>`<tr><td class="fxl">${n}</td><td class="fxa">${jc(n)} ${esc(curVal(R,I,n,'CompteNum'))} <small>${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small></td><td class="fxn" data-h="Débit">${cell(n,'Debit')}</td><td class="fxn" data-h="Crédit">${cell(n,'Credit')}</td></tr>`).join('')}${adds.map(x=>`<tr class="add"><td class="fxl">＋</td><td class="fxa">${x.a.CompteNum?`<b>${esc(x.a.CompteNum)}</b> <small>${esc(x.a.CompteLib||'')} · ligne ajoutée</small>`:`<span class="fxc">${aIn(x,'CompteNum')}<button class="btn sm" type="button" data-fixsave="1">OK</button></span>`} <button class="linkbtn" type="button" data-unadd="${rid}:${x.anc}:${x.j}">Retirer</button></td><td class="fxn" data-h="Débit">${money(x.a.Debit)}</td><td class="fxn" data-h="Crédit">${money(x.a.Credit)}</td></tr>`).join('')}</tbody></table>`;
       // Saisie à la main : mêmes lignes, en champs
-      const form=`<table class="fxt"${diff&&!spec?' data-sugg':''}><thead><tr><th>Ligne</th><th>Compte</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${shown.map(n=>{const d=val(n,'Debit'),c=val(n,'Credit');let sk='',sv='';
-          if(diff&&!spec){if(d>0&&d-diff>=0){sk='Debit';sv=fmtA(d-diff);}else if(c>0&&c+diff>=0){sk='Credit';sv=fmtA(c+diff);}}
-          return `<tr><td class="fxl">${n}</td><td class="fxa"><b>${esc(curVal(R,I,n,'JournalCode'))}</b> ${esc(curVal(R,I,n,'CompteNum'))}<small>${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small></td><td data-h="Débit">${fxIn(R,I,n,'Debit',sk==='Debit'?sv:null)}</td><td data-h="Crédit">${fxIn(R,I,n,'Credit',sk==='Credit'?sv:null)}</td></tr>`;}).join('')}${adds.map(x=>`<tr class="fxadd"><td class="fxl">＋</td><td class="fxa">${aIn(x,'CompteNum')}</td><td data-h="Débit"><span class="fxc">${aIn(x,'Debit')}</span></td><td data-h="Crédit"><span class="fxc">${aIn(x,'Credit')}</span></td></tr>`).join('')}</tbody></table><p class="fxbtns"><button class="btn sm" type="button" data-fixsave="1">Enregistrer</button>${diff&&!spec?'<small class="fxhint">En pointillé : le montant qui équilibrerait l’écriture si l’erreur est sur cette ligne. Un seul à choisir.</small>':''}</p>`;
+      const form=`<table class="fxt"${sugOn?' data-sugg':''}><thead><tr><th>Ligne</th><th>Compte</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${shown.map(n=>{const d=val(n,'Debit'),c=val(n,'Credit');let sk='',sv='';
+          if(sugOn){if(d>0&&d-diff>=0){sk='Debit';sv=fmtA(d-diff);}else if(c>0&&c+diff>=0){sk='Credit';sv=fmtA(c+diff);}}
+          return `<tr><td class="fxl">${n}</td><td class="fxa"><b>${esc(curVal(R,I,n,'JournalCode'))}</b> ${esc(curVal(R,I,n,'CompteNum'))}<small>${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small></td><td data-h="Débit">${fxIn(R,I,n,'Debit',sk==='Debit'?sv:null)}</td><td data-h="Crédit">${fxIn(R,I,n,'Credit',sk==='Credit'?sv:null)}</td></tr>`;}).join('')}${adds.map(x=>`<tr class="fxadd"><td class="fxl">＋</td><td class="fxa">${aIn(x,'CompteNum')} <button class="linkbtn" type="button" data-unadd="${rid}:${x.anc}:${x.j}">Retirer</button></td><td data-h="Débit"><span class="fxc">${aIn(x,'Debit')}</span></td><td data-h="Crédit"><span class="fxc">${aIn(x,'Credit')}</span></td></tr>`).join('')}</tbody></table><p class="fxbtns"><button class="btn sm" type="button" data-fixsave="1">Enregistrer</button>${sugOn?'<small class="fxhint">En pointillé : le montant qui équilibrerait l’écriture si l’erreur est sur cette ligne. Un seul à choisir.</small>':''}</p>`;
       // Sans piste précise, le geste qui rend l’écriture importable passe en premier : l’écart sur le compte d’attente
       const susp=!spec&&P.find(x=>x.susp);
       const li=x=>`<li><button class="sugl" type="button" data-act="${act(x.go,msg)}">${esc(x.t)}</button></li>`,rest=spec?P.slice(1):P.filter(x=>x!==susp);
-      const direct=diff&&!spec; // aucune piste évidente : les champs sont montrés tout de suite
+      const direct=sugOn; // aucune piste évidente, écriture courte : les champs sont montrés tout de suite
       const name=t.en?`Écriture ${esc(t.jc)} ${esc(t.en)}`:`Pièce ${esc(t.pr||'')} (journal ${esc(t.jc)})`;
-      return `<div class="fxg${diff?'':' ok'}" data-grp><p class="fxgt"><span><b>${name}</b>${t.ed?` du ${esc(showV('EcritureDate',t.ed))}`:''}</span><span class="fxgap${diff?'':' ok'}"${half?'':' data-gap'}>${half?'coupée en deux par le code journal':diff?gapTxt(diff):'✓ équilibrée'}</span>${!diff&&man?undoBtn(`data-ungrp="${rid}:${allRows.join(',')}"`):''}</p>
-${susp?`<div class="fxp"><span>${esc(susp.t)}</span><button class="btn primary sm" type="button" data-act="${act(susp.go,msg)}">Appliquer</button></div><p class="fxor">Ou corriger un montant, si vous savez où est l’erreur :</p>`:''}${direct?form:view}${allRows.length>FIX_MAX?`<p class="fxnote">+ ${allRows.length-FIX_MAX} lignes : voir la Lecture du FEC.</p>`:''}
+      return `<div class="fxg${diff?'':' ok'}" data-grp><p class="fxgt"><span><b>${name}</b>${t.ed?` du ${esc(showV('EcritureDate',t.ed))}`:''}</span><span class="fxgap${diff?'':' ok'}"${half?'':' data-gap'}>${half?'coupée en deux par le code journal':diff?gapTxt(diff):'✓ équilibrée'}</span><button class="linkbtn" type="button" data-ungrp="${rid}:${allRows.join(',')}"${man?' data-man="1"':' hidden'} title="Remettre l’écriture comme dans le FEC">Tout annuler</button></p>
+${susp?`<div class="fxp"><span>${esc(susp.t)}</span><button class="btn primary sm" type="button" data-act="${act(susp.go,msg)}">Appliquer</button></div>${direct?'<p class="fxor">Ou corriger un montant, si vous savez où est l’erreur :</p>':''}`:''}${direct?form:view}${allRows.length>FIX_MAX?`<p class="fxnote">+ ${allRows.length-FIX_MAX} lignes : voir la Lecture du FEC.</p>`:''}
 ${spec?`<div class="fxp"><span>${esc(P[0].t)}</span><button class="btn primary sm" type="button" data-act="${act(P[0].go,msg)}">Appliquer</button></div>`:''}
 <div class="fxlinks">${rest.length?`<details class="fxmore" data-key="fxm-${rid}-${esc(key)}"><summary>${spec?pl2(rest.length,'autre piste','autres pistes'):'Autres pistes'}</summary><ul class="fxs">${rest.map(li).join('')}</ul></details>`:''}
 ${direct?'':`<details class="fxmore" data-key="fxn-${rid}-${esc(key)}"><summary>Saisir les montants à la main</summary>${form}</details>`}</div></div>`;}).join('')+(i.lines.length>12?`<p class="fxnote">+ ${i.lines.length-12} écritures non montrées ici : le bouton « Mettre les écarts sur 471000 » les équilibre aussi. Sinon, à corriger dans le logiciel d’origine.</p>`:'');}
@@ -2002,8 +2004,12 @@ document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;le
   if((e=t.closest('[data-unrow]'))){const [rid,ln,fs]=e.dataset.unrow.split(':'),R=REPORTS[+rid],E=R&&EDITS[R.name];if(!E||!E[ln])return;for(const k of fs.split(','))delete E[ln][k];if(!Object.keys(E[ln]).length)delete E[ln];if(!Object.keys(E).length)delete EDITS[R.name];
     rerender('Correction annulée.');return;}
   if((e=t.closest('[data-ungrp]'))){const [rid,ls]=e.dataset.ungrp.split(':'),R=REPORTS[+rid];if(!R)return;const E=EDITS[R.name]||{},A=ADDS[R.name]||{};
-    for(const ln of ls.split(',')){if(E[ln]){for(const k of ['Debit','Credit','JournalCode'])delete E[ln][k];if(!Object.keys(E[ln]).length)delete E[ln];}delete A[ln];}
-    if(!Object.keys(E).length)delete EDITS[R.name];if(!Object.keys(A).length)delete ADDS[R.name];rerender('Corrections de l’écriture annulées.');return;}
+    let n=0;for(const ln of ls.split(',')){if(E[ln]){for(const k of ['Debit','Credit','JournalCode'])if(k in E[ln]){delete E[ln][k];n++;}if(!Object.keys(E[ln]).length)delete E[ln];}if(A[ln]){n+=A[ln].length;delete A[ln];}}
+    if(!Object.keys(E).length)delete EDITS[R.name];if(!Object.keys(A).length)delete ADDS[R.name];
+    // Rien d’enregistré : seules les saisies en cours sont remises à leur valeur de départ
+    if(!n){let first=null;for(const x of e.closest('[data-grp]').querySelectorAll('input[data-ln]')){if(x.value.trim()===(x.dataset.v0||'').trim())continue;x.value=x.dataset.v0||'';if(!x.hasAttribute('title'))x.classList.remove('ed');first=first||x;}
+      if(first)first.dispatchEvent(new Event('input',{bubbles:true}));return;}
+    rerender('Corrections de l’écriture annulées.');return;}
   if((e=t.closest('[data-act]'))){const a=ACTS.get(e.dataset.act);if(a){a.fn();rerender(a.msg||'Correction appliquée dans le fichier de reprise.');}return;}
   if((e=t.closest('[data-unadd]'))){const [rid,anc,j]=e.dataset.unadd.split(':').map(Number),R=REPORTS[rid];const A=R&&ADDS[R.name];if(!A||!A[anc])return;A[anc].splice(j,1);if(!A[anc].length)delete A[anc];if(!Object.keys(A).length)delete ADDS[R.name];
     rerender('Ligne ajoutée retirée.');return;}
@@ -2015,10 +2021,12 @@ document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;le
 // Écart recalculé pendant la saisie des montants
 document.addEventListener('input',ev=>{const inp=ev.target;if(!inp.matches||!inp.matches('.fxg input[data-ln],.fxg input[data-addln]'))return;const g=inp.closest('[data-grp]');let s=0;
   for(const x of g.querySelectorAll('input[data-ln],input[data-addln]')){if(x.dataset.f==='CompteNum')continue;const c=parseAmt(x.value);if(!isNaN(c))s+=x.dataset.f==='Debit'?c:-c;}
-  const gap=g.querySelector('[data-gap]');gap.textContent=s?gapTxt(s):'✓ équilibrée';gap.classList.toggle('ok',!s);balLive(g,s);});
+  const gap=g.querySelector('[data-gap]');if(gap){gap.textContent=s?gapTxt(s):'✓ équilibrée';gap.classList.toggle('ok',!s);}balLive(g,s);});
 // Montants en pointillé d’une écriture déséquilibrée : des alternatives, une seule à retenir. Ils suivent l’écart en cours de saisie et disparaissent dès que l’écriture tombe juste.
 // Un montant modifié garde un « Annuler » qui remet la valeur de départ : les suggestions reviennent.
 function balLive(g,s){const T=g.querySelector('table.fxt');if(!T)return;const on=T.hasAttribute('data-sugg');
+  // « Tout annuler » de l’écriture : montré dès qu’un montant est saisi ou qu’une correction est enregistrée
+  const ub=g.querySelector('[data-ungrp]');if(ub)ub.hidden=!ub.dataset.man&&![...g.querySelectorAll('input[data-ln],input[data-addln]')].some(x=>x.value.trim()!==(x.dataset.v0||'').trim());
   for(const tr of T.querySelectorAll('tbody tr')){const D=tr.querySelector('input[data-ln][data-f="Debit"]'),C=tr.querySelector('input[data-ln][data-f="Credit"]');if(!D||!C)continue;
     const moved=x=>x.value.trim()!==(x.dataset.v0||'').trim(),d=parseAmt(D.value),c=parseAmt(C.value);let sk=null,sv='';
     if(on&&s&&!moved(D)&&!moved(C)&&!isNaN(d)&&!isNaN(c)){if(d>0&&d-s>=0){sk=D;sv=fmtA(d-s);}else if(c>0&&c+s>=0){sk=C;sv=fmtA(c+s);}}
