@@ -66,7 +66,7 @@ let n=0;const ok=(t,f)=>{f();n++;console.log('✓ '+t);};
   ok('deux exercices : verdicts « Importable avec le fichier de reprise »',()=>assert.deepStrictEqual(Rs.map(r=>T_.planOf(r).title),['Importable avec le fichier de reprise','Importable avec le fichier de reprise']));
   ok('deux exercices : points croisés non dupliqués après un changement d’option',()=>{const n0=B.issues.length;set(B,{prefixOn:true});assert.strictEqual(T_.reports()[1].issues.length,n0);});
   let B2=set(B,{dropAN:false});
-  ok('deux exercices : décocher le retrait remet le point à corriger, le choix est gardé',()=>{assert.strictEqual(lines(B2).filter(l=>l[0]==='AN').length,4);assert.strictEqual(T_.planOf(B2).title,'À corriger avant import');T_.render(T_.reports());assert.strictEqual(T_.reports()[1]._opts.dropAN,false);});
+  ok('deux exercices : décocher le retrait remet le point (pour information : il ne bloque pas l’import), le choix est gardé',()=>{assert.strictEqual(lines(B2).filter(l=>l[0]==='AN').length,4);const P2=T_.planOf(B2);assert.strictEqual(P2.title,'Importable avec le fichier de reprise');assert.ok(P2.g.source.some(i=>i.an),'le point des à-nouveaux en double est de nouveau listé');T_.render(T_.reports());assert.strictEqual(T_.reports()[1]._opts.dropAN,false);});
   B2=set(B2,{prefixOn:false});
   ok('deux exercices : un seul fichier préfixé suffit à séparer les pièces',()=>{const a=nums(T_.reports()[0]);assert.ok(![...nums(B2)].some(k=>a.has(k)));});
   set(T_.reports()[0],{prefixOn:false});
