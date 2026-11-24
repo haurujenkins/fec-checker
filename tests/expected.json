@@ -118,7 +118,7 @@
  "tests/fixtures/U04_virgule.txt": [
   {
    "name": "U04_virgule.txt",
-   "verdict": "FEC déconseillé en l’état",
+   "verdict": "À corriger avant import",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[err] Séparateur « , » non autorisé",
@@ -1056,7 +1056,7 @@
  "tests/fixtures/variantes/desequilibre_date_piece_seule.txt": [
   {
    "name": "desequilibre_date_piece_seule.txt",
-   "verdict": "FEC déconseillé en l’état",
+   "verdict": "À corriger avant import",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[err] EcritureDate vide (2)",
@@ -1208,7 +1208,7 @@
  "tests/fixtures/variantes/lignes_identiques.txt": [
   {
    "name": "lignes_identiques.txt",
-   "verdict": "FEC déconseillé en l’état",
+   "verdict": "À corriger avant import",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[info] Lignes identiques dans une pièce équilibrée (1)",
@@ -1303,7 +1303,7 @@
  "tests/fixtures/variantes/trois_decimales_desequilibre.txt": [
   {
    "name": "trois_decimales_desequilibre.txt",
-   "verdict": "FEC déconseillé en l’état",
+   "verdict": "À corriger avant import",
    "issues": [
     "[warn] Nom de fichier non conforme",
     "[warn] Montant à plus de 2 décimales (3)",
