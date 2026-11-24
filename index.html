@@ -81,13 +81,13 @@ code{font-family:var(--mono);font-size:.88em}
 .blist{display:grid}
 .bitem{border-top:1px solid var(--line)}.bitem:first-child{border-top:0}
 .bsub{margin:6px 0 0;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600}.bsub.bloque{color:var(--err)}.bsub.fausse{color:var(--warn)}
-.bitem>summary{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:baseline;padding:10px 0;cursor:pointer;list-style:none}
+.bitem>summary{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;padding:10px 0;cursor:pointer;list-style:none}
 .bitem>summary::-webkit-details-marker{display:none}
 .bitem .tt{font-weight:600}.bitem .tt small{font-weight:400;color:var(--muted);margin-left:6px}
 .bitem>summary::after{content:"▸";color:var(--accent)}.bitem[open]>summary::after{content:"▾"}
 .bitem em{font-style:normal;font-family:var(--mono);font-size:.85rem;color:var(--muted);white-space:nowrap}
 .bbody{display:grid;gap:8px;padding:0 0 12px}.bbody .item{border:0;padding:0 0 0 2px;background:none}.bbody .ihead{display:none}
-@media (max-width:760px){.bitem>summary{grid-template-columns:1fr auto auto}.bitem>summary .wtag{grid-column:1/-1;justify-self:start}}
+.bitem .tt .wtag{margin-right:8px;vertical-align:1px}
 .plan-b{border-top:1px dashed var(--line);padding-top:10px;font-size:.93rem}.plan-b>summary{cursor:pointer;color:var(--accent)}.plan-b>summary b{color:var(--fg)}
 .plan-b[open] .alt{margin-top:10px}
 .aline{margin:0;font-size:.95rem}.aline>summary{cursor:pointer}.aline .items{margin-top:10px}
@@ -443,6 +443,75 @@ header.top .privacy{background:rgba(255,255,255,.14);color:var(--band-fg)}
 header.top .credit{position:relative;outline:none}header.top .credit::after{content:attr(data-credit);position:absolute;left:0;top:100%;margin-top:4px;font-size:.78rem;font-weight:400;letter-spacing:0;white-space:nowrap;background:#2a2230;color:#fff;padding:4px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:3}header.top .credit:hover::after,header.top .credit:focus::after{opacity:1}
 footer.appver{margin:40px 0 24px;text-align:center;font-size:.78rem;color:var(--muted)}footer.appver a{color:inherit}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Corriger ici : saisie des valeurs reprises dans le fichier de reprise */
+.fixable{font-size:.78rem;font-weight:700;color:var(--accent);white-space:nowrap}
+.fixit{border:1px solid var(--btnline);background:var(--sunk);border-radius:12px;padding:12px 14px;display:grid;gap:10px}
+.fxh{margin:0;display:flex;align-items:center;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}.fxh b{font-size:.95rem}.fxh small{color:var(--muted);font-size:.82rem}.fxh>span{display:inline-flex;align-items:center;gap:6px}
+/* Une ligne par correction */
+.fxl2{list-style:none;margin:0;padding:0;display:grid}
+.fxr{display:grid;grid-template-columns:minmax(11em,1fr) minmax(0,1.6fr) auto;gap:6px 16px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.fxr:first-child{border-top:0;padding-top:2px}.fxr:last-child{padding-bottom:2px}
+.fxw{min-width:0;display:grid;grid-template-columns:auto 1fr;column-gap:6px;align-items:baseline}.fxw b{font-size:.92rem}.fxw small{grid-column:1/-1;color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fxw .okm{color:var(--ok);font-weight:700}
+.fxv{display:grid;gap:2px;font-size:.92rem;min-width:0}.fxch{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.fxk{color:var(--muted);font-size:.8rem}.fxch s{color:var(--muted);font-family:var(--mono);font-size:.88em}.fxch b{font-family:var(--mono);font-size:.92em}.fxch .arr{color:var(--muted)}.fxch .bad{color:var(--err)}.fxch i,.fxe i{color:var(--muted);font-style:italic;font-family:inherit}
+.fxb{display:flex;gap:12px;align-items:center;justify-content:flex-end;white-space:nowrap}
+.fxo{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}.fxo[hidden]{display:none}
+.fxo label{display:grid;gap:3px;font-size:.78rem;color:var(--muted)}
+.fxr.done .fxch b{color:var(--ok)}
+/* Écriture déséquilibrée : l’écriture en lecture, la meilleure piste en un bouton */
+.fxe{border-collapse:collapse;width:100%;font-size:.88rem}.fxe td{padding:5px 10px 5px 0;border-bottom:1px solid var(--line);vertical-align:baseline}.fxe tr:last-child td{border-bottom:0}
+.fxe .fxn{text-align:right;font-family:var(--mono);white-space:nowrap;width:9em;padding:5px 0 5px 12px}.fxe .fxa small{display:inline;color:var(--muted);max-width:none;white-space:normal;overflow:visible}.fxe s{color:var(--muted)}.fxe .fxn b{color:var(--ok)}
+.fxe tr.add td{background:var(--vrf-bg)}.fxe tr.add .fxl{color:var(--accent);font-weight:700}.fxe tr.add td:first-child{border-radius:6px 0 0 6px;padding-left:6px}.fxe tr.add td:last-child{border-radius:0 6px 6px 0;padding-right:6px}.fxe .fxc{display:inline-flex}
+.fxp{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--accent);background:var(--surface);border-radius:10px;padding:8px 10px 8px 14px;font-size:.92rem}
+.fxg.ok .fxgt b{color:var(--fg)}.fxgt{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}.fxgt .linkbtn{margin-left:auto}
+
+.fxhint,.fxnote{margin:0;font-size:.85rem;color:var(--muted)}.fxnote{color:var(--warn)}
+.fxt{border-collapse:collapse;width:100%;font-size:.88rem}
+.fxt th{text-align:left;font-weight:600;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding:4px 8px 6px 0;border-bottom:1px solid var(--line)}
+.fxt td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}.fxt tr:last-child td{border-bottom:0}
+.fxl{font-family:var(--mono);color:var(--muted);width:3.5em}
+.fxa small{display:block;color:var(--muted);font-size:.8rem;max-width:26ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fxc{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.fxi{font:inherit;font-family:var(--mono);font-size:.85rem;width:9.5em;padding:5px 8px;border:1px solid var(--btnline);border-radius:8px;background:var(--surface);color:var(--fg)}
+.fxi:focus{outline:2px solid var(--accent);outline-offset:1px}
+.fxi.ed{border-color:var(--accent);background:var(--vrf-bg)}
+.fxi[aria-invalid="true"]{border-color:var(--err);background:var(--err-bg)}
+.sug{white-space:nowrap;font:inherit;font-family:var(--mono);font-size:.78rem;border:1px dashed var(--accent);background:none;color:var(--accent);border-radius:999px;padding:2px 9px;cursor:pointer}
+.sug::before{content:"→ "}.sug:hover{background:var(--vrf-bg)}
+.fxg{display:grid;gap:6px}.fxg+.fxg{border-top:1px dashed var(--line);padding-top:10px}
+.fxgt{margin:0;font-size:.9rem}.fxgap{font-family:var(--mono);color:var(--err)}.fxgap.ok{color:var(--ok)}
+.fxj{list-style:none;margin:0;padding:0;display:grid;gap:8px}.fxj li{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.fxj small{color:var(--muted)}.fxj .fxi{width:7em}
+.fxbtns{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fxs{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.sugl{font:inherit;font-size:.88rem;text-align:left;border:1px solid var(--btnline);background:var(--surface);color:var(--fg);border-radius:8px;padding:6px 10px;cursor:pointer;width:100%}
+.sugl:hover,.sugl:focus-visible{border-color:var(--accent);background:var(--vrf-bg)}
+.fxlinks{display:flex;flex-wrap:wrap;gap:6px 22px}.fxlinks details[open]{flex-basis:100%;order:2}.fxlinks:empty{display:none}
+.fxmore>summary{cursor:pointer;font-size:.85rem;color:var(--accent)}.fxmore>.fxt{margin-top:6px}
+.fxadd td{background:var(--vrf-bg)}.fxadd .fxi{width:8em}.fxadd .fxa small{white-space:normal}
+.btn.sm{padding:5px 14px;font-size:.88rem}
+.fxmsg{font-size:.85rem;color:var(--muted)}.fxmsg:empty{display:none}
+.edl{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;font-size:.9rem}.edl li{display:flex;justify-content:space-between;gap:12px;align-items:baseline}.edl s{color:var(--muted)}.edl small{color:var(--muted);margin-left:4px}
+.mandone{margin:4px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:.92rem;color:var(--muted)}.mandone .okm{color:var(--ok);font-weight:700}
+.aline.man .okm{color:var(--accent)}.edb{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px 22px}
+.l2list{display:grid}.l2list>*{border-top:1px solid var(--line);padding:11px 0;margin:0}.l2list>*:last-child{padding-bottom:2px}
+.l2list .aline>summary{list-style:none;display:flex;align-items:baseline;gap:8px}.l2list .aline>summary::-webkit-details-marker{display:none}.l2list .aline>summary::after{content:"▸";color:var(--accent);margin-left:auto;padding-left:12px}.l2list .aline[open]>summary::after{content:"▾"}
+.l2list p.aline{display:flex;align-items:baseline;gap:8px}.l2list .optt{font-weight:400}
+.l2list .okm{flex:none;width:1.2em;text-align:center}.l2list .okm.n{color:var(--muted)}.l2list .optn{color:var(--muted);font-size:.9rem}
+.l2list .optsd{border:0;border-top:1px solid var(--line);border-radius:0;padding:11px 0;margin:0}.l2list .optsd>summary{font-size:.95rem}
+.l2list .files{border:0;padding:0;background:none;margin-top:6px}
+.lvl.l2 .mainf li{border-top:0;padding:4px 0 6px}.lvl.l2 .mainf li b{font-size:1.02rem}
+.fxtoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.92rem;box-shadow:0 10px 30px -10px var(--tabshade);z-index:60}
+@media (max-width:600px){.fxt thead{display:none}.fxt tr{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;padding:6px 0;border-bottom:1px solid var(--line)}.fxt td{border:0;padding:0}.fxt td:nth-child(n+3){grid-column:1/-1}.fxc{flex-wrap:nowrap}.fxc .fxi{flex:1;min-width:0;width:auto}}@media (max-width:600px){.fxr{grid-template-columns:1fr}.fxb{justify-content:flex-start}.fxp{flex-direction:column;align-items:stretch}.fxe .fxn{width:auto}.fxe .fxa small{display:block}.fxt td[data-h]::before{content:attr(data-h);display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}}
+.optsd{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:4px 0 14px}.optsd>summary{cursor:pointer;font-size:.92rem}.optsd[open]>summary{margin-bottom:10px}
+.optt{font-weight:600}.optn{color:var(--muted);font-size:.85rem;margin-left:4px}
+.morefiles{margin-top:6px}.morefiles>summary{cursor:pointer;font-size:.92rem;padding:8px 0;font-weight:600}.morefiles ul{margin-top:4px}
+.vfix{margin-top:14px}.vfix>summary{cursor:pointer;font-weight:700;color:var(--accent)}.vfix .fixit{margin-top:10px}
+.fxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 14px}.fxgrid label{display:grid;align-content:start;gap:3px;font-size:.8rem;color:var(--muted)}.fxgrid .fxi{width:100%}
+.vline.ved{box-shadow:inset 3px 0 0 var(--accent)}
+.vrow>.vedc{background:var(--vrf-bg);box-shadow:inset 0 0 0 2px var(--accent)}.vrow>.vedc s{color:var(--muted);font-weight:400;font-size:.92em}.vrow>.vedc b{font-weight:600}.vrow>.vedc i{color:var(--muted)}
+.vrow.vadd{background:var(--vrf-bg);box-shadow:inset 3px 0 0 var(--accent);font-weight:500}.vrow.vadd .nn{color:var(--accent);font-weight:700}
+.vlegend .lg.led{--c:var(--accent);--hb:var(--vrf-bg)}
 </style>
 </head>
 <body>
@@ -612,9 +681,9 @@ zone('drop','file','fec');zone('refDrop','refFile','ref');
 // Un fichier lâché à côté des encarts ne remplace pas la page : il est rangé d’après son contenu
 document.addEventListener('dragover',ev=>ev.preventDefault());
 document.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer&&ev.dataTransfer.files.length)handleFiles(ev.dataTransfer.files);});
-$('sample').addEventListener('click',()=>{FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
+$('sample').addEventListener('click',()=>{EDITS={};ADDS={};FEC_FILES=[{name:SAMPLE_NAME,buf:new TextEncoder().encode(SAMPLE).buffer}];SAMPLE_ON=true;showFecList();runAll(true);});
 $('refClear').addEventListener('click',()=>{REF_FILES=[];REF_NOTE='';applyBase();showRef();if(FEC_FILES.length)runAll(false);});
-$('reset').addEventListener('click',()=>{FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';document.querySelector('.inputs')?.classList.remove('min');$('resbar').hidden=true;$('empty').hidden=false;viewReset();window.scrollTo({top:0,behavior:'smooth'});});
+$('reset').addEventListener('click',()=>{EDITS={};ADDS={};FEC_FILES=[];REF_FILES=[];REF_NOTE='';SAMPLE_ON=false;applyBase();showRef();showFecList();REPORTS=[];lastReport='';$('reports').innerHTML='';document.querySelector('.inputs')?.classList.remove('min');$('resbar').hidden=true;$('empty').hidden=false;viewReset();window.scrollTo({top:0,behavior:'smooth'});});
 // Onglets : « Contrôle du FEC » et « Méthodologie avant import »
 function showTab(id,focus){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.dataset.tab===id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus();});
   document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=p.id!==id);if(id==='tabView')viewOpen();}
@@ -667,7 +736,7 @@ async function handleFiles(list,where){
   if(refs.length){const names=new Set(refs.map(f=>f.name));REF_FILES=REF_FILES.filter(f=>!names.has(f.name)).concat(refs);applyBase();}
   REF_NOTE=[moved.length?'Rangé automatiquement : '+moved.join(' · ')+'.':'',bad.length?'Non reconnu : '+bad.join(', ')+'. Attendu : un export Odoo avec les colonnes Code, Nom du compte et Type (comptes), ou Code court, Nom et Type (journaux).':''].filter(Boolean).join(' ');
   showRef();
-  if(fecs.length){FEC_FILES=fecs;SAMPLE_ON=false;showFecList();runAll(true);}
+  if(fecs.length){EDITS={};ADDS={};FEC_FILES=fecs;SAMPLE_ON=false;showFecList();runAll(true);}
   else if(FEC_FILES.length&&refs.length)runAll(false);
   else $('fname').textContent=refs.length?'Exports de la base chargés : '+REF_FILES.map(f=>f.name).join(' · ')+'. Déposez maintenant le FEC dans l’encart 1.':'';
 }
@@ -1256,10 +1325,11 @@ function fixFEC(rows,hints){
   //  map : correspondance de reprise (codes de compte, tiers, code journal, numéro d'écriture, libellé vide) — listée ligne à ligne, à valider.
   //  opt : option choisie par l'utilisateur pour l'import de plusieurs exercices (préfixe des numéros d'écriture).
   // Interdit : changer un montant, un sens, une date d'écriture, une devise ; ajouter ou retirer une ligne de données.
+  //  man : sauf saisie explicite de l'utilisateur dans la page (« Corriger ici »), listée ligne à ligne et à faire valider ; le contrôle d'intégrité en tient compte.
   // Seule exception, à la demande : retirer les écritures d'à-nouveaux, si elles sont équilibrées (map, ligne par ligne dans la table).
   const opts=hints.opts||{},AN=new Set(hints.anJournals||[]),EX=hints.exos||null,RCV=opts.recv||'411100',PAY=opts.pay||'401100',COLL=opts.collect!==false;let nQuadra=0,nColl=0;const collAcc=new Set();
   const exoOf=d=>{let k=0;if(EX)for(let i=0;i<EX.length;i++)if(d>=EX[i].start)k=i;return k;};
-  const ch={},c=(k,kind,n=1)=>{ch[k]=ch[k]||{n:0,kind};ch[k].n+=n;};const left=[],corr=[];
+  const ch={},c=(k,kind,n=1)=>{ch[k]=ch[k]||{n:0,kind};ch[k].n+=n;};const left=[],corr=[];let manD=0,manC=0,nMan=0;
   const hdr=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim());
   const idx={};EXPECTED.forEach(e=>idx[e]=hdr.findIndex(h=>h.toLowerCase()===e.toLowerCase()));
   const iM=hdr.findIndex(h=>/^montant$/i.test(h)),iS=hdr.findIndex(h=>/^sens$/i.test(h));const bnc=idx.Debit<0&&idx.Credit<0&&iM>=0&&iS>=0;
@@ -1268,12 +1338,17 @@ function fixFEC(rows,hints){
   if(hdr.slice(0,18).join('|')!==EXPECTED.join('|'))c('En-tête remis au format réglementaire (18 colonnes, ordre et casse)','fmt');
   if(hints.excel)c('Lignes remises dans leur forme d’origine (« ; » et guillemets ajoutés par le tableur retirés)','fmt');
   if(hints.multiline)c('Cellules sur plusieurs lignes recollées sur une seule ligne (retour à la ligne remplacé par une espace)','fmt');
-  const out=[];let srcD=0,srcC=0,srcN=0;
-  rows.slice(1).forEach((r,ri)=>{
-    const ln=ri+2;
+  const out=[];let srcD=0,srcC=0,srcN=0,addN=0,addD=0,addC=0;
+  // Lignes ajoutées dans la page (« Corriger ici ») : copiées de la ligne d’ancrage de l’écriture, insérées juste après elle
+  const ADD=hints.adds||{},addRow=(a,r0)=>{const r=[...r0];const set=(k,v)=>{if(idx[k]>=0)r[idx[k]]=v;};
+    for(const k of ['CompAuxNum','CompAuxLib','EcritureLet','DateLet','Montantdevise','Idevise','EcritureLib'])set(k,'');
+    for(const k of ['CompteNum','CompteLib','EcritureLib'])if(a[k]!=null)set(k,a[k]);
+    if(bnc){const d=parseAmt(a.Debit)||0;r[iM]=fmtA(d||parseAmt(a.Credit)||0);r[iS]=d?'D':'C';}else{set('Debit',a.Debit||'0,00');set('Credit',a.Credit||'0,00');}return r;};
+  const seq=[];rows.slice(1).forEach((r,ri)=>{seq.push([r,ri+2,false]);const A=ADD[ri+2];if(A)A.forEach((a,j)=>seq.push([addRow(a,r),`${ri+2}+${j+1}`,true]));});
+  seq.forEach(([r,ln,added])=>{
     if(!r.some(x=>String(x).trim()!=='')){if(hints.multiline&&hints.multiline.has(ln))return;c('Lignes vides supprimées (aucune donnée)','fmt');return;}
     if(r.map(x=>String(x).replace(/^\uFEFF/,'').trim().toLowerCase()).join('|')===hdr.map(x=>x.toLowerCase()).join('|')){c('En-tête répété au milieu du fichier retiré (aucune donnée)','fmt');return;}
-    srcN++;const o={};let q=false,sp=false,sepIn=false;
+    if(!added)srcN++;const o={};let q=false,sp=false,sepIn=false;
     for(const e of EXPECTED){let v=idx[e]>=0?String(r[idx[e]]??''):'';
       if(v.includes('"')){v=v.replace(/"/g,'');q=true;}
       if(/[\t|]/.test(v)){v=v.replace(/[\t|]/g,' ');sepIn=true;}
@@ -1286,9 +1361,15 @@ function fixFEC(rows,hints){
     let d,cr;
     if(bnc){const v=parseAmt(r[iM]),s=String(r[iS]??'').trim().toUpperCase();if(!isNaN(v)&&v>=0&&(s==='D'||s==='C')){d=s==='D'?v:0;cr=s==='C'?v:0;o.Debit=fmtA(d);o.Credit=fmtA(cr);c('Variante Montant / Sens écrite en Débit / Crédit (même valeur)','fmt');}else{left.push('Montant / Sens illisible ligne '+ln);d=0;cr=0;}}
     else{d=keep('Debit');cr=keep('Credit');}
-    {const rd=bnc?(String(r[iS]??'').trim().toUpperCase()==='D'?parseAmt(r[iM]):0):cents(idx.Debit>=0?r[idx.Debit]:'')[0],rc=bnc?(String(r[iS]??'').trim().toUpperCase()==='C'?parseAmt(r[iM]):0):cents(idx.Credit>=0?r[idx.Credit]:'')[0];srcD+=isNaN(rd)?0:rd;srcC+=isNaN(rc)?0:rc;}
+    if(added){addN++;addD+=parseAmt(o.Debit)||0;addC+=parseAmt(o.Credit)||0;corr.push([ln,'ligne ajoutée (saisie manuelle)','',`${o.CompteNum} ${o.CompteLib} : débit ${o.Debit}, crédit ${o.Credit}`]);}
+    else{const rd=bnc?(String(r[iS]??'').trim().toUpperCase()==='D'?parseAmt(r[iM]):0):cents(idx.Debit>=0?r[idx.Debit]:'')[0],rc=bnc?(String(r[iS]??'').trim().toUpperCase()==='C'?parseAmt(r[iM]):0):cents(idx.Credit>=0?r[idx.Credit]:'')[0];srcD+=isNaN(rd)?0:rd;srcC+=isNaN(rc)?0:rc;}
     // Dates : seulement le format, jamais la date
     for(const k of ['EcritureDate','PieceDate','DateLet','ValidDate']){const v=normDate(o[k]);if(v!==o[k]){if(isDate(v)){o[k]=v;c('Dates écrites au format AAAAMMJJ (même date)','fmt');}}}
+    // Corrections saisies dans la page par l’utilisateur (valeurs déjà validées au format) : seule façon de changer un montant, une date ou un code ; listées ligne à ligne
+    const ED=hints.edits&&hints.edits[ln];
+    if(ED)for(const k of EXPECTED){if(!(k in ED))continue;const nv=ED[k],ov=o[k];if(nv===ov)continue;
+      if(k==='Debit'||k==='Credit'){const src=bnc?(k==='Debit'?d:cr):cents(idx[k]>=0?r[idx[k]]:'')[0],dl=(parseAmt(nv)||0)-(isNaN(src)||src==null?0:src);if(k==='Debit')manD+=dl;else manC+=dl;}
+      corr.push([ln,k+' (saisie manuelle)',ov,nv]);o[k]=nv;nMan++;}
     // Correspondances de reprise
     const cn=o.CompteNum;const M=(field,old,nw,label)=>{corr.push([ln,field,old,nw]);c(label,'map');};
     if(/^[09][A-Za-z]/.test(cn)){const f=cn[0]==='0';const nw=f?PAY:RCV;nQuadra++;if(o.CompAuxNum)M('CompteNum',cn,nw,`Tiers sortis de CompteNum : 0… → ${PAY}, 9… → ${RCV}, code du tiers en compte auxiliaire`);else{M('CompteNum',cn,nw+' + CompAuxNum '+cn.slice(1),`Tiers sortis de CompteNum : 0… → ${PAY}, 9… → ${RCV}, code du tiers en compte auxiliaire`);o.CompAuxNum=cn.slice(1);o.CompAuxLib=o.CompteLib||cn.slice(1);}o.CompteNum=nw;o.CompteLib=f?'Fournisseurs':'Clients';}
@@ -1303,6 +1384,7 @@ function fixFEC(rows,hints){
     if(hints.renameJ&&hints.renameJ[o.JournalCode]){const nw=hints.renameJ[o.JournalCode];M('JournalCode',o.JournalCode,nw,`Journal ${o.JournalCode} renommé ${nw} (${(hints.renameWhy||{})[o.JournalCode]||'code déjà pris dans Odoo par un journal d’un autre type'})`);o.JournalCode=nw;}
     out.push(o);
   });
+  if(nMan||addN)c(MAN_KEY,'man',nMan+addN);
   const lib=new Map();for(const o of out)if(o.CompteLib&&!lib.has(o.CompteNum))lib.set(o.CompteNum,o.CompteLib);
   for(const o of out)if(!o.CompteLib){const nw=lib.get(o.CompteNum)||('Compte '+o.CompteNum);corr.push([o._ln,'CompteLib','',nw]);c('Libellés de compte vides complétés (repris d’une autre ligne du compte)','map');o.CompteLib=nw;}
   // Odoo lettre par compte + lettre, sans regarder le partenaire : une même lettre portée par plusieurs tiers d'un même compte est rendue unique
@@ -1334,8 +1416,9 @@ function fixFEC(rows,hints){
     kept=kept.filter(o=>!S.has(o));dropCB={n:S.size,d,c:cr};for(const o of S)corr.push([o._ln,'ligne retirée',`facture ${o.JournalCode} ${o.EcritureNum} à recréer dans Odoo (TVA sur encaissements)`,'']);
     c(`Factures non réglées en TVA sur encaissements retirées (${cb.inv.length}), à recréer dans Odoo avec leur numéro d’origine (factures_a_recreer.xlsx)`,'map',S.size);cb.files=cbFiles(cb.inv,kept,opts.cid);}
   // Contrôle d'intégrité : mêmes lignes, mêmes montants, mêmes dates, dans le même ordre (hors lignes retirées à la demande)
-  let okN=kept.length+(drop?drop.n:0)+(dropCB?dropCB.n:0)===srcN,dD=(drop?drop.d:0)+(dropCB?dropCB.d:0),dC=(drop?drop.c:0)+(dropCB?dropCB.c:0);for(const o of kept){dD+=parseAmt(o.Debit)||0;dC+=parseAmt(o.Credit)||0;}
-  const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,droppedCB:dropCB,ok:okN&&dD===srcD&&dC===srcC};
+  let okN=kept.length+(drop?drop.n:0)+(dropCB?dropCB.n:0)===srcN+addN,dD=(drop?drop.d:0)+(dropCB?dropCB.d:0),dC=(drop?drop.c:0)+(dropCB?dropCB.c:0);for(const o of kept){dD+=parseAmt(o.Debit)||0;dC+=parseAmt(o.Credit)||0;}
+  const man=nMan||addN?{n:nMan,add:addN,d:manD+addD,c:manC+addC}:null;
+  const integrity={lines:kept.length,srcLines:srcN,debit:dD,credit:dC,srcDebit:srcD,srcCredit:srcC,dropped:drop,droppedCB:dropCB,man,ok:okN&&Math.round((dD-srcD-manD-addD)*100)===0&&Math.round((dC-srcC-manC-addC)*100)===0};
   const text=[EXPECTED.join('\t'),...kept.map(o=>EXPECTED.map(e=>o[e]).join('\t'))].join('\r\n')+'\r\n';
   const corrCsv=['ligne;champ;valeur d’origine;valeur dans le fichier de reprise',...corr.map(r=>r.map(x=>String(x).replace(/;/g,',')).join(';'))].join('\r\n')+'\r\n';
   return {text,out,changes:ch,left,corr,corrCsv,integrity,opts:{prefix:pfx,dropAN:!!drop,later:!!later,recv:RCV,pay:PAY,collect:COLL,cashBasis:!!dropCB,cid:opts.cid||'1'},nQuadra,nColl,collAcc:[...collAcc],cb};
@@ -1426,7 +1509,7 @@ const CAT=[
  C(/^(En-tête : colonne absente ou mal nommée sans effet|Colonnes présentes mais dans le désordre|Colonnes supplémentaires)/,{t:'En-tête de colonnes hors norme',why:'Colonne absente, mal nommée, en trop ou dans le désordre : le FEC n’est pas conforme pour l’administration, mais Odoo l’importe (vérifié).',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.','Signaler au client que son logiciel produit un FEC non conforme.'],where:'auto',effect:'dgfip'}),
  C(/^(Noms de colonnes avec une casse|En-tête non conforme)/,{t:'En-tête de colonnes non standard',why:'L’ordre, la casse ou le nombre de colonnes ne suivent pas la norme. Selon le cas, Odoo refuse le fichier ou s’en accommode.',how:['Le fichier de reprise remet les 18 colonnes réglementaires, dans l’ordre.'],where:'auto',effect:'bloque'}),
  C(/^Écritures déséquilibrées qui se compensent le même jour/,{t:'Écritures déséquilibrées compensées dans la journée',why:'Odoo regroupe ces lignes par journal et par date : l’import passe et les montants sont justes, mais les pièces sont redécoupées par jour et perdent leur numéro.',how:['Rien à faire pour l’import. Si le numéro de pièce compte, faire corriger la saisie dans le logiciel d’origine.'],where:'note',effect:'aucun'}),
- C(/^(Total débit ≠ total crédit|Écritures déséquilibrées)/,{t:'Écritures dont le débit ne vaut pas le crédit',why:'Une écriture comptable doit être équilibrée. Odoo arrête l’import au premier paquet qui en contient une.',how:['Ne pas corriger soi-même : demander au client ou à l’expert-comptable de corriger ces écritures dans le logiciel d’origine, puis de refaire l’export.'],where:'source',effect:'bloque',min:n=>15*Math.max(n,1),delay:true}),
+ C(/^(Total débit ≠ total crédit|Écritures déséquilibrées)/,{t:'Écritures dont le débit ne vaut pas le crédit',why:'Une écriture comptable doit être équilibrée. Odoo arrête l’import au premier paquet qui en contient une.',how:['Retrouver la pièce justificative avec le client ou l’expert-comptable, puis corriger le montant : dans le logiciel d’origine (nouvel export), ou ici avec « Corriger ici ».'],where:'source',effect:'bloque',min:n=>15*Math.max(n,1),delay:true}),
  C(/^Encodage /,{t:'Encodage ancien (Windows)',why:'Odoo lit les accents, mais le symbole € disparaît sans prévenir.',how:['Le fichier de reprise est enregistré en UTF-8.'],where:'auto',effect:'fausse'}),
  C(/^BOM UTF-8/,{t:'Marque d’encodage en tête de fichier',why:'Sans effet sur Odoo.',how:[],where:'note',effect:'aucun'}),
  C(/^Fins de ligne mixtes/,{t:'Fins de ligne mélangées',why:'Le fichier mélange deux conventions de retour à la ligne.',how:['Le fichier de reprise est homogène.'],where:'auto',effect:'dgfip'}),
@@ -1564,24 +1647,25 @@ const plural=l=>/s$/.test(l)?l:l+'s';
 const concerned=l=>`${plural(l)} concerné${FEM.has(l)?'e':''}s`;
 const fmtP=s=>String(s).replace(/\b(\d{4})(\d{2})(\d{2})\b/g,'$3/$2/$1'); // AAAAMMJJ → JJ/MM/AAAA, pour l’affichage
 const chips=(a,max)=>a.slice(0,max).map(x=>`<li>${esc(x)}</li>`).join('')+(a.length>max?`<li class="more-n">+ ${(a.length-max).toLocaleString('fr-FR')}</li>`:'');
-function issueHTML(i){
+function issueHTML(i,noLines){
   const k=i._k||classify(i);
   const tech=i.desc&&i.desc!==k.why;
   const see=i._vr!=null&&i.lines.length&&!i.cross&&!GENERIC.test(i.title);
   // Visible : titre, effet, que faire (sauf si la reprise s’en charge). Derrière le « i » : pourquoi, ce que fait la reprise, constat technique.
   const info=[k.why?`<span class="tp">${esc(k.why)}</span>`:'',k.where==='auto'&&k.how&&k.how.length?`<span class="tp">${k.how.map(esc).join(' ')}</span>`:'',tech?`<span class="tp tq"><b>Constat technique.</b> ${esc(i.desc)}</span>`:''].join('');
   return `<article class="item ${k.where}"${i._vr!=null?` id="iss-${i._vr}-${i._vx}"`:''}>
-<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}${info?' '+tip(info):''}</h4>${k.where==='auto'?'<span class="eff ok">Réglé par le fichier de reprise</span>':EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'&&!k.check?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
-${k.where!=='auto'&&k.how&&k.how.length?`<ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
+<div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}${info?' '+tip(info):''}</h4>${k.where==='auto'?`<span class="eff ok">${k.man?'Corrigé par votre saisie':'Réglé par le fichier de reprise'}</span>`:EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'&&!k.check?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
+${k.where!=='auto'&&k.how&&k.how.length&&!k._noHow?`<ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
 ${see?`<p class="seefec"><button class="linkbtn" type="button" data-vsee="${i._vr}:${i._vx}">Voir ${i.label==='Ligne'?(i.lines.length>1?'ces lignes':'cette ligne'):'les lignes concernées'} dans le FEC</button></p>`:''}
-${i.lines.length?`<details class="more"><summary>${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})</summary><ul class="chips">${chips(i.lines,40)}</ul></details>`:''}
+${i.lines.length&&!noLines?`<details class="more"><summary>${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})</summary><ul class="chips">${chips(i.lines,40)}</ul></details>`:''}
 </article>`;
 }
 function planOf(R){
   const still=R._after?new Set(R._after.issues.map(i=>i.title)):null;
   for(const i of R.issues){const k=classify(i);
     if(still&&!i.cross){ // le fichier de reprise fait foi : un point qui disparaît après correction est corrigé par la page
-      if(!still.has(i.title)&&['source','after','odoo'].includes(k.where)&&k.effect!=='aucun'&&!/^(Compte existant mais archivé|Comptes qui seront créés archivés|Écritures en devise|Comptes absents|Volume)/.test(i.title)){k.where='auto';k.how=['Le fichier de reprise règle ce point.'];k.min=0;k.delay=false;}
+      if(!still.has(i.title)&&['source','after','odoo'].includes(k.where)&&k.effect!=='aucun'&&!/^(Compte existant mais archivé|Comptes qui seront créés archivés|Écritures en devise|Comptes absents|Volume)/.test(i.title)){k.where='auto';k.how=['Le fichier de reprise règle ce point.'];k.min=0;k.delay=false;
+        const E=EDITS[R.name]||{},A=ADDS[R.name]||{};if((EDITS[R.name]||ADDS[R.name])&&R.rows&&i.lines.length&&issRows(R,i).some(n=>E[n]||A[n])){k.man=true;k.how=['Corrigé par votre saisie : la valeur saisie va dans le fichier de reprise, à faire valider avec le client.'];}}
       else if(still.has(i.title)&&k.where==='auto'){k.where=i.sev==='err'?'source':'after';k.how=['La correction automatique ne suffit pas : voir les lignes citées.'];k.min=k.min||10;}}
     if(i.cross&&R._fix){const pf=n=>(REPORTS.find(x=>x.name===n)?._fix?.opts.prefix)||'';
       if(i.an&&R._fix.opts.dropAN){k.where='auto';k.how=['Le fichier de reprise retire les écritures d’à-nouveaux (option choisie, à valider avec l’expert-comptable).'];k.min=0;k.delay=false;}
@@ -1618,15 +1702,16 @@ function summaryHTML(R,P,useAlt){
   const W={source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'};
   const key=jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(i=>['bloque','fausse'].includes(i._k.effect)))).map(i=>[i._k.where,i]);
   const shown=key.slice(0,6);
-  const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map');
+  const F=R._fix,I=F&&F.integrity,ch=F?Object.values(F.changes):[],mp=ch.some(v=>v.kind==='map'||v.kind==='man');
   const files=[];
   if(F&&ch.length)files.push(`<li><div><b>Fichier de reprise pour Odoo${I.ok?tip('Le fichier à importer dans Odoo, à la place du FEC : le même contenu, mis au format attendu par Odoo, avec les options cochées ci-dessus.'+(I.dropped?' Les écritures d’à-nouveaux sont retirées.':'')+' Les montants ne changent pas : la page le vérifie au centime. Ce n’est pas un FEC légal : le FEC d’origine reste la pièce à conserver.'):''}</b>${I.ok?'':'<span>Bloqué : le contrôle d’intégrité a échoué.</span>'}${mp&&I.ok?`<label class="confirm"><input type="checkbox" id="okt-${R._id}" data-confirm="${R._id}"> Correspondances de reprise validées avec le client</label>`:''}</div><button class="btn primary" type="button" data-dl="fix" data-r="${R._id}" ${I.ok&&!mp?'':'disabled'}>Télécharger</button></li>`);
   if(F&&F.cb.files){const fl=F.cb.files;files.push(`<li><div><b>Factures à recréer (TVA sur encaissements)</b><span>${F.cb.inv.length} facture${F.cb.inv.length>1?'s':''}, à importer après le fichier de reprise : Comptabilité → Pièces comptables, ⋮ → Importer. Avant : journaux ${fl.journals.map(([j,t])=>esc(j)+' en type '+t).join(', ')} créés avant l’import FEC ; taxes sur encaissements à ${fl.rates.join(' / ')} % actives ; envoi automatique des factures (e-mail, facturation électronique) désactivé${fl.accMiss.length?` ; compte${fl.accMiss.length>1?'s':''} ${fl.accMiss.map(esc).join(', ')} à créer (absent${fl.accMiss.length>1?'s':''} du fichier de reprise et du plan Odoo)`:''}. ${fl.pAoa?'Importer d’abord les tiers absents du fichier de reprise, dans la société cible.':''} La TVA bascule au paiement si le journal de banque a un compte de paiement.</span></div><div class="btns"><button class="btn" type="button" data-dl="cbinv" data-r="${R._id}" ${I.ok?'':'disabled'}>Télécharger</button>${fl.pAoa?`<button class="btn" type="button" data-dl="cbpart" data-r="${R._id}">Tiers à créer</button>`:''}</div></li>`);}
   if(F&&F.corr.length)files.push(`<li><div><b>Table de correspondance${tip('La liste de ce que le fichier de reprise a changé, ligne par ligne : ancienne et nouvelle valeur (numéro de compte, lettre de lettrage, ligne retirée…). À garder, ou à transmettre à l’expert-comptable pour qu’il retrouve chaque écriture.')}</b></div><button class="btn" type="button" data-dl="corr" data-r="${R._id}">Télécharger</button></li>`);
-  if(R._open){const rec=useAlt;files.push(`<li><div><b>Balance d’ouverture${tip(`Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.`)}${rec?' <span class="tag">plus rapide</span>':''}</b></div><button class="btn" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers${tip('Clients et fournisseurs à importer avant la balance.')}</b></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
+  if(R._open){const rec=useAlt===true||(useAlt==='parts'&&R._alt);files.push(`<li><div><b>Balance d’ouverture${tip(`Soldes au ${R._open.date.split('-').reverse().join('/')}, clients et fournisseurs pièce par pièce. À faire valider.`)}${rec?' <span class="tag">plus rapide</span>':''}</b></div><button class="btn" type="button" data-dl="open" data-r="${R._id}">Télécharger</button></li>`,`<li><div><b>Tiers${tip('Clients et fournisseurs à importer avant la balance.')}</b></div><button class="btn" type="button" data-dl="partners" data-r="${R._id}">Télécharger</button></li>`);}
+  if(useAlt==='parts')return {opts:F?optsBlock(R):'',main:files.filter(f=>/data-dl="(fix|cbinv)"/.test(f)),rest:files.filter(f=>!/data-dl="(fix|cbinv)"/.test(f))};
   const ver=['source','after'].flatMap(w=>P.g[w].filter(i=>i._k.effect==='verif'));const verT=[...new Set(ver.map(i=>i._k.t.toLowerCase()))];
   return `${key.length||ver.length?`<section class="todo"><h3>À régler</h3><ul>${shown.map(([w,i])=>`<li><span class="wtag ${w}">${W[w]}</span><span class="tt">${esc(i._k.t)}</span><em>${i._k.min?'≈ '+fmtMin(i._k.min):''}</em></li>`).join('')}</ul>${key.length>6?`<p class="note">+ ${key.length-6} autre${key.length-6>1?'s':''} point${key.length-6>1?'s':''} dans le détail.</p>`:''}${ver.length?`<p class="note">${ver.length} point${ver.length>1?'s':''} de cohérence comptable à vérifier avec le client (${verT.slice(0,3).map(esc).join(', ')}${verT.length>3?'…':''}) : voir le détail.</p>`:''}</section>`:''}
-${files.length||F?`<section class="files">${F?`<p class="note">Options du fichier de reprise${tip('Les montants ne changent jamais.')}</p>${optsHTML(R)}`:''}${files.length?`<h3 class="fh3">Fichiers à télécharger${tip('Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).')}</h3><ul>${files.join('')}</ul>`:''}</section>`:''}`;
+${files.length||F?`<section class="files">${F?optsBlock(R):''}${files.length?`<h3 class="fh3">Fichiers à télécharger${tip('Fichiers pour l’import uniquement : le FEC d’origine reste la seule pièce légale (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).')}</h3>${filesBlock(R,files)}`:''}</section>`:''}`;
 }
 // Trois niveaux : 1. ce qui bloque l’import (à corriger à la source), 2. ce que la page règle et prépare, 3. après l’import et pour information
 // Description repliée derrière une icône « i » (voir .tip)
@@ -1637,25 +1722,267 @@ const BLK=i=>['bloque','fausse'].includes(i._k.effect);
 const blockers=P=>{const by={};for(const i of jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK))))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
 function vSub(R,P){
   const B=blockers(P),nA=P.g.auto.length;
-  if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`:'Rien ne bloque l’import.');
-  const nR=B.filter(g=>g[0]._k.effect==='bloque').length,nF=B.length-nR;
-  return esc(`${[nR?pl2(nR,'point bloque','points bloquent')+' l’import':'',nF?pl2(nF,'point fausserait','points fausseraient')+' les chiffres une fois importé'+(nF>1?'s':''):''].filter(Boolean).join(' et ')} : ${(W=>W.length===1?{source:'à corriger à la source',odoo:'à régler dans Odoo avant l’import',after:'à régler dans Odoo après l’import'}[W[0]]:'à régler avant l’import')([...new Set(B.map(g=>g[0]._k.where))])}${nA?`. Le fichier de reprise règle ${nA>1?`les ${nA} autres`:'l’autre'}`:''}.`)+(P.delay?' Il faut un nouvel export du logiciel du client : compter souvent plusieurs jours.':'');
+  if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?`Rien ne bloque l’import : ${P.g.auto.some(i=>i._k.man)?'vos corrections et le fichier de reprise règlent':'le fichier de reprise règle'} ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`:'Rien ne bloque l’import.');
+  const nR=B.filter(g=>g[0]._k.effect==='bloque').length,nF=B.length-nR,W=[...new Set(B.map(g=>g[0]._k.where))];
+  const what=nR&&nF?`${pl2(B.length,'point')} à régler avant l’import : ${nR} bloque${nR>1?'nt':''} l’import, ${nF} fausserai${nF>1?'en':''}t les chiffres.`
+    :nR?`${pl2(nR,'point bloque','points bloquent')} l’import.`:`${pl2(nF,'point fausserait','points fausseraient')} les chiffres une fois importé${nF>1?'s':''}.`;
+  const nX=R.rows?B.filter(g=>g.some(i=>fixKind(i))).length:0;
+  const how=nX&&nX===B.length?(B.length>1?' Tous se corrigent ici, sans nouvel export.':' Il se corrige ici, sans nouvel export.')
+    :(W.length===1&&W[0]!=='source'?(W[0]==='odoo'?' À régler dans Odoo avant l’import.':' À régler dans Odoo après l’import.'):'')+(nX?` ${nX>1?nX+' se corrigent':'L’un d’eux se corrige'} ici.`:'')+(P.delay?' Nouvel export du client à prévoir : souvent plusieurs jours.':'');
+  return esc(what+how);
 }
+/* ---------- Corriger ici ----------
+   Pour un point que le fichier de reprise ne peut pas deviner (date inexistante, écriture déséquilibrée, code journal mal saisi…),
+   l’utilisateur saisit la bonne valeur, avec une suggestion quand la page en a une. La saisie va dans le fichier de reprise, jamais dans le FEC :
+   elle est listée ligne à ligne dans la table de correspondance, à faire valider avec le client ou l’expert-comptable, et le contrôle d’intégrité en tient compte. */
+const FLAB={JournalCode:'Code journal',JournalLib:'Libellé du journal',EcritureNum:'N° d’écriture',EcritureDate:'Date d’écriture',CompteNum:'Compte',CompteLib:'Libellé du compte',CompAuxNum:'Code tiers',CompAuxLib:'Nom du tiers',PieceRef:'Pièce',PieceDate:'Date de pièce',EcritureLib:'Libellé',Debit:'Débit',Credit:'Crédit',EcritureLet:'Lettre',DateLet:'Date de lettrage',ValidDate:'Date de validation',Montantdevise:'Montant en devise',Idevise:'Devise'};
+const DATEF=new Set(['EcritureDate','PieceDate','DateLet','ValidDate']),AMTF=new Set(['Debit','Credit','Montantdevise']);
+// Points de structure du fichier ou entre fichiers : rien à saisir ligne par ligne
+const FIX_NO=/^(Séparateur|Nombre de champs|Lignes? avec un champ de trop|Plusieurs exercices|À-nouveaux|Deux fichiers|Des numéros de pièce reviennent|Encodage|Total débit|Lignes? vides?|En-tête|Noms de colonnes|Colonnes|Fichier|Source Excel|FEC au format|Volume|Trop de comptes|Écritures déséquilibrées qui se compensent|Comptes de charge ou de produit dans les à-nouveaux)/;
+const FIX_MAX=40;
+const edOf=R=>EDITS[R.name]||{};
+function fileVal(R,I,n,k){const r=R.rows[n-1]||[];if(I.bnc&&(k==='Debit'||k==='Credit')){const s=String(r[12]??'').trim().toUpperCase();return (k==='Debit'?s==='D':s==='C')?String(r[11]??'').trim():'';}return I.F[k]>=0?String(r[I.F[k]]??'').replace(/"/g,'').trim():'';}
+const curVal=(R,I,n,k)=>{const e=edOf(R)[n];return e&&k in e?e[k]:fileVal(R,I,n,k);};
+const showV=(k,v)=>DATEF.has(k)&&/^\d{8}$/.test(v)?v.slice(6)+'/'+v.slice(4,6)+'/'+v.slice(0,4):v;
+// Dernier jour du mois pour une date qui n’existe pas (30/02 → 28/02 ou 29/02)
+const lastDay=v=>{if(!/^\d{8}$/.test(v))return '';const y=+v.slice(0,4),m=+v.slice(4,6);if(m<1||m>12)return '';const L=new Date(Date.UTC(y,m,0)).getUTCDate();return v.slice(0,6)+String(Math.min(+v.slice(6)||L,L)).padStart(2,'0');};
+// Valeur saisie remise au format du FEC (AAAAMMJJ, virgule décimale) ; null si illisible
+function normCell(k,raw){raw=String(raw??'').replace(/["\t|]/g,' ').trim();
+  if(DATEF.has(k)){if(raw==='')return '';const d=normDate(raw);return isDate(d)?d:null;}
+  if(AMTF.has(k)){if(raw==='')return k==='Montantdevise'?'':'0,00';const c=parseAmt(raw);return isNaN(c)||(c<0&&k!=='Montantdevise')?null:fmtA(c);}
+  return raw;}
+function issRows(R,i){const I=rowsIndex(R),s=new Set();for(const x of i.lines)for(const n of vResolve(i.label,String(x),I.by))s.add(n);return [...s].filter(n=>R.rows[n-1]).sort((a,b)=>a-b);}
+function fixKind(i){const t=i.title,k=i._k||classify(i);
+  if(i.cross||k.where==='auto'||!['bloque','fausse'].includes(k.effect)||FIX_NO.test(t))return null;
+  if(/^Date inexistante \(PieceDate/.test(t))return {m:'cells',f:['PieceDate']};
+  if(/^Date inexistante/.test(t))return {m:'cells',f:['EcritureDate']};
+  if(/^EcritureDate et PieceDate vides/.test(t))return {m:'cells',f:['EcritureDate']};
+  if(/^(Écritures déséquilibrées \(|Écriture déséquilibrée sans mois)/.test(t))return {m:'bal'};
+  if(/^(Code journal incohérent|Codes journaux qui ne diffèrent que par la casse)/.test(t))return {m:'jrn'};
+  if(/^(Débit|Crédit) mal formaté/.test(t))return {m:'cells',f:[t[0]==='D'?'Debit':'Credit']};
+  if(/^(Débit et Crédit tous deux renseignés|Montant négatif|Montant à plus de 2 décimales)/.test(t))return {m:'cells',f:['Debit','Credit']};
+  if(/^Montantdevise ≠/.test(t))return {m:'cells',f:['Montantdevise','Idevise']};
+  if(/^Montantdevise de signe opposé/.test(t))return {m:'cells',f:['Montantdevise']};
+  if(/^Idevise inconnue/.test(t))return {m:'cells',f:['Idevise']};
+  if(/^À-nouveaux non datés au premier jour/.test(t))return {m:'cells',f:['EcritureDate']};
+  if(/^JournalCode vide/.test(t))return {m:'cells',f:['JournalCode']};
+  if(/^Écritures avec plusieurs dates sur des mois/.test(t))return {m:'cells',f:['EcritureDate']};
+  if(/^Codes de compte non numériques/.test(t))return {m:'acc'};
+  if(k.where!=='source'||!['Ligne','Écriture'].includes(i.label))return null;
+  const f=[...vCols(i)].filter(c=>c!=='JournalLib').slice(0,3);return f.length?{m:'cells',f}:null;}
+// Suggestion pour une cellule (null : aucune ; '' : vider la cellule), selon le point relevé quand il est connu.
+// Date : celle des autres lignes de l’écriture d’abord (une écriture n’a qu’une date dans Odoo), sinon le dernier jour du mois
+const ISO_DEV={'€':'EUR','EURO':'EUR','EUROS':'EUR','E':'EUR','$':'USD','US$':'USD','USD$':'USD','£':'GBP','FS':'CHF','FRS':'CHF'};
+function suggest(R,I,n,k,t){t=t||'';const v=curVal(R,I,n,k),amt=f=>{const c=parseAmt(curVal(R,I,n,f));return isNaN(c)?0:c;};
+  // Débit et crédit sur la même ligne, ou montant négatif : le solde, en positif, du bon côté
+  // Débit et crédit sur une ligne d’une écriture déséquilibrée de ce montant : c’est ce montant qui est en trop
+  if(/^Débit et Crédit tous deux renseignés/.test(t)&&(k==='Debit'||k==='Credit')){let ec=0;for(const m of I.by.e.get(I.ekey[n-1])||[n]){const a=parseAmt(curVal(R,I,m,'Debit')),b=parseAmt(curVal(R,I,m,'Credit'));ec+=(isNaN(a)?0:a)-(isNaN(b)?0:b);}
+    const d=amt('Debit'),c=amt('Credit');if(ec>0&&d===ec)return k==='Debit'?'0,00':null;if(ec<0&&c===-ec)return k==='Credit'?'0,00':null;}
+  if(/^(Débit et Crédit tous deux renseignés|Montant négatif)/.test(t)&&(k==='Debit'||k==='Credit')){const net=amt('Debit')-amt('Credit'),w=fmtA(k==='Debit'?Math.max(net,0):Math.max(-net,0));return w!==v?w:null;}
+  if(/^Montantdevise ≠/.test(t))return v!==''?'':null;
+  if(/^Montantdevise de signe opposé/.test(t)&&k==='Montantdevise'){const c=parseAmt(v);return isNaN(c)||!c?null:fmtA(-c);}
+  if(k==='Idevise'){const u=v.trim().toUpperCase(),m=ISO_DEV[u]||u;return m!==v&&/^[A-Z]{3}$/.test(m)?m:null;}
+  // Écriture sur plusieurs mois : la date de sa 1re ligne, celle que garderait Odoo
+  if(/^Écritures avec plusieurs dates sur des mois/.test(t)&&k==='EcritureDate'){const m0=Math.min(...(I.by.e.get(I.ekey[n-1])||[n])),d0=curVal(R,I,m0,k);return isDate(d0)&&d0.slice(0,6)!==v.slice(0,6)?d0:null;}
+  if(/^À-nouveaux non datés/.test(t)&&k==='EcritureDate'){const s0=R.hints&&R.hints.fyStart;return s0&&v>s0?s0:null;}
+  if(k==='JournalCode'&&!v){if(!I._enj){I._enj=new Map();for(const m of I.data){const r=R.rows[m-1],j=I.g(r,'JournalCode'),en=I.g(r,'EcritureNum'),pr=I.g(r,'PieceRef');if(!j)continue;for(const kk of [en+'\u0001'+pr,'\u0001'+pr])if(pr&&!I._enj.has(kk))I._enj.set(kk,j);}}
+    const pr=curVal(R,I,n,'PieceRef');return I._enj.get(curVal(R,I,n,'EcritureNum')+'\u0001'+pr)||I._enj.get('\u0001'+pr)||null;}
+  if(DATEF.has(k)){if(isDate(v))return null;
+    for(const m of I.by.e.get(I.ekey[n-1])||[]){if(m===n)continue;const w=curVal(R,I,m,k);if(isDate(w))return w;}
+    const ld=lastDay(v);if(ld&&isDate(ld))return ld;
+    if(k==='EcritureDate'){const p=curVal(R,I,n,'PieceDate');if(isDate(p))return p;}return null;}
+  if(AMTF.has(k)){if(v==='')return null;const c=parseAmt(v);return !isNaN(c)&&c>=0&&fmtA(c)!==v?fmtA(c):null;}
+  return null;}
+const fxIn=(R,I,n,k,sug)=>{const v=curVal(R,I,n,k),ed=k in (edOf(R)[n]||{}),o=fileVal(R,I,n,k);
+  return `<span class="fxc"><input type="text" class="fxi${ed?' ed':''}" id="fx-${R._id}-${n}-${k}" data-ln="${n}" data-f="${k}"${sug!=null?` data-sug="${esc(showV(k,sug))}"`:''} value="${esc(showV(k,v))}" data-v0="${esc(showV(k,v))}" aria-label="${esc(FLAB[k])}, ligne ${n}"${ed?` title="Dans le FEC : ${esc(showV(k,o)||'(vide)')}"`:''} inputmode="${AMTF.has(k)?'decimal':DATEF.has(k)?'numeric':'text'}" autocomplete="off" spellcheck="false">${sug!=null?`<button class="sug" type="button" data-fill="fx-${R._id}-${n}-${k}" data-v="${esc(showV(k,sug))}"${sug===''?' title="Vider la cellule"':''}>${sug===''?'vider':esc(showV(k,sug))}</button>`:''}</span>`;};
+// Suggestions appliquées d’un clic (registre vidé à chaque nouveau rendu)
+const ACTS=new Map();let ACTN=0;const act=(fn,msg)=>{const id='a'+(++ACTN);ACTS.set(id,{fn,msg});return id;};
+function setEd(R,I,n,k,v){const E=EDITS[R.name]=EDITS[R.name]||{};
+  if(v===normCell(k,fileVal(R,I,n,k))){if(E[n]){delete E[n][k];if(!Object.keys(E[n]).length)delete E[n];}}else (E[n]=E[n]||{})[k]=v;
+  if(!Object.keys(E).length)delete EDITS[R.name];}
+const ACC_LIB={'658000':'Charges diverses de gestion courante','758000':'Produits divers de gestion courante','445710':'TVA collectée','445660':'TVA déductible sur autres biens et services','471000':'Compte d’attente'};
+function accLib(R,I,code){if(!I._libs){I._libs=new Map();for(const m of I.data){const r=R.rows[m-1],cn=I.g(r,'CompteNum'),cl=I.g(r,'CompteLib');if(cn&&cl&&!I._libs.has(cn))I._libs.set(cn,cl);}}return I._libs.get(code)||ACC_LIB[code]||'';}
+function accTop(R,I,re,def){let b=null,bn=0;for(const [k,a] of I.by.a)if(re.test(k)&&a.length>bn){b=k;bn=a.length;}return b||def;}
+const addsOf=(R,anc)=>(ADDS[R.name]&&ADDS[R.name][anc])||[];
+// Écritures telles qu’elles seront après les saisies (regroupement et totaux) ; null s’il n’y a aucune saisie. Recalculé à chaque saisie (EDV).
+let EDV=0;
+function curIndex(R){if(!EDITS[R.name]&&!ADDS[R.name])return null;if(R._ci&&R._ci.v===EDV)return R._ci;
+  const I=rowsIndex(R),key=new Map(),tot=new Map(),rows=new Map(),z=v=>{const c=parseAmt(v);return isNaN(c)?0:c;};
+  for(const n of I.data){const j=curVal(R,I,n,'JournalCode'),en=curVal(R,I,n,'EcritureNum'),pr=curVal(R,I,n,'PieceRef'),k=en?j+'/'+en:j+' / '+pr;key.set(n,k);
+    let t=tot.get(k);if(!t){tot.set(k,t={jc:j,en,pr,ed:curVal(R,I,n,'EcritureDate'),d:0,c:0,n:0,man:false});rows.set(k,[]);}
+    t.d+=z(curVal(R,I,n,'Debit'));t.c+=z(curVal(R,I,n,'Credit'));t.n++;rows.get(k).push(n);if(edOf(R)[n])t.man=true;
+    for(const a of addsOf(R,n)){t.d+=z(a.Debit);t.c+=z(a.Credit);t.n++;t.man=true;}}
+  return R._ci={v:EDV,key,tot,rows};}
+// Pistes pour une écriture déséquilibrée (écart ec en centimes, débit − crédit), de la plus probable à la plus générale
+function balSugg(R,I,rows,anc,ec,key){const S=[],a=Math.abs(ec),side=ec>0?'Credit':'Debit',sideT=ec>0?'au crédit':'au débit';
+  const amt=(n,k)=>{const c=parseAmt(curVal(R,I,n,k));return isNaN(c)?0:c;};
+  const L=rows.map(n=>({n,cn:curVal(R,I,n,'CompteNum'),d:amt(n,'Debit'),c:amt(n,'Credit')}));
+  const addL=cn=>()=>{const A=ADDS[R.name]=ADDS[R.name]||{};(A[anc]=A[anc]||[]).push({CompteNum:cn,CompteLib:cn?accLib(R,I,cn):'',EcritureLib:'',Debit:side==='Debit'?fmtA(a):'0,00',Credit:side==='Credit'?fmtA(a):'0,00'});};
+  // Écriture coupée en deux par un code journal écrit autrement : écarts opposés sous le même numéro
+  const t0=I.tot.get(key);if(t0&&t0.en)for(const [k2,t2] of I.tot){if(k2===key||t2.en!==t0.en||t2.jc===t0.jc)continue;const r2=I.by.e.get(k2)||[];let e2=0;for(const n of r2)e2+=amt(n,'Debit')-amt(n,'Credit');if(e2!==-ec)continue;
+    const good=!t2.jc||(t0.jc&&(I.jcodes.get(t0.jc)||0)>=(I.jcodes.get(t2.jc)||0))?t0.jc:t2.jc,fix=good===t0.jc?r2:rows,bad=good===t0.jc?t2.jc:t0.jc;
+    S.push({t:`Mettre le code journal ${good} sur ${fix.length>1?'les lignes':'la ligne'} ${fix.slice(0,6).join(', ')}${fix.length>6?'…':''} (${bad?`écrit « ${bad} »`:'code vide'}) : l’écriture se recolle`,go:()=>fix.forEach(n=>setEd(R,I,n,'JournalCode',good))});}
+  // Une ligne au débit et au crédit à la fois, dont l’un des montants vaut l’écart
+  for(const x of L)if(x.d&&x.c){const k=ec>0?'Debit':'Credit',v=ec>0?x.d:x.c;if(v===a)S.push({t:`Ligne ${x.n} (${x.cn}) : retirer les ${fmtE(v)} € ${ec>0?'au débit':'au crédit'}, elle porte un débit et un crédit`,go:()=>setEd(R,I,x.n,k,'0,00')});}
+  // Une ligne passée du mauvais côté : son montant vaut la moitié de l’écart
+  for(const x of L){const v=ec>0?x.d:x.c;if(v&&v*2===a&&!(ec>0?x.c:x.d))S.push({t:`Passer la ligne ${x.n} (${x.cn}, ${fmtE(v)} €) ${sideT}`,go:()=>{setEd(R,I,x.n,side,fmtA(v));setEd(R,I,x.n,side==='Credit'?'Debit':'Credit','0,00');}});}
+  // Ligne de TVA oubliée : l’écart est un taux français appliqué à la base HT
+  const HT=ec>0?L.filter(x=>/^70/.test(x.cn)).reduce((t,x)=>t+x.c-x.d,0):L.filter(x=>/^6/.test(x.cn)).reduce((t,x)=>t+x.d-x.c,0);
+  if(HT>0)for(const r of [2000,1000,550,210])if(Math.abs(Math.round(HT*r/10000)-a)<=1){const acc=ec>0?accTop(R,I,/^4457/,'445710'):accTop(R,I,/^4456/,'445660');S.push({t:`Ajouter la ligne de TVA oubliée : ${fmtE(a)} € ${sideT} sur ${acc} (${String(r/100).replace('.',',')} % de ${fmtE(HT)} € HT)`,go:addL(acc)});break;}
+  // Écriture à deux lignes : aligner un montant sur l’autre
+  if(L.length===2)for(const [x,y] of [[L[0],L[1]],[L[1],L[0]]]){const vy=y.d||y.c,vx=x.d||x.c,sx=x.d?'Debit':'Credit';if(vy&&vx!==vy&&!(x.d&&x.c)&&!(y.d&&y.c)&&(x.d?y.c:y.d))S.push({t:`Mettre la ligne ${x.n} (${x.cn}) à ${fmtE(vy)} €, comme la ligne ${y.n}`,go:()=>setEd(R,I,x.n,sx,fmtA(vy))});}
+  if(a<=100){const acc=ec>0?'758000':'658000';S.push({t:`Écart d’arrondi : ajouter ${fmtE(a)} € ${sideT} sur ${acc} (${ec>0?'produit':'charge'} divers)`,go:addL(acc)});}
+  S.push({t:`Mettre l’écart sur 471000, compte d’attente, à régulariser avec le client`,go:addL('471000')});
+  S.push({t:`Ajouter une ligne de ${fmtE(a)} € ${sideT}, compte à saisir`,go:addL('')});
+  return S;}
+// Une ligne par correction : la suggestion en un bouton, la saisie à la main repliée, la correction faite reste visible sur place
+const fxShow=(k,v)=>v===''||v==null?'<i>vide</i>':esc(showV(k,v));
+const fxChg=(k,o,v,lab)=>`<span class="fxch">${lab===false?'':`<span class="fxk">${esc(FLAB[k]||k)}</span>`}<s>${fxShow(k,o)}</s><span class="arr">→</span><b>${fxShow(k,v)}</b></span>`;
+function fxRow({who,chg,go,msg,other,done,undo,bad}){
+  const btn=done?undo:(go?`<button class="btn primary sm" type="button" data-act="${act(go,msg)}">Appliquer</button>`:'')+(other&&go?`<button class="linkbtn" type="button" data-fxother aria-expanded="false">Autre valeur</button>`:'');
+  return `<li class="fxr${done?' done':''}"><span class="fxw">${done?'<span class="okm">✓</span>':''}${who}</span><span class="fxv">${chg}</span><span class="fxb">${btn}</span>${other&&!done?`<div class="fxo"${go?' hidden':''}>${other}<button class="btn sm" type="button" data-fixsave="1">OK</button></div>`:''}</li>`;}
+function fixHTML(R,i){
+  if(!R.rows||R.rows.length<2)return '';const K=fixKind(i);if(!K)return '';
+  const I=rowsIndex(R),id=`${R._id}:${R.issues.indexOf(i)}`,rid=R._id;
+  const whoL=n=>`<b>Ligne ${n}</b><small>${esc(curVal(R,I,n,'JournalCode'))} ${esc(curVal(R,I,n,'CompteNum'))} · ${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small>`;
+  const undoBtn=(attr)=>`<button class="linkbtn" type="button" ${attr}>Annuler</button>`;
+  let body='';const all=[];
+  if(K.m==='jrn'||K.m==='acc'){const F=K.m==='jrn'?'JournalCode':'CompteNum',pairs=new Map();
+    if(K.m==='jrn'){for(const x of i.lines.map(String)){const m=x.match(/^(.*?) \((\d+) lignes?\) ↔ (.*)$/);
+        if(m){if(!pairs.has(m[1]))pairs.set(m[1],m[3]);continue;}
+        const codes=x.split(' et ').map(s=>s.replace(/ «.*$/,'').trim()).filter(Boolean);if(codes.length<2)continue;
+        const top=codes.reduce((a,b)=>(I.jcodes.get(b)||0)>(I.jcodes.get(a)||0)?b:a);for(const c of codes)if(c!==top&&!pairs.has(c))pairs.set(c,top);}}
+    else{const lib=new Map();for(const n of I.data){const r=R.rows[n-1],cn=I.g(r,'CompteNum'),cl=norm(I.g(r,'CompteLib'));if(/^\d+$/.test(cn)&&cl&&!lib.has(cl))lib.set(cl,cn);}
+      for(const c of i.lines.map(String)){const L=I.by.a.get(c);if(L&&pairs.size<FIX_MAX)pairs.set(c,lib.get(norm(fileVal(R,I,L[0],'CompteLib')))||'');}}
+    if(!pairs.size)return '';
+    const lnsOf=from=>K.m==='jrn'?(I.by.j.get(from.toUpperCase())||[]).filter(ln=>fileVal(R,I,ln,F)===from):(I.by.a.get(from)||[]);
+    body=[...pairs].map(([from,to])=>{const L=lnsOf(from);if(!L.length)return '';const cur=curVal(R,I,L[0],F),done=cur!==from;
+      const who=`<b>${K.m==='jrn'?'Journal':'Compte'} « ${esc(from)} »</b><small>${K.m==='acc'?esc(fileVal(R,I,L[0],'CompteLib'))+' · ':''}${pl2(L.length,'ligne')}</small>`;
+      const inp=`<label>${K.m==='jrn'?'Nouveau code':'Nouveau compte'}<input type="text" class="fxi" ${K.m==='jrn'?'data-jfrom':'data-afrom'}="${esc(from)}" value="${esc(cur)}" data-v0="${esc(cur)}"${K.m==='jrn'?` list="fxjl-${rid}"`:' inputmode="numeric"'} autocomplete="off" spellcheck="false"></label>`;
+      if(done)return fxRow({who,chg:fxChg(F,from,cur,false),done:true,undo:undoBtn(`data-unedit="${rid}" data-k="${F}" data-lns="${L.join(',')}"`)});
+      const go=to?()=>L.forEach(ln=>setEd(R,I,ln,F,to)):null;if(go)all.push(go);
+      return fxRow({who,chg:to?fxChg(F,from,to,false):`<span class="fxch"><b class="bad">${esc(from)}</b><span class="fxk"> à remplacer</span></span>`,go,msg:`${K.m==='jrn'?'Code journal':'Compte'} ${from} remplacé par ${to}.`,other:inp});}).join('')
+      +(K.m==='jrn'?`<datalist id="fxjl-${rid}">${[...I.jcodes.keys()].sort().map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`:'');
+    body=`<ul class="fxl2">${body}</ul>`;}
+  else if(K.m==='bal'){const groups=[],seen=new Set();
+    // Regroupement selon les valeurs corrigées : une écriture recollée par un code journal corrigé n’apparaît qu’une fois
+    const CI=curIndex(R),CK=CI&&CI.rows,ck=n=>CI.key.get(n);
+    for(const x of i.lines){for(const r0 of vResolve('Écriture',String(x),I.by)){if(seen.has(r0))continue;const rows=CK?CK.get(ck(r0)):I.by.e.get(I.ekey[r0-1])||[r0];rows.forEach(n=>seen.add(n));groups.push(rows);}if(groups.length>=12)break;}
+    const money=x=>{const c=parseAmt(x);return isNaN(c)?`<b class="bad">${esc(x)}</b>`:c?fmtE(c):'';};
+    const val=(n,k)=>{const c=parseAmt(curVal(R,I,n,k));return isNaN(c)?0:c;},gapOf=rows=>rows.reduce((s,n)=>s+val(n,'Debit')-val(n,'Credit')+addsOf(R,n).reduce((u,a)=>u+(parseAmt(a.Debit)||0)-(parseAmt(a.Credit)||0),0),0);
+    // Une écriture coupée en deux par un code journal écrit autrement (même numéro, écarts opposés) est montrée d’un seul tenant
+    const cut=new Map();for(let a=0;a<groups.length;a++){const ga=groups[a],ta=(CI?CI.tot.get(ck(ga[0])):I.tot.get(I.ekey[ga[0]-1]))||{},ea=gapOf(ga);if(!ea||!ta.en)continue;
+      for(let b=a+1;b<groups.length;b++){const gb=groups[b],tb=(CI?CI.tot.get(ck(gb[0])):I.tot.get(I.ekey[gb[0]-1]))||{};if(tb.en===ta.en&&tb.jc!==ta.jc&&gapOf(gb)===-ea){cut.set(ga,gb);groups.splice(b,1);break;}}}
+    body=groups.map(rows=>{const fk=I.ekey[rows[0]-1],key=CK?ck(rows[0]):fk,t=(CI?CI.tot.get(key):I.tot.get(fk))||{},anc=Math.max(...rows),half=cut.get(rows),allRows=half?[...rows,...half].sort((a,b)=>a-b):rows,adds=allRows.flatMap(m=>addsOf(R,m).map((a,j)=>({a,j,anc:m})));
+      const diff=gapOf(rows);
+      const P=diff?balSugg(R,I,rows,anc,diff,fk):[],spec=P.length>2,man=allRows.some(n=>edOf(R)[n])||adds.length>0,shown=allRows.slice(0,FIX_MAX);
+      const msg='Écriture '+key+' corrigée dans le fichier de reprise.';
+      const aIn=({a,j,anc},k)=>`<input type="text" class="fxi ed" id="fxa-${rid}-${anc}-${j}-${k}" data-addln="${anc}" data-addj="${j}" data-f="${k}" value="${esc(a[k]||'')}" data-v0="${esc(a[k]||'')}"${k==='CompteNum'?` placeholder="Compte"${a[k]?'':' aria-invalid="true"'}`:''} aria-label="${esc(FLAB[k])}, ligne ajoutée" inputmode="${k==='CompteNum'?'numeric':'decimal'}" autocomplete="off" spellcheck="false">`;
+      // Lecture seule : l’écriture telle qu’elle partira dans le fichier de reprise, corrections visibles
+      const cell=(n,k)=>{const E=edOf(R)[n],v=curVal(R,I,n,k);return E&&k in E?`<s>${money(fileVal(R,I,n,k))||'0,00'}</s> <b>${money(v)||'0,00'}</b>`:money(v);};
+      const jc=n=>{const E=edOf(R)[n];return E&&'JournalCode' in E?`<s>${esc(fileVal(R,I,n,'JournalCode'))||'<i>vide</i>'}</s> <b>${esc(E.JournalCode)}</b>`:`<b>${esc(curVal(R,I,n,'JournalCode'))||'<i class="bad">journal vide</i>'}</b>`;};
+      const view=`<table class="fxe"><tbody>${shown.map(n=>`<tr><td class="fxl">${n}</td><td class="fxa">${jc(n)} ${esc(curVal(R,I,n,'CompteNum'))} <small>${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small></td><td class="fxn" data-h="Débit">${cell(n,'Debit')}</td><td class="fxn" data-h="Crédit">${cell(n,'Credit')}</td></tr>`).join('')}${adds.map(x=>`<tr class="add"><td class="fxl">＋</td><td class="fxa">${x.a.CompteNum?`<b>${esc(x.a.CompteNum)}</b> <small>${esc(x.a.CompteLib||'')} · ligne ajoutée</small>`:`<span class="fxc">${aIn(x,'CompteNum')}<button class="btn sm" type="button" data-fixsave="1">OK</button></span>`} <button class="linkbtn" type="button" data-unadd="${rid}:${x.anc}:${x.j}">Retirer</button></td><td class="fxn" data-h="Débit">${money(x.a.Debit)}</td><td class="fxn" data-h="Crédit">${money(x.a.Credit)}</td></tr>`).join('')}</tbody></table>`;
+      // Saisie à la main : mêmes lignes, en champs
+      const form=`<table class="fxt"><thead><tr><th>Ligne</th><th>Compte</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${shown.map(n=>{const d=val(n,'Debit'),c=val(n,'Credit');let sk='',sv='';
+          if(diff&&!spec){if(d>0&&d-diff>=0){sk='Debit';sv=fmtA(d-diff);}else if(c>0&&c+diff>=0){sk='Credit';sv=fmtA(c+diff);}}
+          return `<tr><td class="fxl">${n}</td><td class="fxa"><b>${esc(curVal(R,I,n,'JournalCode'))}</b> ${esc(curVal(R,I,n,'CompteNum'))}<small>${esc(fileVal(R,I,n,'EcritureLib')||fileVal(R,I,n,'CompteLib'))}</small></td><td data-h="Débit">${fxIn(R,I,n,'Debit',sk==='Debit'?sv:null)}</td><td data-h="Crédit">${fxIn(R,I,n,'Credit',sk==='Credit'?sv:null)}</td></tr>`;}).join('')}${adds.map(x=>`<tr class="fxadd"><td class="fxl">＋</td><td class="fxa">${aIn(x,'CompteNum')}</td><td data-h="Débit"><span class="fxc">${aIn(x,'Debit')}</span></td><td data-h="Crédit"><span class="fxc">${aIn(x,'Credit')}</span></td></tr>`).join('')}</tbody></table><p class="fxbtns"><button class="btn sm" type="button" data-fixsave="1">Enregistrer</button>${diff&&!spec?'<small class="fxhint">Sous un montant : celui qui équilibrerait l’écriture si l’erreur est sur cette ligne.</small>':''}</p>`;
+      const li=x=>`<li><button class="sugl" type="button" data-act="${act(x.go,msg)}">${esc(x.t)}</button></li>`,rest=spec?P.slice(1):P;
+      const direct=diff&&!spec; // aucune piste évidente : les champs sont montrés tout de suite
+      const name=t.en?`Écriture ${esc(t.jc)} ${esc(t.en)}`:`Pièce ${esc(t.pr||'')} (journal ${esc(t.jc)})`;
+      return `<div class="fxg${diff?'':' ok'}" data-grp><p class="fxgt"><span><b>${name}</b>${t.ed?` du ${esc(showV('EcritureDate',t.ed))}`:''}</span><span class="fxgap${diff?'':' ok'}"${half?'':' data-gap'}>${half?'coupée en deux par le code journal':diff?`écart ${fmtE(diff)} €`:'✓ équilibrée'}</span>${!diff&&man?undoBtn(`data-ungrp="${rid}:${allRows.join(',')}"`):''}</p>
+${direct?form:view}${allRows.length>FIX_MAX?`<p class="fxnote">+ ${allRows.length-FIX_MAX} lignes : voir la Lecture du FEC.</p>`:''}
+${spec?`<div class="fxp"><span>${esc(P[0].t)}</span><button class="btn primary sm" type="button" data-act="${act(P[0].go,msg)}">Appliquer</button></div>`:''}
+<div class="fxlinks">${rest.length?`<details class="fxmore" data-key="fxm-${rid}-${esc(key)}"><summary>${spec?pl2(rest.length,'autre piste','autres pistes'):'Autres pistes'}</summary><ul class="fxs">${rest.map(li).join('')}</ul></details>`:''}
+${direct?'':`<details class="fxmore" data-key="fxn-${rid}-${esc(key)}"><summary>Saisir les montants à la main</summary>${form}</details>`}</div></div>`;}).join('')+(i.lines.length>12?`<p class="fxnote">+ ${i.lines.length-12} écritures : à corriger dans le logiciel d’origine.</p>`:'');}
+  else{const rows=issRows(R,i),shown=rows.slice(0,FIX_MAX);if(!shown.length)return '';
+    body=`<ul class="fxl2">${shown.map(n=>{const E=edOf(R)[n]||{},dn=K.f.filter(k=>k in E),sg=K.f.map(k=>[k,suggest(R,I,n,k,i.title)]).filter(x=>x[1]!=null);
+      const other=K.f.map(k=>`<label>${esc(FLAB[k])}${fxIn(R,I,n,k,null)}</label>`).join('');
+      if(sg.length){const go=()=>sg.forEach(([k,s])=>setEd(R,I,n,k,s));all.push(go);
+        return fxRow({who:whoL(n),chg:sg.map(([k,s])=>fxChg(k,curVal(R,I,n,k),s)).join(''),go,msg:`Ligne ${n} corrigée dans le fichier de reprise.`,other});}
+      if(dn.length)return fxRow({who:whoL(n),chg:dn.map(k=>fxChg(k,fileVal(R,I,n,k),E[k])).join(''),done:true,undo:undoBtn(`data-unrow="${rid}:${n}:${dn.join(',')}"`)});
+      return fxRow({who:whoL(n),chg:K.f.map(k=>`<span class="fxch"><span class="fxk">${esc(FLAB[k])}</span><b class="bad">${fxShow(k,curVal(R,I,n,k))}</b></span>`).join(''),other});}).join('')}</ul>${rows.length>FIX_MAX?`<p class="fxnote">+ ${rows.length-FIX_MAX} lignes : à corriger dans le logiciel d’origine, ou une à une depuis la Lecture du FEC.</p>`:''}`;}
+  return `<div class="fixit" data-fix="${id}"><p class="fxh"><span><b>Corriger ici</b> <small>dans le fichier de reprise</small>${tip('La correction va dans le fichier de reprise, jamais dans le FEC d’origine. Elle est listée dans la table de correspondance (ancienne et nouvelle valeur) et doit être validée avec le client ou l’expert-comptable avant l’import.')}</span>${all.length>1?`<button class="btn sm" type="button" data-act="${act(()=>all.forEach(f=>f()),pl2(all.length,'correction appliquée','corrections appliquées')+' dans le fichier de reprise.')}">Appliquer les ${all.length} suggestions</button>`:''}</p>
+${body}<span class="fxmsg" role="status"></span></div>`;
+}
+function fixSave(box){const [rid]=box.dataset.fix.split(':').map(Number),R=REPORTS[rid];if(!R)return;
+  const I=rowsIndex(R),E=EDITS[R.name]=EDITS[R.name]||{};let n=0;const bad=[];
+  const put=(ln,k,v)=>{if(v===normCell(k,curVal(R,I,ln,k)))return;n++;
+    if(v===normCell(k,fileVal(R,I,ln,k))){if(E[ln]){delete E[ln][k];if(!Object.keys(E[ln]).length)delete E[ln];}}else (E[ln]=E[ln]||{})[k]=v;};
+  const moved=inp=>inp.value.trim()!==(inp.dataset.v0||'').trim();
+  const chg=[...box.querySelectorAll('input[data-ln]')].filter(moved),chgA=[...box.querySelectorAll('input[data-addln]')].filter(moved);
+  for(const inp of [...chg,...chgA]){const v=normCell(inp.dataset.f,inp.value);inp.removeAttribute('aria-invalid');if(v===null){bad.push(inp);inp.setAttribute('aria-invalid','true');}}
+  if(bad.length){box.querySelector('.fxmsg').textContent=DATEF.has(bad[0].dataset.f)?'Date attendue au format JJ/MM/AAAA, et qui existe.':'Montant attendu, par exemple 1200,50.';bad[0].focus();return;}
+  for(const inp of chg)put(+inp.dataset.ln,inp.dataset.f,normCell(inp.dataset.f,inp.value));
+  for(const inp of chgA){const a=addsOf(R,+inp.dataset.addln)[+inp.dataset.addj];if(!a)continue;const f=inp.dataset.f,v=normCell(f,inp.value);if(a[f]===v)continue;a[f]=v;if(f==='CompteNum')a.CompteLib=accLib(R,I,v);n++;}
+  for(const inp of box.querySelectorAll('input[data-afrom]')){if(!moved(inp))continue;const from=inp.dataset.afrom,to=normCell('CompteNum',inp.value)||from;
+    for(const ln of I.by.a.get(from)||[])put(ln,'CompteNum',to);}
+  for(const inp of box.querySelectorAll('input[data-jfrom]')){const from=inp.dataset.jfrom,to=normCell('JournalCode',inp.value)||from;
+    for(const ln of I.by.j.get(from.toUpperCase())||[])if(fileVal(R,I,ln,'JournalCode')===from)put(ln,'JournalCode',to);}
+  if(!Object.keys(E).length)delete EDITS[R.name];
+  if(!n){box.querySelector('.fxmsg').textContent='Rien n’a changé.';return;}
+  if(box.closest('dialog'))vClose();
+  rerender(`${pl2(n,'correction enregistrée','corrections enregistrées')} dans le fichier de reprise.`);
+}
+// Nouveau rendu après une saisie : on garde la position et les points ouverts
+function rerender(msg){const y=window.scrollY,open=[...document.querySelectorAll('#reports details[open]')].map(d=>d.dataset.key).filter(Boolean);
+  ACTS.clear();EDV++;render(REPORTS);for(const k of open){const d=document.querySelector(`#reports details[data-key="${CSS.escape(k)}"]`);if(d)d.open=true;}window.scrollTo(0,y);
+  if($('tabView')&&$('tabView').hidden===false){const sc=$('vScroll'),st=sc?sc.scrollTop:0;V.built=null;viewOpen();if($('vScroll')){$('vScroll').scrollTop=st;vDraw();}}
+  if(msg){let t=$('fxToast');if(!t){t=document.createElement('div');t.id='fxToast';t.className='fxtoast';t.setAttribute('role','status');document.body.appendChild(t);}t.textContent='✓ '+msg;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>{t.hidden=true;},3500);}}
+function editsHTML(R){const E=EDITS[R.name]||{},A=ADDS[R.name]||{};if(!R.rows)return '';const I=rowsIndex(R),G=new Map();
+  for(const ln in E)for(const k in E[ln]){const o=fileVal(R,I,+ln,k),key=k+'\u0001'+o+'\u0001'+E[ln][k];let g=G.get(key);if(!g)G.set(key,g={k,o,v:E[ln][k],lns:[]});g.lns.push(+ln);}
+  const AL=[];for(const anc in A)A[anc].forEach((a,j)=>AL.push({anc:+anc,j,a}));
+  if(!G.size&&!AL.length)return '';const L=[...G.values()],nv=L.reduce((t,g)=>t+g.lns.length,0);
+  const lines=a=>a.length>1?`lignes ${a.slice(0,5).join(', ')}${a.length>5?'…':''}`:`ligne ${a[0]}`;
+  const what=[nv?pl2(nv,'valeur saisie','valeurs saisies'):'',AL.length?pl2(AL.length,'ligne ajoutée','lignes ajoutées'):''].filter(Boolean).join(', ');
+  return `<details class="aline man" data-key="man-${R._id}"><summary><span class="okm">✎</span> Vos corrections : ${what}, repris dans le fichier de reprise</summary><ul class="edl">${L.map(g=>`<li><span>${esc(FLAB[g.k]||g.k)} : <s>${esc(showV(g.k,g.o))||'(vide)'}</s> → <b>${esc(showV(g.k,g.v))||'(vide)'}</b> <small>${lines(g.lns)}</small></span><button class="linkbtn" type="button" data-unedit="${R._id}" data-k="${g.k}" data-lns="${g.lns.join(',')}">Annuler</button></li>`).join('')}${AL.map(({anc,j,a})=>{const d=parseAmt(a.Debit)||0;return `<li><span>Ligne ajoutée à l’écriture ${esc(I.ekey[anc-1]||'')} : <b>${esc(a.CompteNum||'compte à saisir')}</b> ${d?'débit '+esc(a.Debit):'crédit '+esc(a.Credit)} € <small>après la ligne ${anc}</small></span><button class="linkbtn" type="button" data-unadd="${R._id}:${anc}:${j}">Annuler</button></li>`;}).join('')}</ul><p class="edb"><button class="linkbtn" type="button" data-vsee-ed="${R._id}">Voir ces lignes dans le tableau</button>${L.length+AL.length>1?`<button class="linkbtn" type="button" data-unedit="${R._id}" data-all="1">Tout annuler</button>`:''}</p></details>`;}
+document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;let e;
+  if((e=t.closest('[data-fill]'))){const inp=e.closest('.fxc').querySelector('input');if(inp){inp.value=e.dataset.v;inp.classList.add('ed');inp.dispatchEvent(new Event('input',{bubbles:true}));}return;}
+  if((e=t.closest('[data-fillj]'))){const inp=e.parentElement.querySelector('input[data-jfrom]');if(inp){inp.value=e.dataset.v;inp.classList.add('ed');}return;}
+  if((e=t.closest('[data-fixall]'))){const box=e.closest('.fixit');box.querySelectorAll('input[data-sug]').forEach(inp=>{inp.value=inp.dataset.sug;inp.classList.add('ed');});box.querySelector('.fxmsg').textContent='Suggestions reprises : vérifier puis enregistrer.';return;}
+  if((e=t.closest('[data-fixsave]'))){fixSave(e.closest('.fixit'));return;}
+  if((e=t.closest('[data-vsee-ed]'))){V.rid=+e.dataset.vseeEd;V.mode='ed';V.iss=-1;V.j='';V.q='';V.page=0;V.built=null;showTab('tabView');window.scrollTo(0,0);return;}
+  if((e=t.closest('[data-goman]'))){const d=document.querySelector(`#rep-${e.dataset.goman} details.aline.man`);if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});}return;}
+  if((e=t.closest('[data-fxother]'))){const o=e.closest('.fxr').querySelector('.fxo');if(o){o.hidden=!o.hidden;e.setAttribute('aria-expanded',String(!o.hidden));if(!o.hidden){const inp=o.querySelector('input');if(inp){inp.focus();inp.select();}}}return;}
+  if((e=t.closest('[data-unrow]'))){const [rid,ln,fs]=e.dataset.unrow.split(':'),R=REPORTS[+rid],E=R&&EDITS[R.name];if(!E||!E[ln])return;for(const k of fs.split(','))delete E[ln][k];if(!Object.keys(E[ln]).length)delete E[ln];if(!Object.keys(E).length)delete EDITS[R.name];
+    rerender('Correction annulée.');return;}
+  if((e=t.closest('[data-ungrp]'))){const [rid,ls]=e.dataset.ungrp.split(':'),R=REPORTS[+rid];if(!R)return;const E=EDITS[R.name]||{},A=ADDS[R.name]||{};
+    for(const ln of ls.split(',')){if(E[ln]){for(const k of ['Debit','Credit','JournalCode'])delete E[ln][k];if(!Object.keys(E[ln]).length)delete E[ln];}delete A[ln];}
+    if(!Object.keys(E).length)delete EDITS[R.name];if(!Object.keys(A).length)delete ADDS[R.name];rerender('Corrections de l’écriture annulées.');return;}
+  if((e=t.closest('[data-act]'))){const a=ACTS.get(e.dataset.act);if(a){a.fn();rerender(a.msg||'Correction appliquée dans le fichier de reprise.');}return;}
+  if((e=t.closest('[data-unadd]'))){const [rid,anc,j]=e.dataset.unadd.split(':').map(Number),R=REPORTS[rid];const A=R&&ADDS[R.name];if(!A||!A[anc])return;A[anc].splice(j,1);if(!A[anc].length)delete A[anc];if(!Object.keys(A).length)delete ADDS[R.name];
+    rerender('Ligne ajoutée retirée.');return;}
+  if((e=t.closest('[data-unedit]'))){const R=REPORTS[+e.dataset.unedit];if(!R)return;const E=EDITS[R.name]||{};let n=0;
+    if(e.dataset.all){n=Object.values(E).reduce((t,o)=>t+Object.keys(o).length,0)+Object.values(ADDS[R.name]||{}).reduce((t,a)=>t+a.length,0);delete EDITS[R.name];delete ADDS[R.name];}
+    else{for(const ln of e.dataset.lns.split(',')){if(E[ln]&&e.dataset.k in E[ln]){delete E[ln][e.dataset.k];n++;if(!Object.keys(E[ln]).length)delete E[ln];}}if(!Object.keys(E).length)delete EDITS[R.name];}
+    rerender(`${pl2(n,'correction annulée','corrections annulées')}.`);return;}
+});
+// Écart recalculé pendant la saisie des montants
+document.addEventListener('input',ev=>{const inp=ev.target;if(!inp.matches||!inp.matches('.fxg input[data-ln],.fxg input[data-addln]'))return;const g=inp.closest('[data-grp]');let s=0;
+  for(const x of g.querySelectorAll('input[data-ln],input[data-addln]')){if(x.dataset.f==='CompteNum')continue;const c=parseAmt(x.value);if(!isNaN(c))s+=x.dataset.f==='Debit'?c:-c;}
+  const gap=g.querySelector('[data-gap]');gap.textContent=s?`écart ${fmtE(s)} €`:'✓ équilibrée';gap.classList.toggle('ok',!s);});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.matches&&ev.target.matches('.fixit input')){ev.preventDefault();fixSave(ev.target.closest('.fixit'));}});
 function levelsHTML(R,P,useAlt){
   const B=blockers(P),F=R._fix;
   const row=g=>{const i=g[0],k=i._k,n=g.reduce((t,x)=>t+x._k.n,0),min=g.reduce((t,x)=>t+x._k.min,0);
-    return `<details class="bitem"><summary><span class="wtag ${k.where}">${{source:'À la source',odoo:'Dans Odoo, avant',after:'Dans Odoo, après'}[k.where]}</span><span class="tt">${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span><em>${min?'≈ '+fmtMin(min):''}</em></summary><div class="bbody">${g.map(issueHTML).join('')}</div></details>`;};
+    const fx=g.map(x=>fixHTML(R,x));
+    const H=new Set();g.forEach(x=>{const h=(x._k.how||[]).join('|');if(H.has(h))x._k._noHow=true;else{H.add(h);delete x._k._noHow;}});
+    return `<details class="bitem" data-key="b-${R._id}-${esc(k.t)}"><summary><span class="tt">${k.where!=='source'?`<span class="wtag ${k.where}">${{odoo:'Dans Odoo, avant',after:'Dans Odoo, après'}[k.where]}</span>`:''}${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span>${fx.some(Boolean)?'<span class="fixable">✎ Corriger ici</span>':`<em>${min?'≈ '+fmtMin(min):''}</em>`}</summary><div class="bbody">${g.map((x,ix)=>issueHTML(x,!!fx[ix])+fx[ix]).join('')}</div></details>`;};
   const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>À corriger avant l’import${B.length?` <span class="count">${B.length}</span>${tip('Le fichier de reprise ne règle pas ces points : à corriger dans le logiciel du client, ou dans Odoo quand c’est indiqué. Cliquer sur un point pour savoir quoi faire.')}`:''}</h3>
 ${B.length?`${[['bloque','Odoo refuse le fichier'],['fausse','Odoo importe, mais les chiffres seront faux']].map(([e,t])=>{const G=B.filter(g=>g[0]._k.effect===e);return G.length?`<p class="bsub ${e}">${t}</p><div class="blist">${G.map(row).join('')}</div>`:'';}).join('')}`:`<p class="okline">✓ Rien ne bloque l’import dans Odoo.</p>`}
+${(n=>n&&B.length?`<p class="mandone"><span class="okm">✓</span> ${pl2(n,'point déjà corrigé ici','points déjà corrigés ici')} <button class="linkbtn" type="button" data-goman="${R._id}">Voir ou annuler</button></p>`:'')(P.g.auto.filter(i=>i._k.man).length)}
 ${useAlt?`<details class="plan-b"><summary><b>Plus rapide :</b> repartir d’une balance d’ouverture (≈ ${fmtMin(15+Math.ceil(R._open.missing.length/5))}), sans l’historique détaillé</summary>${altHTML(R,P)}</details>`:''}</section>`;
   // Niveau 2
   const ch=F?Object.entries(F.changes):[],fmt=ch.filter(([k,v])=>v.kind==='fmt');
   const auto=P.g.auto,odoo=P.g.odoo.filter(i=>!BLK(i));
   const fl=fmt.map(([k])=>(x=>x[0].toLowerCase()+x.slice(1))(k.replace(/ \(.*\)$/,'')));
-  const autoLine=auto.length?`<details class="aline"><summary><span class="okm">✓</span> Le fichier de reprise règle ${pl2(auto.length,'point')}${fl.length?` (${esc(fl.slice(0,3).join(', '))}${fl.length>3?'…':''})`:''}. Montants identiques au centime.</summary><div class="items">${auto.map(issueHTML).join('')}</div></details>`
-    :F&&fmt.length?`<p class="aline"><span class="okm">✓</span> Le fichier de reprise met le fichier au format Odoo (${esc(fmt.map(([k])=>k.toLowerCase()).join(', '))}). Montants identiques au centime.</p>`:'';
+  const same=F&&F.integrity&&F.integrity.man?'Montants identiques au centime, hors vos corrections.':'Montants identiques au centime.';
+  const autoLine=auto.length?`<details class="aline"><summary><span class="okm">✓</span> Le fichier de reprise règle ${pl2(auto.length,'point')}${fl.length?` (${esc(fl.slice(0,3).join(', '))}${fl.length>3?'…':''})`:''}. ${same}</summary><div class="items">${auto.map(issueHTML).join('')}</div></details>`
+    :F&&fmt.length?`<p class="aline"><span class="okm">✓</span> Le fichier de reprise met le fichier au format Odoo (${esc(fmt.map(([k])=>k.toLowerCase()).join(', '))}). ${same}</p>`:'';
   const odooLine=odoo.length?`<details class="aline"><summary><span class="okm i">⚙</span> Dans Odoo, avant l’import : ${pl2(odoo.length,'réglage')} (${esc(odoo.map(i=>i._k.t.toLowerCase()).join(', '))}${(m=>m?`, ≈ ${fmtMin(m)}`:'')(odoo.reduce((t,i)=>t+i._k.min,0))})</summary><div class="items">${odoo.map(issueHTML).join('')}</div></details>`:'';
-  return l1+`<section class="lvl l2"><h3><span class="ln"></span>Préparer l’import</h3>${autoLine}${odooLine}${summaryHTML(R,P,useAlt).replace(/^[\s\S]*?(<section class="files">)/,'$1')}</section>`;
+  R._alt=!!useAlt;const S2=summaryHTML(R,P,'parts'),names=S2.rest.map(f=>((f.match(/<b>([^<]*)/)||[])[1]||'').trim().toLowerCase()).filter(Boolean);
+  const list=[S2.main.length?S2.opts:'',odooLine,autoLine,editsHTML(R),S2.main.length&&S2.rest.length?`<details class="aline" data-key="files-${R._id}"><summary><span class="okm n">↓</span> Autres fichiers <span class="optn">${esc(names.join(', '))}</span></summary><div class="files"><ul>${S2.rest.join('')}</ul></div></details>`:''].filter(Boolean);
+  const mainF=S2.main.length?S2.main:S2.rest;
+  return l1+`<section class="lvl l2"><h3><span class="ln"></span>Préparer l’import</h3>${mainF.length?`<div class="files mainf"><ul>${mainF.join('')}</ul></div>`:''}${!S2.main.length&&S2.opts?S2.opts:''}${list.length?`<div class="l2list">${list.join('')}</div>`:''}</section>`;
 }
 function l3List(R,P){return jFirst([...P.g.source,...P.g.after].filter(i=>!BLK(i)));}
 function l3Sum(R,P){
@@ -1680,7 +2007,7 @@ function combined(rs){
   const yrs=rs.map(R=>(R.name.match(/FEC(\d{4})\d{4}/)||[])[1]||String(R.periodEnd||'').slice(0,4)).filter(Boolean);
   const sir=(rs.find(R=>R.siren)||{}).siren||'';
   return {ok:true,text:[hd,...body].join('\r\n')+'\r\n',lines:body.length,debit:I.reduce((t,x)=>t+x.debit-(x.dropped?x.dropped.d:0),0),
-    map:rs.some(R=>Object.values(R._fix.changes).some(v=>v.kind==='map')),
+    map:rs.some(R=>Object.values(R._fix.changes).some(v=>v.kind==='map'||v.kind==='man')),
     name:`${sir?sir+'_':''}reprise_odoo_${yrs.length?yrs[0]+(yrs.length>1?'-'+yrs[yrs.length-1]:''):'exercices'}.txt`};
 }
 function combinedHTML(rs){
@@ -1690,6 +2017,17 @@ ${C.ok?'':`<span>Indisponible : ${C.why.map(esc).join(' ; ')}. Importer les fich
 ${C.ok&&C.map?`<label class="confirm"><input type="checkbox" data-confirm="all"> Correspondances de reprise de tous les exercices validées avec le client</label>`:''}</div>
 <button class="btn primary" type="button" data-dl="all" ${C.ok&&!C.map?'':'disabled'}>Télécharger</button></div>`;
 }
+// Allègement : options repliées sur une ligne qui dit ce qui est coché ; fichiers secondaires repliés sous le fichier de reprise
+function optsBlock(R){const F=R._fix,on=[];
+  if(F.nColl&&F.opts.collect)on.push(`tiers sur ${F.opts.recv} / ${F.opts.pay}`);
+  if(F.opts.prefix||F.opts.dropAN)on.push('plusieurs exercices');
+  if(F.opts.cashBasis)on.push('TVA sur encaissements');
+  const open=(R._opts&&OPTS[R.name])||(F.opts.prefix&&!OPTS[R.name]);
+  return `<details class="aline optsd" data-key="opts-${R._id}"${open?' open':''}><summary><span class="okm n">☰</span> <span class="optt">Options du fichier de reprise</span> <span class="optn">${on.length?esc(on.join(' · ')):'aucune cochée'}</span></summary>${optsHTML(R)}</details>`;}
+function filesBlock(R,files){const main=files.filter(f=>/data-dl="(fix|cbinv)"/.test(f)),rest=files.filter(f=>!main.includes(f));
+  if(!main.length||!rest.length)return `<ul>${files.join('')}</ul>`;
+  const names=rest.map(f=>((f.match(/<b>([^<]*)/)||[])[1]||'').trim().toLowerCase()).filter(Boolean);
+  return `<ul>${main.join('')}</ul><details class="morefiles" data-key="files-${R._id}"><summary>Autres fichiers <span class="optn">${esc(names.join(', '))}</span></summary><ul>${rest.join('')}</ul></details>`;}
 function optsHTML(R){
   const F=R._fix,O=R._opts||{},EX=R.hints&&R.hints.exos,later=EX&&!R._dropAll,id=R._id;
   const nAN=F.out.filter(o=>o._an&&(!later||o._exo>0)).length,ex=F.out.find(o=>o._num&&!o._an)||F.out.find(o=>o._num);
@@ -1760,7 +2098,8 @@ function ctrlTable(R){
   return `<details class="block"><summary>Contrôle après import : totaux par journal</summary><p class="note">Après l’import, avant de comptabiliser : comparer ces totaux avec ceux des écritures importées, journal par journal : Comptabilité → Révision → Écritures comptables, retirer le filtre « Comptabilisé » s’il est actif, vue tableau croisé, regrouper par journal, mesures Débit, Crédit et Nombre (<button class="linkbtn" type="button" data-tab="tabMethod">méthode</button>). Un écart signale des pièces fusionnées, ignorées ou doublées.</p>
 <div class="tablewrap"><table class="ctrl"><thead><tr><th>Journal</th><th>Libellé</th><th>Écritures</th><th>Lignes</th><th>Débit</th><th>Crédit</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total</td><td>${R.stats.ecritures.toLocaleString('fr-FR')}</td><td>${R.stats.lignes.toLocaleString('fr-FR')}</td><td>${fmtE(R.totD)}</td><td>${fmtE(R.totC)}</td></tr></tfoot></table></div></details>`;
 }
-let REPORTS=[],OPTS={};
+let REPORTS=[],OPTS={},EDITS={},ADDS={}; // EDITS[nom du FEC][ligne][champ] = valeur saisie dans « Corriger ici » ; ADDS[nom du FEC][ligne d’ancrage] = lignes ajoutées à l’écriture
+const MAN_KEY='Corrections saisies dans la page (dates, montants, codes), à faire valider';
 function prepare(R,crossFlags){
   // Fichier de reprise + ré-analyse + balance d’ouverture
   if(!R.rows||R.rows.length<2)return;
@@ -1773,6 +2112,7 @@ function prepare(R,crossFlags){
   R._open=buildOpening(fx.out.filter(o=>!(o._an&&o._exo>0)),hints); // à-nouveaux des exercices suivants : soldes déjà dans les mouvements
 }
 function render(reports){
+  for(const R of reports)delete R._vx; // les constats peuvent changer de niveau (saisies, options) : la Lecture se recalcule
   const multi=reports.length>1;
   const rs=[...reports].sort((a,b)=>(a.periodStart||'').localeCompare(b.periodStart||''));
   let html='',txt='';
@@ -1783,7 +2123,7 @@ function render(reports){
     const O=OPTS[R.name]||{},yr=exLab(String(R.periodStart||''),(R.name.match(/FEC(\d{8})/)||[])[1]||String(R.periodEnd||''));
     const exo=!!(R.hints&&R.hints.exos),dropAll=R._dropAll=cross.some(i=>i.an&&i.title.startsWith(R.name+' : '));
     R._opts={prefixOn:O.prefixOn??(exo||cross.some(i=>i.pair&&i.pair.includes(R.name))),prefix:O.prefix??yr,dropAN:O.dropAN??(exo||dropAll),recv:O.recv||'411100',pay:O.pay||'401100',collect:O.collect??true,cashBasis:O.cashBasis??false,cid:O.cid||'1'};
-    prepare(R,{opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}});
+    prepare(R,{edits:EDITS[R.name]||null,adds:ADDS[R.name]||null,opts:{prefix:R._opts.prefixOn?R._opts.prefix||yr:'',dropAN:R.hasAN&&R._opts.dropAN&&(dropAll?'all':true),recv:R._opts.recv,pay:R._opts.pay,collect:R._opts.collect,cashBasis:R._opts.cashBasis,cid:R._opts.cid}});
     if(multi)for(const i of cross)if(i.title.includes(R.name))R.issues.push(Object.assign({cross:true},i));});
   REPORTS=rs;
   for(const R of rs)if(R.rows)R.issues.forEach((i,ix)=>{i._vr=R._id;i._vx=ix;});
@@ -1795,7 +2135,7 @@ function render(reports){
     const seen={};for(const i of R.issues){(seen[i._k.t]=seen[i._k.t]||[]).push(i);}for(const a of Object.values(seen))if(a.length>1)for(const i of a){const c=i.title.match(/^[A-Z][A-Za-z]+(?= )/);i._dup=c?c[0]:'';}
     const changes=R._fix?Object.entries(R._fix.changes):[];
     const steps=[];
-    if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(Object.values(R._fix.changes).some(v=>v.kind==='map')?' et faire valider les correspondances':''),P.autoMin+(Object.values(R._fix.changes).some(v=>v.kind==='map')?10:0)]);
+    if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(Object.values(R._fix.changes).some(v=>v.kind==='map'||v.kind==='man')?' et faire valider les correspondances':''),P.autoMin+(Object.values(R._fix.changes).some(v=>v.kind==='map'||v.kind==='man')?10:0)]);
     if(P.g.source.length)steps.push(['source','Envoyer au client les points à corriger ou vérifier, puis relire son retour',10]);
     if(P.g.odoo.length)steps.push(['odoo','Préparer la base Odoo',P.m.odoo]);
     steps.push(['import','Importer dans Odoo (assistant Import FEC) et comptabiliser',10]);
@@ -1805,17 +2145,17 @@ function render(reports){
     const shownSteps=useAlt?[['auto','Importer les tiers (tiers.xlsx)',5],['odoo','Créer les comptes absents de la base'+(R._open.missing.length?` (${R._open.missing.length})`:''),Math.ceil(R._open.missing.length/5)],['import','Importer la balance d’ouverture et la comptabiliser',5],['after','Contrôler la balance Odoo contre celle du logiciel d’origine',5]].filter(s=>s[2]):steps;
         html+=`<div class="report" id="rep-${R._id}">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(fmtP(S.periode))}</small></h2>`:''}
 <section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${vSub(R,P)}</p></div>
-<div class="vtime"><span>Temps estimé${tip('Votre temps : réglages dans Odoo, import, vérifications après l’import, échange avec le client. Le temps du client pour corriger à la source n’est pas compté.')}</span><b>≈ ${fmtMin(total)}</b>${P.client?'<small>+ délai du client</small>':''}${useAlt?`<small>ou ≈ ${fmtMin(altMin)} avec une balance d’ouverture</small>`:''}</div></section>
+<div class="vtime"><span>Temps estimé${tip('Votre temps : réglages dans Odoo, import, vérifications après l’import, échange avec le client. Le temps du client pour corriger à la source n’est pas compté.')}</span><b>≈ ${fmtMin(total)}</b>${P.client?'<small>+ délai du client</small>':''}</div></section>
 ${levelsHTML(R,P,useAlt)}
 <details class="block detail lvl3"><summary>${l3Sum(R,P)}</summary><div class="detailin">
 ${R.dgfip&&!R.dgfip.rej.size?fiscHTML(R):''}
 ${l3Items(R,P)}
 <ol class="route">${(useAlt?steps:shownSteps).map(([w,t,m])=>`<li class="${w}"><span>${esc(t)}</span><em>${m?'≈ '+fmtMin(m):''}</em></li>`).join('')}</ol>
-${useAlt?'':''}${changes.length?(()=>{const F=R._fix,I=F.integrity,fm=changes.filter(([k,v])=>v.kind==='fmt'),mp=changes.filter(([k,v])=>v.kind==='map'),op=changes.filter(([k,v])=>v.kind==='opt'),Dr=I.dropped;const li=a=>a.map(([k,v])=>`<li>${esc(k)} <span class="count">${v.n.toLocaleString('fr-FR')}</span></li>`).join('');
+${useAlt?'':''}${changes.length?(()=>{const F=R._fix,I=F.integrity,fm=changes.filter(([k,v])=>v.kind==='fmt'),mp=changes.filter(([k,v])=>v.kind==='map'||v.kind==='man'),op=changes.filter(([k,v])=>v.kind==='opt'),Dr=I.dropped;const li=a=>a.map(([k,v])=>`<li>${esc(k)} <span class="count">${v.n.toLocaleString('fr-FR')}</span></li>`).join('');
 return `<section class="fixbox"><div class="fixmain"><h3>Fichier de reprise pour Odoo</h3>
 <p>Le même contenu que le FEC, écrit comme Odoo l’attend. ${A?`Avec ce fichier : <span class="vpill ${A.level}">${esc(A.title)}</span>${A.g.source.length?` · il reste ${A.g.source.length} point${A.g.source.length>1?'s':''} à corriger à la source`:''}`:''}</p>
 <div class="chg">${fm.length?`<div><p class="hl">Écriture technique <span>mêmes valeurs, autre présentation</span></p><ul>${li(fm)}</ul></div>`:''}${op.length?`<div><p class="hl">Options choisies <span>import de plusieurs exercices</span></p><ul>${li(op)}</ul></div>`:''}${mp.length?`<div class="map"><p class="hl">Correspondances de reprise <span>à valider avec l’expert-comptable</span></p><ul>${li(mp)}</ul>${F.corr.length?'<p class="note">Chaque changement est listé ligne par ligne dans la table de correspondance.</p>':''}</div>`:''}</div>
-<div class="integ ${I.ok?'ok':'bad'}"><p class="hl">${I.ok?'✓ Contrôle d’intégrité réussi':'✕ Contrôle d’intégrité en échec : fichier bloqué'}</p><dl class="kv"><div><dt>Lignes</dt><dd>${I.lines.toLocaleString('fr-FR')}</dd></div><div><dt>Total débit</dt><dd>${fmtE(I.debit-(Dr?Dr.d:0))} €</dd></div><div><dt>Total crédit</dt><dd>${fmtE(I.credit-(Dr?Dr.c:0))} €</dd></div></dl><p>${I.ok?(Dr?`Identiques au fichier d’origine, au centime, une fois retirés les à-nouveaux (${Dr.n.toLocaleString('fr-FR')} lignes, ${fmtE(Dr.d)} € au débit et au crédit). Aucun montant, sens, date d’écriture ni devise n’a été modifié.`:'Identiques au fichier d’origine, au centime. Aucun montant, sens, date d’écriture ni devise n’a été modifié.'):`Le fichier d’origine compte ${I.srcLines} lignes, ${fmtE(I.srcDebit)} € au débit et ${fmtE(I.srcCredit)} € au crédit.`}</p></div>
+<div class="integ ${I.ok?'ok':'bad'}"><p class="hl">${I.ok?'✓ Contrôle d’intégrité réussi':'✕ Contrôle d’intégrité en échec : fichier bloqué'}</p><dl class="kv"><div><dt>Lignes</dt><dd>${I.lines.toLocaleString('fr-FR')}</dd></div><div><dt>Total débit</dt><dd>${fmtE(I.debit-(Dr?Dr.d:0))} €</dd></div><div><dt>Total crédit</dt><dd>${fmtE(I.credit-(Dr?Dr.c:0))} €</dd></div></dl><p>${I.ok&&I.man?`Identiques au fichier d’origine, au centime, aux corrections saisies près (${[I.man.n?pl2(I.man.n,'valeur'):'',I.man.add?pl2(I.man.add,'ligne ajoutée','lignes ajoutées'):''].filter(Boolean).join(', ')}${I.man.d||I.man.c?` : ${I.man.d?(I.man.d>0?'+':'')+fmtE(I.man.d)+' € au débit':''}${I.man.d&&I.man.c?', ':''}${I.man.c?(I.man.c>0?'+':'')+fmtE(I.man.c)+' € au crédit':''}`:''}). Rien d’autre n’a été modifié.`:I.ok?(Dr?`Identiques au fichier d’origine, au centime, une fois retirés les à-nouveaux (${Dr.n.toLocaleString('fr-FR')} lignes, ${fmtE(Dr.d)} € au débit et au crédit). Aucun montant, sens, date d’écriture ni devise n’a été modifié.`:'Identiques au fichier d’origine, au centime. Aucun montant, sens, date d’écriture ni devise n’a été modifié.'):`Le fichier d’origine compte ${I.srcLines} lignes, ${fmtE(I.srcDebit)} € au débit et ${fmtE(I.srcCredit)} € au crédit.`}</p></div>
 ${F.left.length?`<p class="warnline">Laissé tel quel : ${F.left.slice(0,4).map(esc).join(' ; ')}${F.left.length>4?` … (+${F.left.length-4})`:''}</p>`:''}
 <p class="legal">Ce n’est pas un FEC : il sert uniquement à l’import et ne se remet jamais à l’administration (<button class="linkbtn" type="button" data-tab="tabMethod">cadre légal</button>).</p>
 ${mp.length&&I.ok?`<label class="confirm"><input type="checkbox" id="ok-${R._id}" data-confirm="${R._id}"> Les correspondances ci-dessus ont été validées avec le client ou son expert-comptable.</label>`:''}</div>
@@ -1923,8 +2263,9 @@ let V={rid:0,mode:'all',iss:-1,j:'',q:'',group:true,all:false,page:0,items:[],sh
 function viewReset(){V={...V,rid:0,mode:'all',iss:-1,j:'',q:'',page:0,items:[],shown:0,built:null};if($('tabView').hidden===false)viewOpen();}
 const vDate=s=>/^\d{8}$/.test(s)?s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4):s;
 function vAmt(raw){const s=String(raw??'').trim();if(!s)return '';const [v]=cents(s);return isNaN(v)?null:fmtE(v);}
-function viewIndex(R){
-  if(R._vx)return R._vx;
+// Index des lignes du fichier (ne dépend que des lignes lues) : regroupements par écriture, compte, journal, tiers, lettre
+function rowsIndex(R){
+  if(R._ri)return R._ri;
   const rows=R.rows||[],lo=(rows[0]||[]).map(h=>String(h).replace(/^﻿/,'').trim().toLowerCase());
   const bnc=lo[11]==='montant'&&lo[12]==='sens';
   const F={};EXPECTED.forEach((k,i)=>F[k]=i); // mêmes règles de lecture des colonnes que l’analyse
@@ -1948,6 +2289,11 @@ function viewIndex(R){
     const can=g(r,'CompAuxNum');if(can)put(by.x,can,n);
     const lt=g(r,'EcritureLet');if(lt)put(by.l,cn+'\u0001'+lt,n);
   }
+  return R._ri={F,g,bnc,dc,data,ekey,tot,jcodes,by};
+}
+function viewIndex(R){
+  if(R._vx)return R._vx;
+  const {F,g,bnc,data,ekey,tot,jcodes,by}=rowsIndex(R);
   const iss=[],flags=new Map();
   R.issues.forEach((i,ix)=>{
     if(GENERIC.test(i.title)||!i.lines.length||i.cross)return;
@@ -2009,14 +2355,14 @@ function vBuild(R,rs){
   $('viewer').innerHTML=`<section class="vbar" aria-label="Filtres de lecture">
 <div class="vfile">${rs.length>1?`<span class="vctl"><select id="vFile" aria-label="Fichier">${rs.map(r=>opt(r._id,r.name+' · '+fmtP(r.stats.periode),r===R)).join('')}</select></span>`:`<b>${esc(R.name)}</b>`}<span class="vsum">${S.lignes.toLocaleString('fr-FR')} lignes · ${S.ecritures.toLocaleString('fr-FR')} écritures · ${X.flags.size?`${X.flags.size.toLocaleString('fr-FR')} ligne${X.flags.size>1?'s':''} avec un constat, dont ${X.nErr.toLocaleString('fr-FR')} en erreur`:'aucune ligne en erreur'}</span></div>
 <div class="vctl">
-<label>Afficher<select id="vMode">${opt('all','Toutes les lignes',V.mode==='all')}${opt('err','Seulement les lignes en erreur',V.mode==='err')}${opt('flag','Les lignes avec un constat, même informatif',V.mode==='flag')}</select></label>
+<label>Afficher<select id="vMode">${opt('all','Toutes les lignes',V.mode==='all')}${opt('err','Seulement les lignes en erreur',V.mode==='err')}${opt('flag','Les lignes avec un constat, même informatif',V.mode==='flag')}${curIndex(R)?opt('ed','Seulement les lignes corrigées dans la page',V.mode==='ed'):''}</select></label>
 <label>Constat<select id="vIss">${opt(-1,X.iss.length?'Tous les constats':'Aucun constat relié à des lignes',V.iss<0)}${grp}</select></label>
 <label>Journal<select id="vJ">${opt('','Tous les journaux',!V.j)}${js.map(([j,n])=>opt(j,`${j||'(vide)'} · ${n.toLocaleString('fr-FR')} lignes`,j===V.j)).join('')}</select></label>
 <label>Rechercher<input type="search" id="vQ" value="${esc(V.q)}" placeholder="Compte, libellé, pièce, montant…" autocomplete="off"></label>
 <label class="chk"><input type="checkbox" id="vGrp"${V.group?' checked':''}> Regrouper par écriture</label>
 <label class="chk"><input type="checkbox" id="vAll"${V.all?' checked':''}> Toutes les colonnes</label>
 </div>
-<p class="vlegend"><span class="lg l4">Odoo refuse le fichier</span><span class="lg l3">Chiffres faux une fois importés</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Réglé par le fichier de reprise ou pour information (non surligné)</span>${tip('Cliquer une ligne pour voir ses constats et tous ses champs.')}</p>
+<p class="vlegend"><span class="lg l4">Odoo refuse le fichier</span><span class="lg l3">Chiffres faux une fois importés</span><span class="lg l2">À vérifier avec le client</span><span class="lg l1">Réglé par le fichier de reprise ou pour information (non surligné)</span>${curIndex(R)?'<span class="lg led">Corrigé dans la page</span>':''}${tip('Cliquer une ligne pour voir ses constats et tous ses champs.')}</p>
 </section>
 <div id="vFilt"></div>
 <div class="vscroll${V.all?' vall':''}" id="vScroll" tabindex="0" role="table" aria-label="Lignes du FEC"><div class="vin" id="vIn"><div class="vrow vhead" role="row">${VCOLS.reduce((h,c)=>h+`<span role="columnheader" class="${c[3]==='amt'?'amt':''}${c[4]?' vx':''}">${c[1]}</span>`,'<span role="columnheader" aria-label="Constats"></span>')}</div><div class="vrows" id="vRows" role="rowgroup"></div></div></div>
@@ -2027,14 +2373,16 @@ ${X.whole?`<p class="vnote">${X.whole} constat${X.whole>1?'s portent':' porte'} 
 function vApply(keepScroll){
   const R=REPORTS[V.rid],X=viewIndex(R),rows=R.rows;
   const q=V.q.trim().toLowerCase(),qq=q.replace(/\s/g,''),it=V.iss>=0?X.iss[V.iss]:null;
-  const out=[],G=[];let prev=null,shown=0;
+  const out=[],G=[];let prev=null,shown=0;const CI=curIndex(R),E=edOf(R),A=ADDS[R.name]||{};if(V.mode==='ed'&&!CI)V.mode='all';
   for(const n of it?it.rows:X.data){
     const r=rows[n-1];if(!r)continue;
-    if(V.mode!=='all'){const l=X.lvlOf(n);if(V.mode==='err'?l<2:!l)continue;}
+    if(V.mode==='ed'){if(!E[n]&&!A[n])continue;}
+    else if(V.mode!=='all'){const l=X.lvlOf(n);if(V.mode==='err'?l<2:!l)continue;}
     if(V.j&&X.g(r,'JournalCode')!==V.j)continue;
     if(q){const t=r.join(' ').toLowerCase();if(!t.includes(q)&&!(qq&&t.replace(/\s/g,'').includes(qq)))continue;}
-    if(V.group){const k=X.ekey[n-1];if(k!==prev){out.push(-(G.push(k)));prev=k;}}
-    out.push(n);shown++;}
+    if(V.group){const k=CI?CI.key.get(n):X.ekey[n-1];if(k!==prev){out.push(-(G.push(k)));prev=k;}}
+    out.push(n);shown++;
+    if(A[n])for(let j=0;j<A[n].length;j++)out.push(n+(j+1)/1000);} // ligne ajoutée : n + rang/1000
   V.items=out;V.groups=G;V.shown=shown;if(!keepScroll)V.page=0;
   V.page=Math.min(V.page,Math.max(0,Math.ceil(out.length/VPAGE)-1));
   const f=$('vFilt');
@@ -2049,27 +2397,33 @@ function vDraw(){
   const h=sc.clientHeight||600,a=Math.max(0,Math.floor((sc.scrollTop-VHH)/VRH)-10),b=Math.min(len,a+Math.ceil(h/VRH)+20);
   const box=$('vRows');box.style.top=(VHH+a*VRH)+'px';
   if(!len){box.innerHTML=`<div class="vempty">${V.mode!=='all'&&!X.flags.size?'Aucune ligne en erreur dans ce FEC.':'Aucune ligne ne correspond à ces filtres.'}</div>`;}
-  else{let html='';for(let i=a;i<b;i++){const v=V.items[off+i];html+=v<0?vGroupHTML(X,V.groups[-v-1]):vRowHTML(R,X,v);}box.innerHTML=html;}
+  else{let html='';for(let i=a;i<b;i++){const v=V.items[off+i];html+=v<0?vGroupHTML(X,V.groups[-v-1],R):Number.isInteger(v)?vRowHTML(R,X,v):vAddHTML(R,X,Math.floor(v),Math.round((v-Math.floor(v))*1000)-1);}box.innerHTML=html;}
   sc.setAttribute('aria-rowcount',String(V.items.length+1));
   const pg=Math.ceil(V.items.length/VPAGE);
   $('vPager').innerHTML=`<span>${V.shown.toLocaleString('fr-FR')} ligne${V.shown>1?'s':''} affichée${V.shown>1?'s':''} sur ${X.data.length.toLocaleString('fr-FR')}</span>`+(pg>1?`<button class="btn" type="button" data-vpage="-1"${V.page?'':' disabled'}>Précédent</button><span>Page ${V.page+1} sur ${pg}</span><button class="btn" type="button" data-vpage="1"${V.page<pg-1?'':' disabled'}>Suivant</button>`:'');
 }
-function vGroupHTML(X,k){const t=X.tot.get(k);if(!t)return '';const bal=t.d===t.c;
-  return `<div class="vrow vgrp${bal?'':' unbal'}" role="row"><span class="vg-t" role="cell" style="grid-column:1/${V.all?12:11}">${esc(t.jc)} · ${t.en?'écriture '+esc(t.en):'pièce '+esc(t.pr)+' (sans EcritureNum)'} · ${esc(vDate(t.ed))} · ${t.n} ligne${t.n>1?'s':''}</span><span class="amt" role="cell">${fmtE(t.d)}</span><span class="amt" role="cell">${fmtE(t.c)}</span><span class="vg-s" role="cell" style="grid-column:${V.all?14:13}/-1">${bal?'✓ Équilibrée':'✕ Écart '+fmtE(t.d-t.c)}</span></div>`;}
+function vGroupHTML(X,k,R){const CI=R&&curIndex(R),t=(CI?CI.tot:X.tot).get(k);if(!t)return '';const bal=t.d===t.c;
+  return `<div class="vrow vgrp${bal?'':' unbal'}" role="row"><span class="vg-t" role="cell" style="grid-column:1/${V.all?12:11}">${esc(t.jc)} · ${t.en?'écriture '+esc(t.en):'pièce '+esc(t.pr)+' (sans EcritureNum)'} · ${esc(vDate(t.ed))} · ${t.n} ligne${t.n>1?'s':''}</span><span class="amt" role="cell">${fmtE(t.d)}</span><span class="amt" role="cell">${fmtE(t.c)}</span><span class="vg-s" role="cell" style="grid-column:${V.all?14:13}/-1"${t.man?' title="Écriture corrigée dans la page"':''}>${bal?(t.man?'✓ Corrigée':'✓ Équilibrée'):'✕ Écart '+fmtE(t.d-t.c)}</span></div>`;}
+// Ligne ajoutée dans la page : montrée à sa place dans l’écriture
+function vAddHTML(R,X,n,j){const a=addsOf(R,n)[j];if(!a)return '';const I=rowsIndex(R),cv=k=>curVal(R,I,n,k),am=v=>{const c=parseAmt(v);return c?fmtE(c):'';};
+  const val={n:'＋',jc:esc(cv('JournalCode')),ed:esc(vDate(cv('EcritureDate'))),en:esc(cv('EcritureNum')),cn:esc(a.CompteNum||'?'),cl:esc(a.CompteLib||''),aux:'',pr:esc(cv('PieceRef')),pd:esc(vDate(cv('PieceDate'))),el:'Ligne ajoutée dans la page',d:am(a.Debit),c:am(a.Credit),let:'',dev:'',vd:esc(vDate(cv('ValidDate')))};
+  return `<div class="vrow vadd" role="row" title="Ligne ajoutée dans la page, après la ligne ${n}"><span class="vmk" role="cell"></span>${VCOLS.map(([k,,,cl,x])=>`<span role="cell" class="${cl||''}${x?' vx':''}">${val[k]}</span>`).join('')}</div>`;}
 function vHits(X,n){const f=X.flags.get(n)||[],cs=new Set();
   for(const id of f){const o=X.iss[id];if(V.iss>=0?id!==V.iss:o.lvl<2)continue;(o.cells.get(n)||o.cols).forEach(c=>cs.add(c));}
   return {f,cs};}
 function vRowHTML(R,X,n){
-  const r=R.rows[n-1],g=k=>X.g(r,k),{f,cs}=vHits(X,n),lvl=X.lvlOf(n);
+  const r=R.rows[n-1],g=k=>X.g(r,k),{f,cs}=vHits(X,n),lvl=X.lvlOf(n),E=edOf(R)[n];
   const D=X.bnc?(String(r[12]??'').trim().toUpperCase()==='D'?r[11]:''):r[X.F.Debit],C=X.bnc?(String(r[12]??'').trim().toUpperCase()==='C'?r[11]:''):r[X.F.Credit];
   const amt=v=>{const s=vAmt(v);return s===null?`<b class="bad">${esc(String(v).trim())}</b>`:s==='0,00'?'':s;};
-  const date=k=>{const s=g(k);return s&&!isDate(s)?`<b class="bad">${esc(s)}</b>`:esc(vDate(s));};
-  const val={n:n,jc:esc(g('JournalCode')),ed:date('EcritureDate'),en:esc(g('EcritureNum')),cn:esc(g('CompteNum')),cl:esc(g('CompteLib')),
+  const mk=(g,D,C)=>{const date=k=>{const s=g(k);return s&&!isDate(s)?`<b class="bad">${esc(s)}</b>`:esc(vDate(s));};
+    return {n:n,jc:esc(g('JournalCode')),ed:date('EcritureDate'),en:esc(g('EcritureNum')),cn:esc(g('CompteNum')),cl:esc(g('CompteLib')),
     aux:g('CompAuxNum')?`${esc(g('CompAuxNum'))} <small>${esc(g('CompAuxLib'))}</small>`:esc(g('CompAuxLib')),pr:esc(g('PieceRef')),pd:date('PieceDate'),el:esc(g('EcritureLib')),
-    d:amt(D),c:amt(C),let:esc(g('EcritureLet')),dev:g('Montantdevise')||g('Idevise')?`${amt(g('Montantdevise'))} <small>${esc(g('Idevise'))}</small>`:'',vd:date('ValidDate')};
+    d:amt(D),c:amt(C),let:esc(g('EcritureLet')),dev:g('Montantdevise')||g('Idevise')?`${amt(g('Montantdevise'))} <small>${esc(g('Idevise'))}</small>`:'',vd:date('ValidDate')};};
+  const val=mk(g,D,C),ge=k=>k in E?E[k]:g(k),nv=E?mk(ge,'Debit' in E?E.Debit:D,'Credit' in E?E.Credit:C):null;
   const tip={jc:g('JournalLib'),cl:g('CompteLib'),aux:g('CompAuxLib'),el:g('EcritureLib'),pr:g('PieceRef'),let:g('DateLet')?'Lettré le '+vDate(g('DateLet')):''};
-  const names=f.map(id=>X.iss[id].k.t);
-  return `<div class="vrow vline${lvl?' l'+lvl:''}" role="row" data-vrow="${n}"><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${f.length} constat${f.length>1?'s':''}, ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const hl=fs.some(c=>cs.has(c));return `<span role="cell" class="${cl||''}${x?' vx':''}${hl?' hl':''}"${tip[k]?` title="${esc(tip[k])}"`:''}>${val[k]}</span>`;}).join('')}</div>`;
+  const names=f.map(id=>X.iss[id].k.t),zero=k=>k==='d'||k==='c'?'0,00':'<i>vide</i>';
+  return `<div class="vrow vline${lvl?' l'+lvl:''}${E?' ved':''}" role="row" data-vrow="${n}"${E?' title="Ligne corrigée dans la page"':''}><span class="vmk" role="cell">${f.length?`<button type="button" data-vrow="${n}" title="${esc(names.join('\n'))}" aria-label="Ligne ${n} : ${f.length} constat${f.length>1?'s':''}, ${esc(names.join(' ; '))}">${f.length}</button>`:''}</span>${VCOLS.map(([k,,fs,cl,x])=>{const ch=E&&fs.some(c=>c in E),hl=!ch&&fs.some(c=>cs.has(c));
+    return `<span role="cell" class="${cl||''}${x?' vx':''}${hl?' hl':''}${ch?' vedc':''}"${ch?' title="Corrigé dans la page. Valeur du FEC barrée."':tip[k]?` title="${esc(tip[k])}"`:''}>${ch?`<s>${val[k]||zero(k)}</s> <b>${nv[k]||zero(k)}</b>`:val[k]}</span>`;}).join('')}</div>`;
 }
 function vDetail(n){
   const R=REPORTS[V.rid],X=viewIndex(R),r=R.rows[n-1];if(!r)return;
@@ -2078,7 +2432,9 @@ function vDetail(n){
   $('vDlgT').textContent=`Ligne ${n} du fichier`;
   $('vDlgB').innerHTML=(f.length?`<h4>${f.length} constat${f.length>1?'s':''} sur cette ligne</h4>${f.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns"><button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}</div></div>`;}).join('')}`:'<p class="vnote">Aucun constat sur cette ligne.</p>')
    +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':`, écart ${fmtE(t.d-t.c)}.`}</p>`:'')
-   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`;
+   +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`
+   +(()=>{const I=rowsIndex(R),E=edOf(R)[n]||{},ne=Object.keys(E).length;
+     return `<details class="vfix"${ne?' open':''}><summary>✎ Corriger cette ligne${ne?` <small>(${pl2(ne,'valeur corrigée','valeurs corrigées')})</small>`:''}</summary><div class="fixit" data-fix="${V.rid}:-1"><p class="fxhint">La valeur saisie va dans le fichier de reprise, jamais dans le FEC d’origine, et doit être validée avec le client. Dates au format JJ/MM/AAAA.</p><div class="fxgrid">${EXPECTED.map(k=>`<label><span>${esc(FLAB[k])}</span>${fxIn(R,I,n,k,suggest(R,I,n,k))}</label>`).join('')}</div><p class="fxbtns"><button class="btn primary sm" type="button" data-fixsave="1">Enregistrer</button><span class="fxmsg" role="status"></span></p></div></details>`;})();
   const d=$('vDlg');if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute('open','');
 }
 function vClose(){const d=$('vDlg');if(d.open)d.close?d.close():d.removeAttribute('open');}
