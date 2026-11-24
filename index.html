@@ -1683,7 +1683,8 @@ function planOf(R){
   const g={auto:[],odoo:[],source:[],after:[],note:[]};for(const i of R.issues)g[i._k.where].push(i);for(const w in g)g[w]=jFirst(g[w]);
   const sum=w=>g[w].reduce((t,i)=>t+i._k.min,0);
   const blockSrc=g.source.filter(i=>['bloque','fausse'].includes(i._k.effect));
-  const delay=blockSrc.some(i=>i._k.delay);
+  // Un point corrigeable dans la page n’attend pas de nouvel export du client
+  const delay=blockSrc.some(i=>i._k.delay&&!fixHere(R,i));
   const autoMin=g.auto.length?5:0; // télécharger, revérifier
   const srcBlockMin=blockSrc.reduce((t,i)=>t+i._k.min,0);
   let level,title,sub;
@@ -1741,15 +1742,27 @@ function sameAsUnbal(R,P,i){
     return d!==0&&(d===val(n,'Debit')||-d===val(n,'Credit'));});
 }
 const blockers=(P,R)=>{const by={};for(const i of jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK))))if(!sameAsUnbal(R,P,i))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
+// Point qui se corrige entièrement dans la page (« Corriger ici » le montre en entier)
+function fixHere(R,i){if(!R||!R.rows||R.rows.length<2)return false;
+  // « Total débit ≠ total crédit » se règle en équilibrant les écritures, qui se corrigent ici
+  if(/^Total débit ≠ total crédit/.test(i.title))return R.issues.some(u=>u!==i&&/^(Écritures déséquilibrées \(|Écriture déséquilibrée sans mois)/.test(u.title)&&fixHere(R,u));
+  const K=fixKind(i);if(!K)return false;return i.lines.length<=(K.m==='bal'?12:FIX_MAX);}
 function vSub(R,P){
   const B=blockers(P,R),nA=P.g.auto.length;
   if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?(P.g.auto.some(i=>i._k.man)?'Rien ne bloque plus l’import : vos corrections sont dans le fichier de reprise.':`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`):'Rien ne bloque l’import.');
   const nR=B.filter(g=>g[0]._k.effect==='bloque').length,nF=B.length-nR,W=[...new Set(B.map(g=>g[0]._k.where))];
   const what=nR&&nF?`${pl2(B.length,'point')} à régler avant l’import : ${nR} bloque${nR>1?'nt':''} l’import, ${nF} fausserai${nF>1?'en':''}t les chiffres.`
     :nR?`${pl2(nR,'point bloque','points bloquent')} l’import.`:`${pl2(nF,'point fausserait','points fausseraient')} les chiffres une fois importé${nF>1?'s':''}.`;
-  const nX=R.rows?B.filter(g=>g.some(i=>fixKind(i))).length:0;
-  const how=nX&&nX===B.length?(B.length>1?' Tous se corrigent ici, sans nouvel export.':' Il se corrige ici, sans nouvel export.')
-    :(W.length===1&&W[0]!=='source'?(W[0]==='odoo'?' À régler dans Odoo avant l’import.':' À régler dans Odoo après l’import.'):'')+(nX?` ${nX>1?nX+' se corrigent':'L’un d’eux se corrige'} ici.`:'')+(P.delay?' Nouvel export du client à prévoir : souvent plusieurs jours.':'');
+  // Où se règle chaque point : ici, dans Odoo avant ou après l’import, ou chez le client
+  const here=g=>g.every(i=>fixHere(R,i)),nX=B.filter(here).length,rest=B.filter(g=>!here(g));
+  const cnt=w=>rest.filter(g=>g[0]._k.where===w).length,nO=cnt('odoo'),nA2=cnt('after'),nS=cnt('source');
+  const vb=(n,one,many)=>n>1?many:one;
+  const parts=[nX?`${nX} ${vb(nX,'se corrige','se corrigent')} ici`:'',nO?`${nO} ${vb(nO,'se règle','se règlent')} dans Odoo avant l’import`:'',nA2?`${nA2} ${vb(nA2,'se règle','se règlent')} dans Odoo juste après l’import`:'',nS?`${nS} ${vb(nS,'est à corriger','sont à corriger')} par le client`:''].filter(Boolean);
+  let how;
+  if(nX===B.length)how=B.length>1?' Tous se corrigent ici, sans nouvel export.':' Il se corrige ici, sans nouvel export.';
+  else if(parts.length===1)how=nO===B.length?' À régler dans Odoo avant l’import.':nA2===B.length?' À régler dans Odoo juste après l’import.':'';
+  else{const t=parts.join(', ').replace(/, ([^,]*)$/,' et $1');how=' '+t.charAt(0).toUpperCase()+t.slice(1)+'.';}
+  if(P.delay)how+=' Nouvel export du client à prévoir : souvent plusieurs jours.';
   return esc(what+how);
 }
 /* ---------- Corriger ici ----------
