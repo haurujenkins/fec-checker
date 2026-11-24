@@ -1647,6 +1647,8 @@ const plural=l=>/s$/.test(l)?l:l+'s';
 const concerned=l=>`${plural(l)} concerné${FEM.has(l)?'e':''}s`;
 const fmtP=s=>String(s).replace(/\b(\d{4})(\d{2})(\d{2})\b/g,'$3/$2/$1'); // AAAAMMJJ → JJ/MM/AAAA, pour l’affichage
 const chips=(a,max)=>a.slice(0,max).map(x=>`<li>${esc(x)}</li>`).join('')+(a.length>max?`<li class="more-n">+ ${(a.length-max).toLocaleString('fr-FR')}</li>`:'');
+// Point corrigeable dans la page : la consigne « à la source » dit aussi qu’on peut le faire ici
+const howHere=k=>{if(!k._here||k.how.some(h=>/Corriger ici/.test(h)))return k.how;const x=k.how.findIndex(h=>/logiciel d’origine|à la source|export/.test(h));return x<0?k.how:k.how.map((h,j)=>j===x?h+' Ou directement ici, juste en dessous.':h);};
 function issueHTML(i,noLines){
   const k=i._k||classify(i);
   const tech=i.desc&&i.desc!==k.why;
@@ -1655,7 +1657,7 @@ function issueHTML(i,noLines){
   const info=[k.why?`<span class="tp">${esc(k.why)}</span>`:'',k.where==='auto'&&k.how&&k.how.length?`<span class="tp">${k.how.map(esc).join(' ')}</span>`:'',tech?`<span class="tp tq"><b>Constat technique.</b> ${esc(i.desc)}</span>`:''].join('');
   return `<article class="item ${k.where}"${i._vr!=null?` id="iss-${i._vr}-${i._vx}"`:''}>
 <div class="ihead"><h4>${esc(k.t)}${i._dup?` <small class="dup">${esc(i._dup)}</small>`:''}${k.n?` <span class="count">${k.n.toLocaleString('fr-FR')}</span>`:''}${info?' '+tip(info):''}</h4>${k.where==='auto'?`<span class="eff ok">${k.man?'Corrigé par votre saisie':'Réglé par le fichier de reprise'}</span>`:EFFECT[k.effect]?`<span class="eff ${k.effect}">${EFFECT[k.effect]}</span>`:''}${k.min&&k.where!=='auto'&&!k.check?`<span class="time">≈ ${fmtMin(k.min)}${k.delay?' + délai client':''}</span>`:''}</div>
-${k.where!=='auto'&&k.how&&k.how.length&&!k._noHow?`<ul class="how">${k.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
+${k.where!=='auto'&&k.how&&k.how.length&&!k._noHow?`<ul class="how">${howHere(k).map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
 ${see?`<p class="seefec"><button class="linkbtn" type="button" data-vsee="${i._vr}:${i._vx}">Voir ${i.label==='Ligne'?(i.lines.length>1?'ces lignes':'cette ligne'):'les lignes concernées'} dans le FEC</button></p>`:''}
 ${i.lines.length&&!noLines?`<details class="more"><summary>${esc(concerned(i.label))} (${i.lines.length.toLocaleString('fr-FR')})</summary><ul class="chips">${chips(i.lines,40)}</ul></details>`:''}
 </article>`;
@@ -1719,10 +1721,22 @@ const tip=h=>`<span class="tip"><button class="ib" type="button" aria-label="En 
 const pl2=(n,w,ws)=>`${n.toLocaleString('fr-FR')} ${n>1?(ws||w+'s'):w}`;
 // Bloque ou fausse, et le fichier de reprise ne le règle pas : où qu’il faille agir (source, Odoo avant ou après), c’est le niveau 1, comme dans le filtre de la Lecture
 const BLK=i=>['bloque','fausse'].includes(i._k.effect);
-const blockers=P=>{const by={};for(const i of jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK))))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
+// Écart d’une écriture (débit − crédit, en centimes) dit en clair
+const gapTxt=d=>`il manque ${fmtE(Math.abs(d))} € au ${d>0?'crédit':'débit'}`;
+// Une ligne « débit et crédit » qui explique à elle seule l’écart d’une écriture déséquilibrée n’est pas un second point : la corriger équilibre l’écriture
+function sameAsUnbal(R,P,i){
+  if(!R||!R.rows||R.rows.length<2||!/^Débit et Crédit tous deux renseignés/.test(i.title))return false;
+  const U=['source','odoo','after'].flatMap(w=>P.g[w]).filter(u=>BLK(u)&&(fixKind(u)||{}).m==='bal');if(!U.length)return false;
+  const I=rowsIndex(R),CI=curIndex(R),val=(n,k)=>{const c=parseAmt(curVal(R,I,n,k));return isNaN(c)?0:c;};
+  const un=new Set(U.flatMap(u=>u.lines.flatMap(x=>vResolve('Écriture',String(x),I.by)))),rows=issRows(R,i);
+  return rows.length>0&&rows.every(n=>{const g=(CI&&CI.rows.get(CI.key.get(n)))||I.by.e.get(I.ekey[n-1])||[n];if(!g.some(m=>un.has(m)))return false;
+    const d=g.reduce((t,m)=>t+val(m,'Debit')-val(m,'Credit')+addsOf(R,m).reduce((u,a)=>u+(parseAmt(a.Debit)||0)-(parseAmt(a.Credit)||0),0),0);
+    return d!==0&&(d===val(n,'Debit')||-d===val(n,'Credit'));});
+}
+const blockers=(P,R)=>{const by={};for(const i of jFirst(['source','odoo','after'].flatMap(w=>P.g[w].filter(BLK))))if(!sameAsUnbal(R,P,i))(by[i._k.t]=by[i._k.t]||[]).push(i);return Object.values(by);};
 function vSub(R,P){
-  const B=blockers(P),nA=P.g.auto.length;
-  if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?`Rien ne bloque l’import : ${P.g.auto.some(i=>i._k.man)?'vos corrections et le fichier de reprise règlent':'le fichier de reprise règle'} ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`:'Rien ne bloque l’import.');
+  const B=blockers(P,R),nA=P.g.auto.length;
+  if(!B.length)return esc(nA&&P.title!=='Importable tel quel'?(P.g.auto.some(i=>i._k.man)?'Rien ne bloque plus l’import : vos corrections sont dans le fichier de reprise.':`Rien ne bloque l’import : le fichier de reprise règle ${nA>1?`les ${nA} points relevés`:'le point relevé'}.`):'Rien ne bloque l’import.');
   const nR=B.filter(g=>g[0]._k.effect==='bloque').length,nF=B.length-nR,W=[...new Set(B.map(g=>g[0]._k.where))];
   const what=nR&&nF?`${pl2(B.length,'point')} à régler avant l’import : ${nR} bloque${nR>1?'nt':''} l’import, ${nF} fausserai${nF>1?'en':''}t les chiffres.`
     :nR?`${pl2(nR,'point bloque','points bloquent')} l’import.`:`${pl2(nF,'point fausserait','points fausseraient')} les chiffres une fois importé${nF>1?'s':''}.`;
@@ -1873,9 +1887,11 @@ function fixHTML(R,i){
     // Une écriture coupée en deux par un code journal écrit autrement (même numéro, écarts opposés) est montrée d’un seul tenant
     const cut=new Map();for(let a=0;a<groups.length;a++){const ga=groups[a],ta=(CI?CI.tot.get(ck(ga[0])):I.tot.get(I.ekey[ga[0]-1]))||{},ea=gapOf(ga);if(!ea||!ta.en)continue;
       for(let b=a+1;b<groups.length;b++){const gb=groups[b],tb=(CI?CI.tot.get(ck(gb[0])):I.tot.get(I.ekey[gb[0]-1]))||{};if(tb.en===ta.en&&tb.jc!==ta.jc&&gapOf(gb)===-ea){cut.set(ga,gb);groups.splice(b,1);break;}}}
+    if(i.lines.length<=12)i._fxt=groups.length; // le titre compte les écritures telles qu’elles sont montrées (une écriture coupée en deux = une)
     body=groups.map(rows=>{const fk=I.ekey[rows[0]-1],key=CK?ck(rows[0]):fk,t=(CI?CI.tot.get(key):I.tot.get(fk))||{},anc=Math.max(...rows),half=cut.get(rows),allRows=half?[...rows,...half].sort((a,b)=>a-b):rows,adds=allRows.flatMap(m=>addsOf(R,m).map((a,j)=>({a,j,anc:m})));
       const diff=gapOf(rows);
       const P=diff?balSugg(R,I,rows,anc,diff,fk):[],spec=P.length>2,man=allRows.some(n=>edOf(R)[n])||adds.length>0,shown=allRows.slice(0,FIX_MAX);
+      if(!diff&&man)i._fxd=(i._fxd||0)+1;
       const msg='Écriture '+key+' corrigée dans le fichier de reprise.';
       const aIn=({a,j,anc},k)=>`<input type="text" class="fxi ed" id="fxa-${rid}-${anc}-${j}-${k}" data-addln="${anc}" data-addj="${j}" data-f="${k}" value="${esc(a[k]||'')}" data-v0="${esc(a[k]||'')}"${k==='CompteNum'?` placeholder="Compte"${a[k]?'':' aria-invalid="true"'}`:''} aria-label="${esc(FLAB[k])}, ligne ajoutée" inputmode="${k==='CompteNum'?'numeric':'decimal'}" autocomplete="off" spellcheck="false">`;
       // Lecture seule : l’écriture telle qu’elle partira dans le fichier de reprise, corrections visibles
@@ -1889,7 +1905,7 @@ function fixHTML(R,i){
       const li=x=>`<li><button class="sugl" type="button" data-act="${act(x.go,msg)}">${esc(x.t)}</button></li>`,rest=spec?P.slice(1):P;
       const direct=diff&&!spec; // aucune piste évidente : les champs sont montrés tout de suite
       const name=t.en?`Écriture ${esc(t.jc)} ${esc(t.en)}`:`Pièce ${esc(t.pr||'')} (journal ${esc(t.jc)})`;
-      return `<div class="fxg${diff?'':' ok'}" data-grp><p class="fxgt"><span><b>${name}</b>${t.ed?` du ${esc(showV('EcritureDate',t.ed))}`:''}</span><span class="fxgap${diff?'':' ok'}"${half?'':' data-gap'}>${half?'coupée en deux par le code journal':diff?`écart ${fmtE(diff)} €`:'✓ équilibrée'}</span>${!diff&&man?undoBtn(`data-ungrp="${rid}:${allRows.join(',')}"`):''}</p>
+      return `<div class="fxg${diff?'':' ok'}" data-grp><p class="fxgt"><span><b>${name}</b>${t.ed?` du ${esc(showV('EcritureDate',t.ed))}`:''}</span><span class="fxgap${diff?'':' ok'}"${half?'':' data-gap'}>${half?'coupée en deux par le code journal':diff?gapTxt(diff):'✓ équilibrée'}</span>${!diff&&man?undoBtn(`data-ungrp="${rid}:${allRows.join(',')}"`):''}</p>
 ${direct?form:view}${allRows.length>FIX_MAX?`<p class="fxnote">+ ${allRows.length-FIX_MAX} lignes : voir la Lecture du FEC.</p>`:''}
 ${spec?`<div class="fxp"><span>${esc(P[0].t)}</span><button class="btn primary sm" type="button" data-act="${act(P[0].go,msg)}">Appliquer</button></div>`:''}
 <div class="fxlinks">${rest.length?`<details class="fxmore" data-key="fxm-${rid}-${esc(key)}"><summary>${spec?pl2(rest.length,'autre piste','autres pistes'):'Autres pistes'}</summary><ul class="fxs">${rest.map(li).join('')}</ul></details>`:''}
@@ -1899,7 +1915,7 @@ ${direct?'':`<details class="fxmore" data-key="fxn-${rid}-${esc(key)}"><summary>
       const other=K.f.map(k=>`<label>${esc(FLAB[k])}${fxIn(R,I,n,k,null)}</label>`).join('');
       if(sg.length){const go=()=>sg.forEach(([k,s])=>setEd(R,I,n,k,s));all.push(go);
         return fxRow({who:whoL(n),chg:sg.map(([k,s])=>fxChg(k,curVal(R,I,n,k),s)).join(''),go,msg:`Ligne ${n} corrigée dans le fichier de reprise.`,other});}
-      if(dn.length)return fxRow({who:whoL(n),chg:dn.map(k=>fxChg(k,fileVal(R,I,n,k),E[k])).join(''),done:true,undo:undoBtn(`data-unrow="${rid}:${n}:${dn.join(',')}"`)});
+      if(dn.length){i._fxd=(i._fxd||0)+1;return fxRow({who:whoL(n),chg:dn.map(k=>fxChg(k,fileVal(R,I,n,k),E[k])).join(''),done:true,undo:undoBtn(`data-unrow="${rid}:${n}:${dn.join(',')}"`)});}
       return fxRow({who:whoL(n),chg:K.f.map(k=>`<span class="fxch"><span class="fxk">${esc(FLAB[k])}</span><b class="bad">${fxShow(k,curVal(R,I,n,k))}</b></span>`).join(''),other});}).join('')}</ul>${rows.length>FIX_MAX?`<p class="fxnote">+ ${rows.length-FIX_MAX} lignes : à corriger dans le logiciel d’origine, ou une à une depuis la Lecture du FEC.</p>`:''}`;}
   return `<div class="fixit" data-fix="${id}"><p class="fxh"><span><b>Corriger ici</b> <small>dans le fichier de reprise</small>${tip('La correction va dans le fichier de reprise, jamais dans le FEC d’origine. Elle est listée dans la table de correspondance (ancienne et nouvelle valeur) et doit être validée avec le client ou l’expert-comptable avant l’import.')}</span>${all.length>1?`<button class="btn sm" type="button" data-act="${act(()=>all.forEach(f=>f()),pl2(all.length,'correction appliquée','corrections appliquées')+' dans le fichier de reprise.')}">Appliquer les ${all.length} suggestions</button>`:''}</p>
 ${body}<span class="fxmsg" role="status"></span></div>`;
@@ -1959,15 +1975,16 @@ document.addEventListener('click',ev=>{const t=ev.target;if(!t.closest)return;le
 // Écart recalculé pendant la saisie des montants
 document.addEventListener('input',ev=>{const inp=ev.target;if(!inp.matches||!inp.matches('.fxg input[data-ln],.fxg input[data-addln]'))return;const g=inp.closest('[data-grp]');let s=0;
   for(const x of g.querySelectorAll('input[data-ln],input[data-addln]')){if(x.dataset.f==='CompteNum')continue;const c=parseAmt(x.value);if(!isNaN(c))s+=x.dataset.f==='Debit'?c:-c;}
-  const gap=g.querySelector('[data-gap]');gap.textContent=s?`écart ${fmtE(s)} €`:'✓ équilibrée';gap.classList.toggle('ok',!s);});
+  const gap=g.querySelector('[data-gap]');gap.textContent=s?gapTxt(s):'✓ équilibrée';gap.classList.toggle('ok',!s);});
 document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.matches&&ev.target.matches('.fixit input')){ev.preventDefault();fixSave(ev.target.closest('.fixit'));}});
 function levelsHTML(R,P,useAlt){
-  const B=blockers(P),F=R._fix;
-  const row=g=>{const i=g[0],k=i._k,n=g.reduce((t,x)=>t+x._k.n,0),min=g.reduce((t,x)=>t+x._k.min,0);
-    const fx=g.map(x=>fixHTML(R,x));
+  const B=blockers(P,R),F=R._fix;
+  const row=g=>{const i=g[0],k=i._k,min=g.reduce((t,x)=>t+x._k.min,0);
+    const fx=g.map(x=>{delete x._fxd;delete x._fxt;return fixHTML(R,x);}),dn=g.reduce((t,x)=>t+(x._fxd||0),0),n=g.reduce((t,x)=>t+(x._fxt||x._k.n),0);
+    g.forEach((x,ix)=>{x._k._here=!!fx[ix];});
     const H=new Set();g.forEach(x=>{const h=(x._k.how||[]).join('|');if(H.has(h))x._k._noHow=true;else{H.add(h);delete x._k._noHow;}});
-    return `<details class="bitem" data-key="b-${R._id}-${esc(k.t)}"><summary><span class="tt">${k.where!=='source'?`<span class="wtag ${k.where}">${{odoo:'Dans Odoo, avant',after:'Dans Odoo, après'}[k.where]}</span>`:''}${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}</small>`:''}</span>${fx.some(Boolean)?'<span class="fixable">✎ Corriger ici</span>':`<em>${min?'≈ '+fmtMin(min):''}</em>`}</summary><div class="bbody">${g.map((x,ix)=>issueHTML(x,!!fx[ix])+fx[ix]).join('')}</div></details>`;};
-  const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>À corriger avant l’import${B.length?` <span class="count">${B.length}</span>${tip('Le fichier de reprise ne règle pas ces points : à corriger dans le logiciel du client, ou dans Odoo quand c’est indiqué. Cliquer sur un point pour savoir quoi faire.')}`:''}</h3>
+    return `<details class="bitem" data-key="b-${R._id}-${esc(k.t)}"><summary><span class="tt">${k.where!=='source'?`<span class="wtag ${k.where}">${{odoo:'Dans Odoo, avant',after:'Dans Odoo, après'}[k.where]}</span>`:''}${esc(k.t)}${n?` <small>${pl2(n,i.label.toLowerCase())}${dn?`, ${dn} déjà corrigé${FEM.has(i.label)?'e':''}${dn>1?'s':''}`:''}</small>`:''}</span>${fx.some(Boolean)?'<span class="fixable">✎ Corriger ici</span>':`<em>${min?'≈ '+fmtMin(min):''}</em>`}</summary><div class="bbody">${g.map((x,ix)=>issueHTML(x,!!fx[ix])+fx[ix]).join('')}</div></details>`;};
+  const l1=!B.length&&!useAlt?'':`<section class="lvl l1"><h3><span class="ln"></span>À corriger avant l’import${B.length?` <span class="count">${B.length}</span>${tip('Le fichier de reprise ne règle pas ces points tout seul. Ils se corrigent ici quand « Corriger ici » est proposé, sinon dans le logiciel du client, ou dans Odoo quand c’est indiqué. Cliquer sur un point pour savoir quoi faire.')}`:''}</h3>
 ${B.length?`${[['bloque','Odoo refuse le fichier'],['fausse','Odoo importe, mais les chiffres seront faux']].map(([e,t])=>{const G=B.filter(g=>g[0]._k.effect===e);return G.length?`<p class="bsub ${e}">${t}</p><div class="blist">${G.map(row).join('')}</div>`:'';}).join('')}`:`<p class="okline">✓ Rien ne bloque l’import dans Odoo.</p>`}
 ${(n=>n&&B.length?`<p class="mandone"><span class="okm">✓</span> ${pl2(n,'point déjà corrigé ici','points déjà corrigés ici')} <button class="linkbtn" type="button" data-goman="${R._id}">Voir ou annuler</button></p>`:'')(P.g.auto.filter(i=>i._k.man).length)}
 ${useAlt?`<details class="plan-b"><summary><b>Plus rapide :</b> repartir d’une balance d’ouverture (≈ ${fmtMin(15+Math.ceil(R._open.missing.length/5))}), sans l’historique détaillé</summary>${altHTML(R,P)}</details>`:''}</section>`;
@@ -2069,7 +2086,7 @@ function altHTML(R,P){
 <p>Au lieu de tout l’historique, on importe dans Odoo les soldes au ${o.date.split('-').reverse().join('/')} : une seule écriture d’ouverture. ${o.openItems?`Clients et fournisseurs sont repris pièce par pièce (${o.openItems} pièces non lettrées, avec leur date), pour garder relances et balance âgée.`:'Clients et fournisseurs sont repris par tiers.'} Les comptes de charges et produits ne sont pas repris : leur solde net va au résultat de l’exercice (120 / 129). C’est la reprise la plus rapide quand l’historique détaillé n’est pas indispensable dans Odoo.</p>
 <p class="legal">À faire valider par l’expert-comptable : la balance d’ouverture doit reprendre exactement la balance de clôture validée.</p>
 <dl class="kv"><div><dt>Lignes</dt><dd>${o.lines}</dd></div><div><dt>Tiers</dt><dd>${o.partners}</dd></div><div><dt>Résultat de l’exercice</dt><dd>${fmtE(-o.res)} €</dd></div><div><dt>Temps estimé</dt><dd>≈ ${fmtMin(15+Math.ceil(o.missing.length/5))}</dd></div></dl>
-${ok?'':`<p class="warnline">La balance n’est pas équilibrée (écart ${fmtE(o.tot)} €) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
+${ok?'':`<p class="warnline">La balance n’est pas équilibrée (${gapTxt(o.tot)}) : le fichier contient des écritures déséquilibrées. Odoo refusera l’import tant que l’écart n’est pas soldé sur un compte d’attente (471000) validé avec le client.</p>`}
 <ol class="howto">
 <li>Importer d’abord les tiers : Comptabilité → Clients → Clients, ⋮ → Importer, fichier <b>tiers.xlsx</b> (nom, référence).</li>
 ${o.missing.length?`<li>Créer les comptes absents de la base : ${o.missing.slice(0,12).map(esc).join(', ')}${o.missing.length>12?` … (+${o.missing.length-12})`:''}.</li>`:''}
@@ -2135,8 +2152,10 @@ function render(reports){
     const seen={};for(const i of R.issues){(seen[i._k.t]=seen[i._k.t]||[]).push(i);}for(const a of Object.values(seen))if(a.length>1)for(const i of a){const c=i.title.match(/^[A-Z][A-Za-z]+(?= )/);i._dup=c?c[0]:'';}
     const changes=R._fix?Object.entries(R._fix.changes):[];
     const steps=[];
-    if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(Object.values(R._fix.changes).some(v=>v.kind==='map'||v.kind==='man')?' et faire valider les correspondances':''),P.autoMin+(Object.values(R._fix.changes).some(v=>v.kind==='map'||v.kind==='man')?10:0)]);
-    if(P.g.source.length)steps.push(['source','Envoyer au client les points à corriger ou vérifier, puis relire son retour',10]);
+    // Validation des correspondances et des saisies : un seul échange avec le client, compté une fois
+    const chv=R._fix?Object.values(R._fix.changes):[],mp=chv.some(v=>v.kind==='map'||v.kind==='man'),hasMan=chv.some(v=>v.kind==='man'),send=P.g.source.length>0;
+    if(changes.length)steps.push(['auto','Télécharger le fichier de reprise'+(mp&&!send?' et faire valider les correspondances':''),P.autoMin+(mp&&!send?10:0)]);
+    if(send)steps.push(['source','Envoyer au client les points à corriger ou vérifier'+(mp?' et les correspondances à valider':'')+', puis relire son retour',10]);
     if(P.g.odoo.length)steps.push(['odoo','Préparer la base Odoo',P.m.odoo]);
     steps.push(['import','Importer dans Odoo (assistant Import FEC) et comptabiliser',10]);
     if(P.g.after.length)steps.push(['after','Reprendre les points après import',P.m.after]);
@@ -2145,7 +2164,7 @@ function render(reports){
     const shownSteps=useAlt?[['auto','Importer les tiers (tiers.xlsx)',5],['odoo','Créer les comptes absents de la base'+(R._open.missing.length?` (${R._open.missing.length})`:''),Math.ceil(R._open.missing.length/5)],['import','Importer la balance d’ouverture et la comptabiliser',5],['after','Contrôler la balance Odoo contre celle du logiciel d’origine',5]].filter(s=>s[2]):steps;
         html+=`<div class="report" id="rep-${R._id}">${multi?`<h2 class="rname">${esc(R.name)} <small>· ${esc(fmtP(S.periode))}</small></h2>`:''}
 <section class="verdict ${P.level}"><div class="vmain"><p class="eyebrow">Verdict pour l’import dans Odoo</p><h2>${esc(P.title)}</h2><p>${vSub(R,P)}</p></div>
-<div class="vtime"><span>Temps estimé${tip('Votre temps : réglages dans Odoo, import, vérifications après l’import, échange avec le client. Le temps du client pour corriger à la source n’est pas compté.')}</span><b>≈ ${fmtMin(total)}</b>${P.client?'<small>+ délai du client</small>':''}</div></section>
+<div class="vtime"><span>Temps estimé${tip('Votre temps : réglages dans Odoo, import, vérifications après l’import, échange avec le client. Le temps du client pour corriger à la source n’est pas compté.')}</span><b>≈ ${fmtMin(total)}</b>${hasMan?'<small>validation de vos corrections comprise</small>':''}${P.client?'<small>+ délai du client</small>':''}</div></section>
 ${levelsHTML(R,P,useAlt)}
 <details class="block detail lvl3"><summary>${l3Sum(R,P)}</summary><div class="detailin">
 ${R.dgfip&&!R.dgfip.rej.size?fiscHTML(R):''}
@@ -2153,7 +2172,7 @@ ${l3Items(R,P)}
 <ol class="route">${(useAlt?steps:shownSteps).map(([w,t,m])=>`<li class="${w}"><span>${esc(t)}</span><em>${m?'≈ '+fmtMin(m):''}</em></li>`).join('')}</ol>
 ${useAlt?'':''}${changes.length?(()=>{const F=R._fix,I=F.integrity,fm=changes.filter(([k,v])=>v.kind==='fmt'),mp=changes.filter(([k,v])=>v.kind==='map'||v.kind==='man'),op=changes.filter(([k,v])=>v.kind==='opt'),Dr=I.dropped;const li=a=>a.map(([k,v])=>`<li>${esc(k)} <span class="count">${v.n.toLocaleString('fr-FR')}</span></li>`).join('');
 return `<section class="fixbox"><div class="fixmain"><h3>Fichier de reprise pour Odoo</h3>
-<p>Le même contenu que le FEC, écrit comme Odoo l’attend. ${A?`Avec ce fichier : <span class="vpill ${A.level}">${esc(A.title)}</span>${A.g.source.length?` · il reste ${A.g.source.length} point${A.g.source.length>1?'s':''} à corriger à la source`:''}`:''}</p>
+<p>Le même contenu que le FEC, écrit comme Odoo l’attend. ${A?`Avec ce fichier : <span class="vpill ${A.level}">${esc(A.title)}</span>${(b=>b?` · il reste ${pl2(b,'point')} à régler avant l’import`:'')(blockers(P,R).length)}`:''}</p>
 <div class="chg">${fm.length?`<div><p class="hl">Écriture technique <span>mêmes valeurs, autre présentation</span></p><ul>${li(fm)}</ul></div>`:''}${op.length?`<div><p class="hl">Options choisies <span>import de plusieurs exercices</span></p><ul>${li(op)}</ul></div>`:''}${mp.length?`<div class="map"><p class="hl">Correspondances de reprise <span>à valider avec l’expert-comptable</span></p><ul>${li(mp)}</ul>${F.corr.length?'<p class="note">Chaque changement est listé ligne par ligne dans la table de correspondance.</p>':''}</div>`:''}</div>
 <div class="integ ${I.ok?'ok':'bad'}"><p class="hl">${I.ok?'✓ Contrôle d’intégrité réussi':'✕ Contrôle d’intégrité en échec : fichier bloqué'}</p><dl class="kv"><div><dt>Lignes</dt><dd>${I.lines.toLocaleString('fr-FR')}</dd></div><div><dt>Total débit</dt><dd>${fmtE(I.debit-(Dr?Dr.d:0))} €</dd></div><div><dt>Total crédit</dt><dd>${fmtE(I.credit-(Dr?Dr.c:0))} €</dd></div></dl><p>${I.ok&&I.man?`Identiques au fichier d’origine, au centime, aux corrections saisies près (${[I.man.n?pl2(I.man.n,'valeur'):'',I.man.add?pl2(I.man.add,'ligne ajoutée','lignes ajoutées'):''].filter(Boolean).join(', ')}${I.man.d||I.man.c?` : ${I.man.d?(I.man.d>0?'+':'')+fmtE(I.man.d)+' € au débit':''}${I.man.d&&I.man.c?', ':''}${I.man.c?(I.man.c>0?'+':'')+fmtE(I.man.c)+' € au crédit':''}`:''}). Rien d’autre n’a été modifié.`:I.ok?(Dr?`Identiques au fichier d’origine, au centime, une fois retirés les à-nouveaux (${Dr.n.toLocaleString('fr-FR')} lignes, ${fmtE(Dr.d)} € au débit et au crédit). Aucun montant, sens, date d’écriture ni devise n’a été modifié.`:'Identiques au fichier d’origine, au centime. Aucun montant, sens, date d’écriture ni devise n’a été modifié.'):`Le fichier d’origine compte ${I.srcLines} lignes, ${fmtE(I.srcDebit)} € au débit et ${fmtE(I.srcCredit)} € au crédit.`}</p></div>
 ${F.left.length?`<p class="warnline">Laissé tel quel : ${F.left.slice(0,4).map(esc).join(' ; ')}${F.left.length>4?` … (+${F.left.length-4})`:''}</p>`:''}
@@ -2431,7 +2450,7 @@ function vDetail(n){
   const k=X.ekey[n-1],t=X.tot.get(k);
   $('vDlgT').textContent=`Ligne ${n} du fichier`;
   $('vDlgB').innerHTML=(f.length?`<h4>${f.length} constat${f.length>1?'s':''} sur cette ligne</h4>${f.map(id=>{const o=X.iss[id];return `<div class="vci l${o.lvl}"><b>${esc(o.k.t)}</b>${EFFECT[o.k.effect]?`<span class="eff ${o.k.effect}">${EFFECT[o.k.effect]}</span>`:''}${o.k.why?`<p>${esc(o.k.why)}</p>`:''}<div class="btns"><button class="linkbtn" type="button" data-vgo="${V.rid}:${o.ix}">Voir dans le rapport</button>${V.iss!==id?`<button class="linkbtn" type="button" data-vfilter="${id}">Afficher les ${o.rows.length.toLocaleString('fr-FR')} lignes de ce constat</button>`:''}</div></div>`;}).join('')}`:'<p class="vnote">Aucun constat sur cette ligne.</p>')
-   +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':`, écart ${fmtE(t.d-t.c)}.`}</p>`:'')
+   +(t?`<p class="vnote">Écriture ${esc(k)} : ${t.n} ligne${t.n>1?'s':''}, débit ${fmtE(t.d)}, crédit ${fmtE(t.c)}${t.d===t.c?', équilibrée.':` : ${gapTxt(t.d-t.c)}.`}</p>`:'')
    +`<h4>Champs tels qu’écrits dans le fichier</h4><dl class="vfields">${EXPECTED.map((nm,i)=>{const p=X.bnc&&(nm==='Debit'||nm==='Credit')?(nm==='Debit'?11:12):X.F[nm];const v=p>=0?String(r[p]??''):'';const lab=X.bnc&&p===11?'Montant':X.bnc&&p===12?'Sens':nm;return `<div style="display:contents"><dt>${lab}</dt><dd>${cs.has(nm)?`<span class="hl l${X.lvlOf(n)}">${esc(v)||'(vide)'}</span>`:esc(v)||'<span class="vnote">(vide)</span>'}</dd></div>`;}).join('')}</dl>`
    +(()=>{const I=rowsIndex(R),E=edOf(R)[n]||{},ne=Object.keys(E).length;
      return `<details class="vfix"${ne?' open':''}><summary>✎ Corriger cette ligne${ne?` <small>(${pl2(ne,'valeur corrigée','valeurs corrigées')})</small>`:''}</summary><div class="fixit" data-fix="${V.rid}:-1"><p class="fxhint">La valeur saisie va dans le fichier de reprise, jamais dans le FEC d’origine, et doit être validée avec le client. Dates au format JJ/MM/AAAA.</p><div class="fxgrid">${EXPECTED.map(k=>`<label><span>${esc(FLAB[k])}</span>${fxIn(R,I,n,k,suggest(R,I,n,k))}</label>`).join('')}</div><p class="fxbtns"><button class="btn primary sm" type="button" data-fixsave="1">Enregistrer</button><span class="fxmsg" role="status"></span></p></div></details>`;})();
